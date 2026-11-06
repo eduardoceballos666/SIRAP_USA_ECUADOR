@@ -5,7 +5,7 @@
 
 **Aplicación web para apoyar el control de acceso vehicular en garitas.**
 
-[Aplicación en vivo](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) · [Manual de usuario](docs/manual_usuario.md) · [API interactiva](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) · [Notebook principal](notebooks/SIRAP_backend.ipynb)
+[Aplicación en vivo](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) · [Manual de usuario](docs/manual_usuario.md) · Swagger en la ruta `/docs` del Space · [Notebook principal](notebooks/SIRAP_backend.ipynb)
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
@@ -61,13 +61,13 @@ SIRAP USA Ecuador se publica en dos lugares con propósitos distintos:
 | Plataforma | Contenido |
 |---|---|
 | [GitHub: SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) | Código fuente, notebooks, modelos, datos de evaluación, métricas, documentación y configuración de despliegue |
-| [Hugging Face Space: SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) | Aplicación web desplegada |
-| [Abrir la aplicación](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) | Acceso al Space de Hugging Face |
+| [Hugging Face Space: SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) | Aplicación web desplegada |
+| [Abrir la aplicación](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) | Acceso al Space de Hugging Face |
 | Swagger | La API interactiva estará disponible en la ruta `/docs` de la aplicación desplegada |
 
 ### Uso de la aplicación desplegada
 
-1. Abre el [Space SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF).
+1. Abre el [Space SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF).
 2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
 3. Inicia sesión con una cuenta habilitada. La contraseña se configura mediante `SIRAP_DEMO_PASSWORD`; si el secreto no está definido, la API usa el valor predeterminado configurado en `api/settings.py`. Para el Space público, configura explícitamente un valor propio.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
@@ -111,7 +111,7 @@ Los cambios a registros existentes y la administración de listas están restrin
 
 ### API REST
 
-La API publica documentación interactiva en [Swagger](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF). Los principales endpoints son:
+La API publica documentación interactiva en [Swagger](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Los principales endpoints son:
 
 | Endpoint | Acceso | Función |
 |---|---|---|
@@ -151,7 +151,7 @@ La aplicación consulta servicios públicos para obtener datos complementarios d
 | [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) | Dataset de detección con 10.125 imágenes: 7.057 de entrenamiento, 2.048 de validación y 1.020 de prueba; licencia CC BY 4.0 |
 | [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Recortes de placas ecuatorianas para revisar OCR. El registro consultado no muestra una licencia para el archivo específico usado; revisar sus condiciones antes de redistribuirlo |
 | Imágenes de garita | 21 imágenes y ground_truth.csv incluidos en garita/ para la evaluación por imagen 7.3 |
-| Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
+| Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
 | Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
 | Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
 
@@ -324,7 +324,7 @@ El código de SIRAP se distribuye bajo [MIT](LICENSE). Los pesos entrenados con 
 
 Gracias a Gladys María Villegas Rugel por la asesoría académica, a la empresa que autorizó la toma de imágenes de garita y a los docentes del programa.
 
-- [Aplicación desplegada](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF)
+- [Aplicación desplegada](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - [Repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
 - [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 
