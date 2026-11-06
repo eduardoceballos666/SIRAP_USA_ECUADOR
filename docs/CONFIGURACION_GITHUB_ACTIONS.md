@@ -19,7 +19,7 @@ No guardes esos valores en este archivo ni en el código.
 
 El despliegue apunta a [`eduardoceballos/SIRAP_USA_ECUADOR_HF`](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El identificador está fijado en el workflow y en el valor predeterminado del script; no hace falta crear la variable `HF_SPACE`.
 
-El workflow de despliegue se inicia manualmente desde **Actions**. Antes de ejecutarlo, confirma que `HF_TOKEN` tenga permiso de escritura sobre ese Space. También revisa que `SIRAP_DATA_GITHUB_TOKEN` tenga acceso al repositorio privado de persistencia configurado en el workflow.
+El workflow despliega automáticamente los cambios relevantes a `main`; también puedes iniciarlo manualmente desde **Actions**. Antes de ejecutarlo, confirma que `HF_TOKEN` tenga permiso de escritura sobre ese Space. También revisa que `SIRAP_DATA_GITHUB_TOKEN` tenga acceso al repositorio privado de persistencia configurado en el workflow.
 
 ## Workflows
 
