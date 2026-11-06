@@ -33,7 +33,7 @@ IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
 
 def main() -> None:
     token = os.environ["HF_TOKEN"]
-    space = os.environ.get("HF_SPACE") or "eduardoceballos/sirap"
+    space = os.environ.get("HF_SPACE") or "eduardoceballos/SIRAP_USA_ECUADOR_HF"
     data_token = os.environ.get("SIRAP_DATA_GITHUB_TOKEN")
     data_repo = os.environ.get("SIRAP_DATA_GITHUB_REPO") or "eduardoceballos666/SIRAP_datos_privados"
     if not data_token:
