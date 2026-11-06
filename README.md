@@ -213,7 +213,7 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 
 ```bash
 git clone https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR.git
-cd SIRAP_2
+cd SIRAP_USA_ECUADOR
 
 python -m venv .venv
 source .venv/bin/activate                 # Windows: .venv\Scripts\activate
