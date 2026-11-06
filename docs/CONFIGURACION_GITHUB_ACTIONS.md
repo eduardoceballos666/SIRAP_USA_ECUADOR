@@ -15,15 +15,11 @@ En **Settings → Secrets and variables → Actions → New repository secret**,
 
 No guardes esos valores en este archivo ni en el código.
 
-## Variable requerida
+## Space de Hugging Face
 
-En **Settings → Secrets and variables → Actions → Variables → New repository variable**, configura:
+El despliegue apunta a [`eduardoceballos/SIRAP_USA_ECUADOR_HF`](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El identificador está fijado en el workflow y en el valor predeterminado del script; no hace falta crear la variable `HF_SPACE`.
 
-| Nombre | Valor |
-|---|---|
-| `HF_SPACE` | Identificador del Space creado para SIRAP_USA_ECUADOR. |
-
-No copies el destino del Space original sin comprobarlo. El workflow de despliegue de este repositorio se dejó en modo manual para evitar publicar accidentalmente sobre el Space de SIRAP. Comprueba también el valor de `SIRAP_DATA_GITHUB_REPO` en el workflow antes de desplegar.
+El workflow de despliegue se inicia manualmente desde **Actions**. Antes de ejecutarlo, confirma que `HF_TOKEN` tenga permiso de escritura sobre ese Space. También revisa que `SIRAP_DATA_GITHUB_TOKEN` tenga acceso al repositorio privado de persistencia configurado en el workflow.
 
 ## Workflows
 
