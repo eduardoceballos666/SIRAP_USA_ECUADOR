@@ -19,7 +19,7 @@ jobs:
       - name: Subir al Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
+          HF_SPACE: eduardoceballos/SIRAP_USA_ECUADOR_HF
           SIRAP_JWT_SECRET: ${{ secrets.SIRAP_JWT_SECRET }}
           SIRAP_DEMO_PASSWORD: ${{ secrets.SIRAP_DEMO_PASSWORD }}
           SIRAP_DATA_GITHUB_TOKEN: ${{ secrets.SIRAP_DATA_GITHUB_TOKEN }}
