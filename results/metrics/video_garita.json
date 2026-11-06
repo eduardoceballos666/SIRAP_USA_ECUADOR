@@ -1,0 +1,27 @@
+{
+  "modelo": "YOLO11-s",
+  "video": "video_camiones.mp4 (garita real; no se publica)",
+  "cuadros": 18115,
+  "imgsz": 1280,
+  "fps_pipeline": 61.75,
+  "det_ms_media": 14.48,
+  "track_ms_media": 0.46,
+  "ocr_llamadas": 225,
+  "ocr_ms_media": 83.8,
+  "tracks_confirmados": 52,
+  "placas_leidas": 52,
+  "formato_valido": 25,
+  "ms_por_decision": 99.21,
+  "estados": {
+    "AUTORIZADO": 17,
+    "NO_REGISTRADO": 2,
+    "VERIFICACION_MANUAL": 33
+  },
+  "sri": {
+    "encontrada": 19,
+    "no_encontrada": 3
+  },
+  "nota": "Corrida operativa anterior: estos conteos y tiempos no son los de la corrida final 6.9/7.2. No contiene métricas de exactitud. Para los resultados finales por intervalos, consultar results/metrics/video_e2e_intervalos_final.json.",
+  "fuente": "Notebook SIRAP_backend.ipynb, preset «completo» (Ultralytics 8.4.177, GPU NVIDIA L4)",
+  "estado": "Corrida operativa anterior; sus 52 lecturas no son comparables con las 34 lecturas de la corrida final de evaluación."
+}

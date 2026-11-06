@@ -1,0 +1,2 @@
+# Requisitos de producción para la API; las pruebas se instalan desde requirements-dev.txt.
+-r ../requirements.txt

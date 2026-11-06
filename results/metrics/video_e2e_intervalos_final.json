@@ -1,0 +1,26 @@
+{
+  "notebook": "notebooks/SIRAP_backend.ipynb",
+  "secciones": [
+    "6.9",
+    "7.2"
+  ],
+  "referencia": "blind_eval/video_ground_truth.csv",
+  "cuadros_procesados": 18115,
+  "lecturas_pipeline": 51,
+  "lecturas_con_referencia": 30,
+  "lecturas_sin_referencia": 21,
+  "emr_por_lectura": 0.6,
+  "lecturas_exactas": 18,
+  "placas_unicas_recuperadas": 16,
+  "placas_unicas_en_referencia": 17,
+  "recall_placas_unicas": 0.941176,
+  "falsas_autorizaciones_clasificables": 2,
+  "denominador_falsas_autorizaciones": 30,
+  "tasa_falsas_autorizaciones_video_completo": null,
+  "estado_tasa_falsas_autorizaciones": "NO_ESTIMABLE; 21 lecturas no tienen referencia",
+  "pasadas_referencia": 20,
+  "pasadas_placa_identificadas": 22,
+  "pasadas_dudosas_excluidas": 2,
+  "pasadas_fuera_del_tramo": 0,
+  "nota": "Reejecución más reciente: métricas sobre 30 lecturas comparables. Las otras 21 no tienen referencia; dos pasadas dudosas siguen excluidas. No se extrapolan las métricas al video completo."
+}

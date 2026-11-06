@@ -1,0 +1,93 @@
+{
+  "estado": "PROVISIONAL_NO_DEFINITIVO",
+  "fecha_utc": "2026-10-30",
+  "modelo_ocr": "fast-plate-ocr cct-s-v2-global-model",
+  "origen": "Salida OCR guardada en Drive privado; reevaluada sin nueva inferencia",
+  "revision_visual_asistida": {
+    "imagenes_representativas": 69,
+    "grupos_con_coincidencia": 67,
+    "grupos_ambiguos": 2,
+    "copias_de_grupos_revisados": 71,
+    "imagenes_ambiguas_excluidas": 4,
+    "referencias_camara_no_confirmadas_visualmente": 330
+  },
+  "previo": {
+    "n": 399,
+    "exactas": 374,
+    "emr": 0.9373433583959899,
+    "cer_medio": 0.01020408163265306
+  },
+  "despues_excluyendo_dos_grupos": {
+    "n": 397,
+    "exactas": 373,
+    "emr": 0.9395465994962217,
+    "cer_medio": 0.009895645915797049
+  },
+  "umbrales_offline": {
+    "0.94": {
+      "aceptadas": 362,
+      "exactas_aceptadas": 348,
+      "erroneas_aceptadas": 14,
+      "verificacion_manual": 35
+    },
+    "0.99": {
+      "aceptadas": 346,
+      "exactas_aceptadas": 334,
+      "erroneas_aceptadas": 12,
+      "verificacion_manual": 51
+    }
+  },
+  "limitaciones": [
+    "Dos grupos ambiguos todavía no tienen confirmación humana",
+    "Se cotejaron las predicciones OCR frente a las 330 referencias de cámara y se inspeccionaron visualmente 18 discrepancias; las 312 concordantes no fueron revisadas visualmente y ninguna cuenta con aprobación humana.",
+    "La diferencia de EMR se debe a excluir dos casos; no demuestra mejora de OCR",
+    "No es una prueba punta a punta en video ni valida la regla de dos cuadros",
+    "No se cambian los pesos publicados en Hugging Face ni el umbral operativo"
+  ],
+  "base_de_datos_analizada": {
+    "ground_truth_total": 739,
+    "legibles_originales": 472,
+    "no_legibles_originales": 267,
+    "legibles_unicas_previo": 399,
+    "legibles_unicas_excluyendo_ambiguedad": 397,
+    "predicciones_ocr_cacheadas": 666,
+    "duplicados_en_hoja": 73,
+    "referencias_camara_unicas": 330
+  },
+  "trazabilidad_sha256": {
+    "cache_ocr_csv": "3be02bd2d7e870cf086c8b3586fbc1f80ee281ce8f11a7f17ef274abe27657d4",
+    "referencia_anterior_csv": "f963fbfeb8b637f5da27d769b5ebe577c03d8b5343852395166bf8b8c0c9188a"
+  },
+  "archivos_privados_en_drive": [
+    "proyecto_integrador_placas/ocr/SIRAP2_auditoria_visual_OCR_397.xlsx",
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_revision_asistida_739.csv",
+    "proyecto_integrador_placas/ocr/SAVH_ground_truth_evaluable_397.csv",
+    "proyecto_integrador_placas/ocr/SAVH_metricas_OCR_revision_asistida_397.json",
+    "proyecto_integrador_placas/ocr/SAVH_dos_placas_por_confirmar.png",
+    "proyecto_integrador_placas/ocr/SAVH_pendientes_revision_4_imagenes.csv"
+  ],
+  "conjunto_para_aprobacion_humana": {
+    "grupos_restantes_para_confirmacion": 69,
+    "grupos_ambiguos_para_otra_revision": [
+      7,
+      52
+    ],
+    "columna_aprobacion_humana": "revision: ok o placa correcta",
+    "aprobaciones_humanas_registradas": 0
+  },
+  "metodo": "Recomputo offline usando predicciones OCR originales guardadas y referencias asistidas en Drive privado; no se reentrena ni se reejecuta el OCR.",
+  "auditoria_adicional_camara_ocr": {
+    "referencias_camara_unicas": 330,
+    "discrepancias_detectadas": 18,
+    "concordancias_ocr_camara_no_validadas_visualmente": 312,
+    "discrepancias_revisadas_en_recortes": 18,
+    "discrepancias_visual_preliminar_favorece_ocr": 14,
+    "discrepancias_visual_preliminar_favorece_camara": 3,
+    "discrepancias_ambiguas": 1,
+    "aprobaciones_humanas_nuevas": 0,
+    "validacion": "PRELIMINAR: cotejo visual asistido, no modifica etiquetas ni EMR definitivo",
+    "imagenes_privadas": "proyecto_integrador_placas/ocr/SAVH_desacuerdos_{1,2,3}.png",
+    "lista_privada": "proyecto_integrador_placas/ocr/SAVH_18_desacuerdos_por_confirmar.csv",
+    "hoja_google": "Revisión placas SAVH (142 legibles) > Auditoria camara OCR"
+  }
+}

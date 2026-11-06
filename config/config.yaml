@@ -1,0 +1,64 @@
+# =============================================================================
+# SIRAP – Configuración central
+# Todas las rutas son relativas a la raíz del repositorio.
+# NO van aquí: se leen de variables de entorno (ver .env.example).
+# =============================================================================
+
+app:
+  nombre: "SIRAP"
+  descripcion: "Sistema de Detección y Reconocimiento Automático de Placas"
+  zona_horaria: "America/Guayaquil"
+  garitas_por_defecto: ["Garita 1", "Garita 2", "Garita 3"]
+  max_tamano_imagen_mb: 10
+  min_lado_imagen_px: 160
+  formatos_imagen: ["jpg", "jpeg", "png", "webp"]
+
+detector:
+  # Pesos del YOLO11-s entrenado en el notebook (sección 3.2). Se busca en orden:
+  # Se intenta cargar ONNX (recomendado para el Space) y luego best.pt (requiere ultralytics).
+  pesos_onnx: "models/best_model.onnx"
+  pesos_pt: "models/best_model.pt"
+  imgsz_entrenamiento: 640
+  imgsz_inferencia: 640        # el notebook usa 1280 en el video de la garita (placas lejanas); 640 en imágenes cercanas
+  conf_minima: 0.25            # se reemplaza por el umbral calibrado en val (0.30) de results/metrics/umbrales.json
+  # Umbral de decisión del detector calibrado en val (precisión ≥ 95 %): por debajo → verificación manual.
+  conf_decision: 0.30
+  iou_nms: 0.7                 # NMS por defecto de Ultralytics (igual que en el notebook)
+  margen_recorte: 0.06         # margen alrededor de la caja antes del OCR (fracción del ancho/alto)
+
+ocr:
+  modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
+  dispositivo: "cpu"
+  # OCR afinado con placas ecuatorianas (notebooks/06_afinamiento_ocr.ipynb). Si ambos archivos existen, la app
+  # los usa en lugar del modelo del hub; si no, sigue con cct-s-v2-global-model.
+  onnx_afinado: "models/ocr_afinado.onnx"
+  plate_config_afinado: "models/ocr_afinado_plate_config.yaml"
+
+placas:
+  # Placas ecuatorianas: 3 letras + 3 o 4 dígitos; se escriben XXX-0000 (las de 3 dígitos se completan con 0).
+  patrones: [[3, 4], [3, 3]]
+
+decision:
+  # Confianza OCR = menor probabilidad entre los caracteres de la placa (como en el notebook).
+  # Umbral operativo elegido para el hosting con CPU limitada: 0.94 puede permitir confirmar antes
+  # la misma placa en dos cuadros y procesar menos cuadros; no reduce el costo de cada inferencia.
+  # Las lecturas inferiores o inconsistentes requieren validación manual.
+  umbral_confianza_ocr: 0.94
+  # Distancia de Levenshtein máxima para considerar que una lectura "casi coincide" con una placa registrada
+  # (posible error del OCR) → verificación manual en lugar de NO REGISTRADO.
+  distancia_max_similar: 1
+
+barrera:
+  # "simulada": registra la orden de apertura pero no mueve ningún dispositivo.
+  # "http": envía la orden a un controlador (relé/PLC) en la URL de BARRERA_URL con BARRERA_TOKEN.
+  modo: "simulada"
+  timeout_s: 3
+
+metas:
+  map50: 0.85
+  emr: 0.80
+  tiempo_e2e_s: 1.0
+
+logging:
+  nivel: "INFO"
+  archivo: "results/reports/sirap.log"
