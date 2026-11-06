@@ -1,5 +1,5 @@
 ---
-title: SIRAP
+title: SIRAP USA Ecuador
 emoji: 🚗
 colorFrom: yellow
 colorTo: blue
@@ -10,23 +10,23 @@ license: mit
 short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 ---
 
-# SIRAP · Sistema de Detección y Reconocimiento Automático de Placas
+# SIRAP USA Ecuador · Sistema de Detección y Reconocimiento Automático de Placas
 
 **Reconocimiento de placas y control de acceso (YOLO11 + OCR)**
 
-**Versión del producto: SIRAP 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_2) se mantienen en GitHub.
+**Versión del producto: SIRAP 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
 
 ## Acceso e idioma
 
-Abre la [aplicación SIRAP](https://eduardoceballos-sirap.hf.space). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
+Abre la [aplicación SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
 
 Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
 ## Despliegue
 
-El Space ejecuta la API FastAPI y la interfaz Vue 3 en un contenedor Docker, en el puerto 7860. El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/.github/workflows/deploy-hf-space.yml) publica al Space cuando hay cambios en `main` que coinciden con las rutas configuradas, y también permite iniciar el despliegue manualmente desde GitHub Actions. Los cambios solo en documentación fuera de `deploy/huggingface/`, notebooks o pruebas no activan el despliegue automático. El propio README de `deploy/huggingface/` sí coincide con una ruta incluida en el filtro del workflow, por lo que sus cambios en `main` pueden activar la publicación.
+Este repositorio publica la aplicación en el Space [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/.github/workflows/deploy-hf-space.yml) se ejecuta manualmente desde GitHub Actions. Si el Space aún no existe, el script intenta crearlo con el token de Hugging Face configurado.
 
-El workflow requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`. También puede recibir `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` como secretos opcionales. La variable de repositorio `HF_SPACE` permite indicar el destino; si no se configura, el script de despliegue usa `eduardoceballos/sirap`. El repositorio privado de datos se establece como `eduardoceballos666/SIRAP_datos_privados`.
+El despliegue requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` son opcionales. El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el workflow y como valor predeterminado del script. No se necesita la variable de Actions `HF_SPACE`.
 
 ## Persistencia y datos consultados
 
@@ -49,17 +49,17 @@ El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano
 
 ## Umbral y revisión humana
 
-La configuración vigente en [config/config.yaml](https://github.com/eduardoceballos666/SIRAP_2/blob/main/config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+La configuración vigente en [config/config.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
 
 La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
 
 ## Enlaces
 
-- **Hugging Face Space:** [SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- **Aplicación:** [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space)
-- **API interactiva:** [Swagger](https://eduardoceballos-sirap.hf.space/docs)
-- **Código fuente:** [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2)
-- **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_2/blob/main/docs/manual_usuario.md)
-- **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_2#videos-de-entrega)
+- **Hugging Face Space:** [SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- **Aplicación:** [eduardoceballos-sirap.hf.space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- **API interactiva:** ruta `/docs` de la aplicación desplegada
+- **Código fuente:** [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
+- **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
+- **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
 SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
