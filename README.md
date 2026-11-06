@@ -236,7 +236,7 @@ Para desarrollo de la interfaz, ejecuta npm run dev dentro de frontend/ y uvicor
 
 ### Variables y despliegue
 
-Los secretos se configuran fuera del código. El workflow manual publica específicamente en `eduardoceballos/SIRAP_USA_ECUADOR_HF`. Según el modo de ejecución, pueden incluir:
+Los secretos se configuran fuera del código. El workflow publica automáticamente los cambios relevantes en `main` al Space `eduardoceballos/SIRAP_USA_ECUADOR_HF` y también permite una ejecución manual. Según el modo de ejecución, pueden incluir:
 
 - SIRAP_JWT_SECRET para firmar sesiones.
 - SIRAP_DEMO_PASSWORD para las cuentas de demostración.
@@ -245,7 +245,7 @@ Los secretos se configuran fuera del código. El workflow manual publica especí
 - ROBOFLOW_API_KEY para descargar el dataset de Roboflow desde el notebook.
 - BARRERA_URL y BARRERA_TOKEN solo para una integración futura con un controlador compatible.
 
-El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) publica en SIRAP_USA_ECUADOR_HF cuando se inicia manualmente desde Actions. El token de Roboflow se requiere para descargar ese dataset; no está incrustado en el notebook.
+El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) publica automáticamente los cambios relevantes de la aplicación en `main` y puede ejecutarse manualmente desde Actions. El token de Roboflow se requiere para descargar ese dataset; no está incrustado en el notebook.
 
 En producción, los CSV operativos se leen y actualizan desde el repositorio privado SIRAP_datos_privados. Hugging Face usa copias temporales y no debe usarse como almacenamiento persistente. El respaldo y la recuperación de esos datos se describen en [data/README.md](data/README.md).
 
@@ -260,7 +260,7 @@ El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ip
 5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
 6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
-El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también publica `notebooks/SIRAP_backend.ipynb` en el Space al ejecutar manualmente el despliegue. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
+El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también publica `notebooks/SIRAP_backend.ipynb` cuando se actualiza en `main`. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
 
 ## Privacidad, seguridad y uso responsable
 
