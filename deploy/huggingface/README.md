@@ -24,9 +24,9 @@ Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contrase
 
 ## Despliegue
 
-Este repositorio publica la aplicación en el Space [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/.github/workflows/deploy-hf-space.yml) se ejecuta manualmente desde GitHub Actions. Si el Space aún no existe, el script intenta crearlo con el token de Hugging Face configurado.
+Este repositorio publica la aplicación en el Space [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/.github/workflows/deploy-hf-space.yml) despliega automáticamente los cambios de la aplicación en `main` que coinciden con las rutas configuradas. También puede iniciarse manualmente desde GitHub Actions.
 
-El despliegue requiere los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` son opcionales. El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el workflow y como valor predeterminado del script. No se necesita la variable de Actions `HF_SPACE`.
+El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el workflow y como valor predeterminado del script. No se necesita la variable de Actions `HF_SPACE`. Para desplegar, configura los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` son opcionales. Si el Space aún no existe, el script intenta crearlo con el token de Hugging Face.
 
 ## Persistencia y datos consultados
 
