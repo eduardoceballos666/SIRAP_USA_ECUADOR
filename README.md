@@ -5,7 +5,7 @@
 
 **Aplicación web para apoyar el control de acceso vehicular en garitas.**
 
-[Aplicación en vivo](https://eduardoceballos-sirap.hf.space) · [Manual de usuario](docs/manual_usuario.md) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs) · [Notebook principal](notebooks/SIRAP_backend.ipynb)
+[Aplicación en vivo](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) · [Manual de usuario](docs/manual_usuario.md) · [API interactiva](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) · [Notebook principal](notebooks/SIRAP_backend.ipynb)
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
@@ -56,25 +56,25 @@ El tag de GitHub v2.0 identifica una versión técnica del repositorio con arqui
 
 ## Plataformas de acceso
 
-SIRAP se publica en dos lugares con propósitos distintos:
+SIRAP USA Ecuador se publica en dos lugares con propósitos distintos:
 
 | Plataforma | Contenido |
 |---|---|
-| [GitHub: SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) | Código fuente, notebooks, modelos, datos de evaluación, métricas, documentación, manual y configuración de despliegue |
-| [Hugging Face Space: SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP) | Aplicación web desplegada para probar la interfaz |
-| [Abrir SIRAP](https://eduardoceballos-sirap.hf.space) | Acceso directo a la aplicación |
-| [Documentación interactiva de la API](https://eduardoceballos-sirap.hf.space/docs) | Esquema Swagger de la API FastAPI |
+| [GitHub: SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) | Código fuente, notebooks, modelos, datos de evaluación, métricas, documentación y configuración de despliegue |
+| [Hugging Face Space: SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) | Aplicación web desplegada |
+| [Abrir la aplicación](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF) | Acceso al Space de Hugging Face |
+| Swagger | La API interactiva estará disponible en la ruta `/docs` de la aplicación desplegada |
 
 ### Uso de la aplicación desplegada
 
-1. Abre SIRAP desde el Space o el enlace directo.
+1. Abre el [Space SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF).
 2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
-3. Inicia sesión con una cuenta habilitada. La pantalla del Space muestra las cuentas de demostración operador, supervisor y admin. La contraseña se configura mediante SIRAP_DEMO_PASSWORD; si el secreto no está definido, la API usa el valor predeterminado configurado en api/settings.py. En el Space público, configura explícitamente un valor propio.
+3. Inicia sesión con una cuenta habilitada. La contraseña se configura mediante `SIRAP_DEMO_PASSWORD`; si el secreto no está definido, la API usa el valor predeterminado configurado en `api/settings.py`. Para el Space público, configura explícitamente un valor propio.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
 5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
 6. Consulta las operaciones en Historial. Supervisor y Administrador pueden exportar los resultados filtrados a CSV.
 
-El Space se construye con Docker y sirve la API y la interfaz Vue. El hardware de demostración documentado es CPU, sin GPU dedicada; por eso las mediciones de GPU del notebook no representan la latencia del Space. El almacenamiento local del Space es temporal: los registros operativos persistentes se guardan en el repositorio privado configurado para la aplicación. La configuración de despliegue, secretos y flujo de publicación está en [Despliegue](#variables-y-despliegue) y en el workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml).
+El Space se construye con Docker y sirve la API y la interfaz Vue. El almacenamiento local de Hugging Face es temporal; los registros operativos persistentes se guardan en el repositorio privado configurado para la aplicación. El despliegue de esta variante se inicia manualmente desde el workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml). Revisa [la configuración de GitHub Actions](docs/CONFIGURACION_GITHUB_ACTIONS.md).
 
 ## Qué hace SIRAP
 
@@ -111,7 +111,7 @@ Los cambios a registros existentes y la administración de listas están restrin
 
 ### API REST
 
-La API publica documentación interactiva en [Swagger](https://eduardoceballos-sirap.hf.space/docs). Los principales endpoints son:
+La API publica documentación interactiva en [Swagger](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF). Los principales endpoints son:
 
 | Endpoint | Acceso | Función |
 |---|---|---|
@@ -151,7 +151,7 @@ La aplicación consulta servicios públicos para obtener datos complementarios d
 | [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) | Dataset de detección con 10.125 imágenes: 7.057 de entrenamiento, 2.048 de validación y 1.020 de prueba; licencia CC BY 4.0 |
 | [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Recortes de placas ecuatorianas para revisar OCR. El registro consultado no muestra una licencia para el archivo específico usado; revisar sus condiciones antes de redistribuirlo |
 | Imágenes de garita | 21 imágenes y ground_truth.csv incluidos en garita/ para la evaluación por imagen 7.3 |
-| Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
+| Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
 | Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
 | Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
 
@@ -212,7 +212,7 @@ Los archivos agregados y las figuras pequeñas están en [métricas](results/met
 ### Ejecución
 
 ```bash
-git clone https://github.com/eduardoceballos666/SIRAP_2.git
+git clone https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR.git
 cd SIRAP_2
 
 python -m venv .venv
@@ -236,16 +236,16 @@ Para desarrollo de la interfaz, ejecuta npm run dev dentro de frontend/ y uvicor
 
 ### Variables y despliegue
 
-Los secretos se configuran fuera del código. Según el modo de ejecución, pueden incluir:
+Los secretos se configuran fuera del código. El workflow manual publica específicamente en `eduardoceballos/SIRAP_USA_ECUADOR_HF`. Según el modo de ejecución, pueden incluir:
 
 - SIRAP_JWT_SECRET para firmar sesiones.
 - SIRAP_DEMO_PASSWORD para las cuentas de demostración.
 - SIRAP_DATA_GITHUB_TOKEN para leer y escribir en el repositorio privado de datos.
-- HF_TOKEN para el despliegue automático en Hugging Face.
+- HF_TOKEN para publicar manualmente en el Space SIRAP_USA_ECUADOR_HF.
 - ROBOFLOW_API_KEY para descargar el dataset de Roboflow desde el notebook.
 - BARRERA_URL y BARRERA_TOKEN solo para una integración futura con un controlador compatible.
 
-El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) publica los cambios de la aplicación en Hugging Face Spaces cuando se modifican las rutas configuradas o se inicia manualmente. El token de Roboflow se requiere para descargar ese dataset; no está incrustado en el notebook.
+El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) publica en SIRAP_USA_ECUADOR_HF cuando se inicia manualmente desde Actions. El token de Roboflow se requiere para descargar ese dataset; no está incrustado en el notebook.
 
 En producción, los CSV operativos se leen y actualizan desde el repositorio privado SIRAP_datos_privados. Hugging Face usa copias temporales y no debe usarse como almacenamiento persistente. El respaldo y la recuperación de esos datos se describen en [data/README.md](data/README.md).
 
@@ -260,7 +260,7 @@ El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ip
 5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
 6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
-El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también sincroniza `notebooks/SIRAP_backend.ipynb` con el Space cuando el notebook cambia en `main`. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
+El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también publica `notebooks/SIRAP_backend.ipynb` en el Space al ejecutar manualmente el despliegue. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
 
 ## Privacidad, seguridad y uso responsable
 
@@ -274,7 +274,7 @@ El notebook no incrusta el video fuente ni publica automáticamente los videos a
 ## Estructura del repositorio
 
 ```text
-SIRAP_2/
+SIRAP_USA_ECUADOR/
 ├── .github/workflows/       # Automatización y despliegue
 ├── api/                     # API FastAPI
 ├── app/ y frontend/         # Interfaz web
@@ -324,9 +324,9 @@ El código de SIRAP se distribuye bajo [MIT](LICENSE). Los pesos entrenados con 
 
 Gracias a Gladys María Villegas Rugel por la asesoría académica, a la empresa que autorizó la toma de imágenes de garita y a los docentes del programa.
 
-- [Aplicación desplegada](https://eduardoceballos-sirap.hf.space)
-- [Repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_2)
-- [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Aplicación desplegada](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF_USA_ECUADOR_HF)
+- [Repositorio GitHub](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
+- [Space de Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 
 ## Videos de entrega
 
