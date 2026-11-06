@@ -1,9 +1,12 @@
-# Publica FastAPI + Vue y sincroniza el notebook SIRAP_backend en Hugging Face.
-# En SIRAP_USA_ECUADOR se ejecuta solo manualmente para evitar publicar por accidente
-# sobre el Space configurado en el repositorio original.
+# Publica la aplicación de SIRAP_USA_ECUADOR en su Space de Hugging Face.
 name: Deploy a Hugging Face Spaces
 
 on:
+  push:
+    branches: [main]
+    paths: ["api/**", "src/**", "frontend/**", "config/**", "data/**", "models/**", "results/metrics/**",
+            "data/samples/**", "notebooks/SIRAP_backend.ipynb", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
+            ".github/workflows/deploy-hf-space.yml"]
   workflow_dispatch:
 
 concurrency: { group: hf-space, cancel-in-progress: true }
@@ -16,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: pip install "huggingface_hub>=0.25"
-      - name: Subir al Space
+      - name: Subir a SIRAP_USA_ECUADOR_HF
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACE: eduardoceballos/SIRAP_USA_ECUADOR_HF
