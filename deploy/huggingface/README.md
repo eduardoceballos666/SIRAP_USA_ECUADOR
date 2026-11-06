@@ -56,9 +56,9 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 ## Enlaces
 
 - **Hugging Face Space:** [SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
-- **Aplicación:** [eduardoceballos-sirap.hf.space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- **Aplicación:** [Abrir SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - **API interactiva:** ruta `/docs` de la aplicación desplegada
-- **Código fuente:** [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
+- **Código fuente:** [GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
 - **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
