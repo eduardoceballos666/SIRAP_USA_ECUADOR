@@ -131,6 +131,6 @@ Los resúmenes públicos enlazados en este documento omiten matrículas e imáge
 
 ## Acceso al producto y al código
 
-- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Space en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API](https://eduardoceballos-sirap.hf.space/docs)
+- [Aplicación SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Space en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
 - La interfaz está disponible en español e inglés. Los videos de presentación están enlazados en el [README principal](../README.md).
