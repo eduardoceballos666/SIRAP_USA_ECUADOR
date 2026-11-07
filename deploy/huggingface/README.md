@@ -1,5 +1,5 @@
 ---
-title: SIRAP USA Ecuador
+title: SIRAP_USA_ECUADOR_HF USA Ecuador
 emoji: 🚗
 colorFrom: yellow
 colorTo: blue
@@ -10,15 +10,15 @@ license: mit
 short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 ---
 
-# SIRAP USA Ecuador · Sistema de Detección y Reconocimiento Automático de Placas
+# SIRAP_USA_ECUADOR_HF · Sistema de Detección y Reconocimiento Automático de Placas
 
 **Reconocimiento de placas y control de acceso (YOLO11 + OCR)**
 
-**Versión del producto: SIRAP 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
+**Versión del producto: SIRAP_USA_ECUADOR_HF 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
 
 ## Acceso e idioma
 
-Abre la [aplicación SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
+Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
 
 Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
@@ -38,7 +38,7 @@ El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el w
 
 La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
-El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. SIRAP no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
+El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. SIRAP_USA_ECUADOR_HF no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
 
 | Dato | Uso |
 |---|---|
@@ -55,11 +55,11 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 
 ## Enlaces
 
-- **Hugging Face Space:** [SIRAP](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- **Hugging Face Space:** [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - **Aplicación:** [Abrir SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - **API interactiva:** ruta `/docs` de la aplicación desplegada
 - **Código fuente:** [GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
 - **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
-SIRAP 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
+SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
