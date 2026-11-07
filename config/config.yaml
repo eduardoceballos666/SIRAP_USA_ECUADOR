@@ -1,11 +1,11 @@
 # =============================================================================
-# SIRAP – Configuración central
+# SIRAP_USA_ECUADOR_HF – Configuración central
 # Todas las rutas son relativas a la raíz del repositorio.
 # NO van aquí: se leen de variables de entorno (ver .env.example).
 # =============================================================================
 
 app:
-  nombre: "SIRAP"
+  nombre: "SIRAP_USA_ECUADOR_HF"
   descripcion: "Sistema de Detección y Reconocimiento Automático de Placas"
   zona_horaria: "America/Guayaquil"
   garitas_por_defecto: ["Garita 1", "Garita 2", "Garita 3"]
