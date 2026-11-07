@@ -74,6 +74,6 @@ Si un resultado está pendiente o su referencia es incompleta, indícalo como ta
 
 ## Aplicación, repositorio y videos
 
-- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- [Aplicación SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
 - La interfaz está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README principal](../README.md).
