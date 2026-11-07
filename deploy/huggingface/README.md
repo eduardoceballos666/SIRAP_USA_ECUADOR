@@ -1,5 +1,5 @@
 ---
-title: SIRAP_USA_ECUADOR_HF USA Ecuador
+title: SIRAP_USA_ECUADOR_HF
 emoji: 🚗
 colorFrom: yellow
 colorTo: blue
