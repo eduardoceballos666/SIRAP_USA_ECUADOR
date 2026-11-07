@@ -1,4 +1,4 @@
-"""API REST de SIRAP (FastAPI).
+"""API REST de SIRAP_USA_ECUADOR_HF (FastAPI).
 
 Ejecutar desde la raíz del repositorio::
 
@@ -38,7 +38,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="SIRAP API",
+    title="SIRAP_USA_ECUADOR_HF API",
     version=__version__,
     description="Sistema de Detección y Reconocimiento Automático de Placas · YOLO11-s + fast-plate-ocr.",
     lifespan=lifespan,
