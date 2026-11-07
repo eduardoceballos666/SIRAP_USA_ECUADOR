@@ -10,10 +10,7 @@ function initialTheme() {
     if (saved === 'dark' || saved === 'light') return saved
   } catch { /* sin almacenamiento */ }
 
-  const isMobile = window.matchMedia?.('(max-width: 767px)').matches
-  if (isMobile) return 'light'
-
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'light'
 }
 
 // Estado del puesto de control: garita y movimiento elegidos, datos del sistema, tema, avisos y
