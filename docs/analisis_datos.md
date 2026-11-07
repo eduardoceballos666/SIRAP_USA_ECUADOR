@@ -153,6 +153,6 @@ La confianza ayuda a decidir qué lecturas enviar a revisión, pero no reemplaza
 
 Este análisis describe los datos de entrenamiento y evaluación; sus resultados no garantizan el desempeño de cada sesión de la aplicación publicada.
 
-- [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- [Aplicación SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- [Repositorio GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
 - La interfaz está disponible en español e inglés. Los videos de presentación están enlazados al final del [README principal](../README.md).
