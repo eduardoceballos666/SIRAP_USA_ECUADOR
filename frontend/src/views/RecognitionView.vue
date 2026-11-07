@@ -720,9 +720,9 @@ onMounted(async () => {
             <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">{{ $t("Ver detalle completo") }}</button>
           </div>
           <div class="ocr-meter">
-            <span><AppIcon name="chart" :size="15" /> {{ $t("SIRAP en acción") }}</span>
+            <span><AppIcon name="chart" :size="15" /> {{ $t("SIRAP_USA_ECUADOR_HF en acción") }}</span>
             <strong>100%</strong>
-            <div class="meter-track" role="progressbar" :aria-label="$t('Indicador visual de SIRAP')" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
+            <div class="meter-track" role="progressbar" :aria-label="$t('Indicador visual de SIRAP_USA_ECUADOR_HF')" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
           </div>
         </section>
 
