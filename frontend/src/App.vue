@@ -30,7 +30,7 @@ const isPublic = computed(() => route.meta.public)
 const roleLabel = { OPERADOR: 'Operador', SUPERVISOR: 'Supervisor', ADMINISTRADOR: 'Administrador' }
 
 watch([language, route], () => {
-  document.title = `SIRAP · ${t(route.meta.title || (isPublic.value ? 'Iniciar sesión' : 'Control de acceso'))}`
+  document.title = `SIRAP_USA_ECUADOR_HF · ${t(route.meta.title || (isPublic.value ? 'Iniciar sesión' : 'Control de acceso'))}`
 }, { immediate: true })
 
 function logout() {
@@ -46,7 +46,7 @@ function logout() {
   </div>
   <div v-else class="app-shell">
     <aside class="app-topbar" :aria-label='$t("Navegación principal")'>
-      <RouterLink to="/reconocimiento" class="sidebar-brand" :aria-label='$t("SIRAP: reconocimiento")'><SirapLogo /></RouterLink>
+      <RouterLink to="/reconocimiento" class="sidebar-brand" :aria-label='$t("SIRAP_USA_ECUADOR_HF: reconocimiento")'><SirapLogo /></RouterLink>
       <LanguageSwitcher />
       <nav class="top-navigation" :aria-label='$t("Módulos")'>
         <RouterLink v-for="i in items" :key="i.to" :to="i.to" active-class="selected"><AppIcon :name="i.icon" :size="19" /><span>{{ $t(i.label) }}</span></RouterLink>
