@@ -209,9 +209,9 @@ operador debe verificar visualmente; la versión publicada usa una barrera simul
 
 La aplicación y el repositorio permiten revisar el sistema y sus límites de uso:
 
-- [Aplicación desplegada en Hugging Face](https://eduardoceballos-sirap.hf.space)
-- [Hugging Face Space y despliegue](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+- [Aplicación desplegada en Hugging Face](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space)
+- [Hugging Face Space y despliegue](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - [Código fuente y documentos de SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
-- [API interactiva](https://eduardoceballos-sirap.hf.space/docs) · [Manual de usuario](manual_usuario.md)
+- [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs) · [Manual de usuario](manual_usuario.md)
 
 La interfaz puede consultarse en español e inglés. Las lecturas de placas requieren verificación humana cuando existe duda; la demostración no autoriza decisiones automáticas reales ni sustituye las medidas de privacidad descritas arriba. Los videos de presentación están enlazados al final del [README](../README.md).
