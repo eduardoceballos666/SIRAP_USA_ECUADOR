@@ -51,9 +51,9 @@ Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes 
 
 > • Código fuente: GitHub, repositorio [<u>eduardoceballos666/SIRAP_USA_ECUADOR</u>](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
 >
-> • Plataforma de despliegue: Hugging Face Spaces, [<u>eduardoceballos/SIRAP</u>](https://huggingface.co/spaces/eduardoceballos/SIRAP)
+> • Plataforma de despliegue: Hugging Face Spaces, [<u>eduardoceballos/SIRAP</u>](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 >
-> • Aplicación en vivo: [<u>eduardoceballos-sirap.hf.space</u>](https://eduardoceballos-sirap.hf.space)
+> • Aplicación en vivo: [<u>eduardoceballos-sirap-usa-ecuador-hf.hf.space</u>](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space)
 
 **Atribución de componentes de software**
 
@@ -261,7 +261,7 @@ Permisos y conectividad suficientes para acceder a la cámara o transmitir video
 
 Figura 1. Pantalla de inicio de sesión SIRAP.
 
-**01** Abra [SIRAP](https://eduardoceballos-sirap.hf.space) desde el navegador autorizado de la organización.
+**01** Abra [SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) desde el navegador autorizado de la organización.
 
 **02** Escriba su nombre de usuario en el campo Usuario.
 
@@ -286,7 +286,7 @@ El menú puede variar según el perfil. Si una opción aparece solo para consult
 
 ## Cambiar el idioma de la interfaz
 
-SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
+SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
 
 ![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
 
