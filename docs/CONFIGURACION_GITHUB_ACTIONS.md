@@ -1,6 +1,6 @@
 # Configuración de GitHub Actions para SIRAP_USA_ECUADOR
 
-Los archivos y workflows de SIRAP_2 se copiaron a este repositorio. Los valores de Secrets y Variables pertenecen a la configuración de cada repositorio y no se transfieren con los archivos.
+Los archivos y workflows de SIRAP_USA_ECUADOR se copiaron a este repositorio. Los valores de Secrets y Variables pertenecen a la configuración de cada repositorio y no se transfieren con los archivos.
 
 ## Secrets requeridos para el despliegue
 
@@ -25,6 +25,6 @@ El workflow despliega automáticamente los cambios relevantes a `main`; también
 
 - `ci.yml` ejecuta comprobaciones de frontend y backend.
 - `deploy-hf-space.yml` permite iniciar el despliegue manualmente desde **Actions**.
-- `import-sirap-2.yml` contiene el proceso de importación desde el repositorio público SIRAP_2.
+- `import-sirap-2.yml` contiene el proceso de importación desde el repositorio público SIRAP_USA_ECUADOR.
 
 GitHub no permite leer los valores guardados de Secrets para transferirlos. Debes volver a ingresarlos de forma segura en este repositorio.
