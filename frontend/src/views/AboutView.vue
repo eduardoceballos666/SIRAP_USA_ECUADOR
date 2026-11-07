@@ -203,7 +203,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <li>{{ $t("El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).") }}</li>
         <li>{{ $t("Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es") }}
           <b>{{ $t("simulada") }}</b> {{ $t("y la base de demostración contiene datos ficticios respaldados en el repositorio privado configurado.") }}</li>
-        <li>{{ $t("SIRAP") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
+        <li>{{ $t("SIRAP_USA_ECUADOR_HF") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
       </ul>
     </section>
   </div>
