@@ -257,7 +257,7 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 
 - **Aplicación:** https://eduardoceballos-sirap.hf.space
 - **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP
-- **Código y despliegue:** https://github.com/eduardoceballos666/SIRAP_2 (configuración en `deploy/huggingface/`)
+- **Código y despliegue:** https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR (configuración en `deploy/huggingface/`)
 - **API interactiva:** https://eduardoceballos-sirap.hf.space/docs
 
 La aplicación SIRAP 1.0 presenta el flujo descrito en esta arquitectura mediante una interfaz bilingüe (español e inglés), roles y módulos de operación. Los videos de presentación están enlazados al final del [README del repositorio](../README.md).
