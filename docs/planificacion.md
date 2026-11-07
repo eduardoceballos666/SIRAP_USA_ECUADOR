@@ -115,6 +115,6 @@ El umbral operativo de confianza OCR configurado para la aplicación es **94 %**
 
 ## Aplicación y entregables publicados
 
-La planificación culmina en el producto SIRAP 1.0, disponible en la [aplicación web](https://eduardoceballos-sirap.hf.space) y desplegado desde el [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP). El código, notebooks, métricas y documentación se mantienen en el [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). La API se puede consultar en [Swagger](https://eduardoceballos-sirap.hf.space/docs).
+La planificación culmina en el producto SIRAP 1.0, disponible en la [aplicación web](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) y desplegado desde el [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El código, notebooks, métricas y documentación se mantienen en el [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). La API se puede consultar en [Swagger](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs).
 
 La interfaz publicada ofrece español e inglés. El [manual de usuario](manual_usuario.md) describe los módulos, perfiles y flujo de operación; los videos requeridos están enlazados al final del [README](../README.md).
