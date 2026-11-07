@@ -233,5 +233,5 @@ Ambos modelos tuvieron aciertos y errores en exactamente las mismas imágenes; n
 Los experimentos documentan partes del modelo; sus resultados no garantizan el comportamiento de la aplicación para toda cámara o condición de iluminación.
 
 - [Aplicación SIRAP](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
+- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap.hf.space/docs)
 - La interfaz de la aplicación está disponible en español e inglés.
