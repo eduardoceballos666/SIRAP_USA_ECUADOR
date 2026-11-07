@@ -35,7 +35,7 @@ export async function api(path, { method = 'GET', body, form, params, raw = fals
   try {
     res = await fetch(url, { method, headers, body: payload })
   } catch {
-    throw new ApiError(0, 'No se pudo conectar con la API de SIRAP.')
+    throw new ApiError(0, 'No se pudo conectar con la API de SIRAP_USA_ECUADOR_HF.')
   }
   if (res.status === 401 && token) onUnauthorized()
   if (!res.ok) {
