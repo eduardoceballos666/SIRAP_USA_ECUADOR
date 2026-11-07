@@ -46,6 +46,6 @@ Los gráficos pequeños y las métricas agregadas están en [figuras](../results
 
 ## Aplicación y código fuente
 
-La aplicación web se encuentra en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) y puede abrirse en [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space). La interfaz ofrece español e inglés; la [API interactiva](https://eduardoceballos-sirap.hf.space/docs) está disponible para consulta. El workflow de despliegue sincroniza `SIRAP_backend.ipynb` con el Space cuando ese notebook cambia en `main`.
+La aplicación web se encuentra en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) y puede abrirse en [eduardoceballos-sirap-usa-ecuador-hf.hf.space](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space). La interfaz ofrece español e inglés; la [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs) está disponible para consulta. El workflow de despliegue sincroniza `SIRAP_backend.ipynb` con el Space cuando ese notebook cambia en `main`.
 
 El código, los notebooks y los artefactos están en [GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). Los videos de presentación están enlazados al final del [README principal](../README.md).
