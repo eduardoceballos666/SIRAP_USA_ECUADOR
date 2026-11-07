@@ -15,9 +15,9 @@ Los notebooks documentan el análisis de datos, la preparación, el entrenamient
 
 ## Ejecutar `SIRAP_backend.ipynb` desde GitHub
 
-1. Abre el notebook en Colab y ejecuta la sección 0. Clona SIRAP_2, prepara las rutas y descarga el video de garita. No monta Google Drive.
+1. Abre el notebook en Colab y ejecuta la sección 0. Clona SIRAP_USA_ECUADOR, prepara las rutas y descarga el video de garita. No monta Google Drive.
 2. Roboflow es la fuente de dataset predeterminada. Configura `ROBOFLOW_API_KEY` en Secrets de Colab si vas a descargar ese dataset y ejecutar sus secciones de preparación o entrenamiento. Como alternativa, cambia `DATASET_SOURCE = "local"` y proporciona un ZIP YOLO en `data/raw/dataset_placas_yolo.zip`.
-3. La sección 0 descarga el video fuente desde el [Release `datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1) a `artifacts/video_camiones.mp4` y valida su integridad. La sección 6.1 usa ese video por defecto (`USE_SAMPLE_VIDEO = False`). `True` selecciona el video de demostración de estacionamiento, que sirve para comprobar el flujo, no para medir el caso de los camiones.
+3. La sección 0 descarga el video fuente desde el [Release `datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1) a `artifacts/video_camiones.mp4` y valida su integridad. La sección 6.1 usa ese video por defecto (`USE_SAMPLE_VIDEO = False`). `True` selecciona el video de demostración de estacionamiento, que sirve para comprobar el flujo, no para medir el caso de los camiones.
 4. Las celdas de Colab y sus archivos temporales se pierden al reiniciar la sesión. En una sesión limpia, el notebook usa el checkpoint publicado `models/best_model.pt` y recupera los umbrales versionados de `results/metrics/umbrales.json` si no hay valores generados en esa sesión; no necesitas volver a entrenar ni calibrar para usar esos valores. Ejecuta las celdas previas que indique cada evaluación en el mismo runtime. Si decides reentrenar, activa `FORCE_RETRAIN = True` o corre el entrenamiento correspondiente; luego ejecuta 4.1 para recalibrar los umbrales.
 5. Las evaluaciones guardan salidas nuevas en `/content/SIRAP_workspace`. Descarga desde el panel **Files** los archivos que quieras conservar. Los videos anotados no se incrustan en el notebook ni se publican automáticamente como assets de Release.
 
@@ -48,4 +48,4 @@ Los gráficos pequeños y las métricas agregadas están en [figuras](../results
 
 La aplicación web se encuentra en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) y puede abrirse en [eduardoceballos-sirap.hf.space](https://eduardoceballos-sirap.hf.space). La interfaz ofrece español e inglés; la [API interactiva](https://eduardoceballos-sirap.hf.space/docs) está disponible para consulta. El workflow de despliegue sincroniza `SIRAP_backend.ipynb` con el Space cuando ese notebook cambia en `main`.
 
-El código, los notebooks y los artefactos están en [GitHub SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). Los videos de presentación están enlazados al final del [README principal](../README.md).
+El código, los notebooks y los artefactos están en [GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). Los videos de presentación están enlazados al final del [README principal](../README.md).
