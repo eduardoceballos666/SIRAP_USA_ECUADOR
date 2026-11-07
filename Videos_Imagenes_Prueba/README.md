@@ -11,4 +11,4 @@ Esta carpeta reúne medios de prueba usados durante el desarrollo de SIRAP. Los 
 
 `video_03.z03` tiene extensión de volumen de un archivo comprimido dividido; por sí solo no permite reconstruir ni reproducir el video. En esta carpeta no aparecen los volúmenes anteriores necesarios, así que el archivo no se presenta como un video de prueba ejecutable.
 
-Los resultados formales y sus protocolos están en [`results/README.md`](../results/README.md). El video usado por el notebook para la evaluación de garita se distribuye por separado en el Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1).
+Los resultados formales y sus protocolos están en [`results/README.md`](../results/README.md). El video usado por el notebook para la evaluación de garita se distribuye por separado en el Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1).
