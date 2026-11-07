@@ -14,7 +14,7 @@
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-**Interfaz disponible en español e inglés.**
+**Interfaz disponible en inglés, español, portugués brasileño, francés y alemán. El inglés es el idioma inicial.**
 
 <img src="docs/img/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
 
@@ -68,7 +68,7 @@ SIRAP USA Ecuador se publica en dos lugares con propósitos distintos:
 ### Uso de la aplicación desplegada
 
 1. Abre el [Space SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF).
-2. En el inicio de sesión, elige Español o English. El selector también está en el menú y conserva la preferencia en el navegador.
+2. En el inicio de sesión, elige English, Español, Português (Brasil), Français o Deutsch. El selector también está en el menú y conserva la preferencia en el navegador.
 3. Inicia sesión con una cuenta habilitada. La contraseña se configura mediante `SIRAP_DEMO_PASSWORD`; si el secreto no está definido, la API usa el valor predeterminado configurado en `api/settings.py`. Para el Space público, configura explícitamente un valor propio.
 4. En Reconocimiento y Acceso, usa un ejemplo, una imagen, un video o una cámara disponible. Revisa la placa, la confianza, el recorte y la decisión.
 5. Confirma la información antes de registrar una operación o solicitar la apertura. Las lecturas inciertas requieren revisión humana; la barrera del Space es simulada.
@@ -86,7 +86,7 @@ El sistema consulta listas de autorización y restricción, muestra la confianza
 
 ### Interfaz y módulos
 
-La aplicación ofrece Español e English desde el selector de idioma de la pantalla de inicio de sesión y del menú. La preferencia se conserva en el navegador.
+La aplicación ofrece inglés, español, portugués brasileño, francés y alemán desde el selector de idioma de la pantalla de inicio de sesión y del menú. El inglés es el idioma inicial; la preferencia seleccionada se conserva en el navegador.
 
 | Módulo | Funciones |
 |---|---|
@@ -99,7 +99,7 @@ La aplicación ofrece Español e English desde el selector de idioma de la panta
 
 Capturas: [Reconocimiento](docs/img/vue_reconocimiento.png), [Dashboard](docs/img/vue_dashboard.png), [Verificación](docs/img/vue_verificacion.png) y [vista móvil](docs/img/vue_movil.png).
 
-La interfaz es adaptable a celular y ofrece tema claro y oscuro. Valida el tipo, el tamaño y la resolución de las imágenes, muestra estados de carga y mensajes de error comprensibles, y permite comparar las lecturas obtenidas durante la sesión.
+La interfaz es adaptable a celular y escritorio. El tema claro es el predeterminado en ambos; el usuario también puede seleccionar el tema oscuro. Valida el tipo, el tamaño y la resolución de las imágenes, muestra estados de carga y mensajes de error comprensibles, y permite comparar las lecturas obtenidas durante la sesión.
 
 ### Roles
 
