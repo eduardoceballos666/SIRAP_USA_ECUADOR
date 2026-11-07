@@ -91,7 +91,7 @@ Esta prueba cubre imágenes individuales: no evalúa seguimiento temporal ni sus
 
 ## 6. Videos y archivos pesados
 
-El notebook no incrusta los videos ni las imágenes de diagnóstico grandes, para mantener compacto el archivo `.ipynb`. El video fuente de la garita, de 459,3 MB, se publica como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1), desde donde el notebook lo descarga.
+El notebook no incrusta los videos ni las imágenes de diagnóstico grandes, para mantener compacto el archivo `.ipynb`. El video fuente de la garita, de 459,3 MB, se publica como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1), desde donde el notebook lo descarga.
 
 Los videos de salida se conservan en Drive mediante estos enlaces:
 
@@ -104,5 +104,5 @@ Los enlaces de Drive requieren que el usuario tenga acceso a esos archivos. Las 
 ## 7. Aplicación, repositorio y presentación
 
 - [Aplicación desplegada](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2) · [Documentación interactiva de la API](https://eduardoceballos-sirap.hf.space/docs)
+- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [Documentación interactiva de la API](https://eduardoceballos-sirap.hf.space/docs)
 - La interfaz publicada está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README principal](../../README.md).
