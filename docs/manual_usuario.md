@@ -49,7 +49,7 @@ Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes 
 
 **Recursos del proyecto**
 
-> • Código fuente: GitHub, repositorio [<u>eduardoceballos666/SIRAP_2</u>](https://github.com/eduardoceballos666/SIRAP_2)
+> • Código fuente: GitHub, repositorio [<u>eduardoceballos666/SIRAP_USA_ECUADOR</u>](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
 >
 > • Plataforma de despliegue: Hugging Face Spaces, [<u>eduardoceballos/SIRAP</u>](https://huggingface.co/spaces/eduardoceballos/SIRAP)
 >
