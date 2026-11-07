@@ -25,7 +25,7 @@
 
 ## 3. Imágenes de la garita (propias)
 
-Las imágenes y el video del punto de control se tomaron en una planta **con autorización escrita** de la empresa. El repositorio publica 21 imágenes en `garita/imagenes/` y sus etiquetas en `garita/ground_truth.csv` para la evaluación por imagen de la sección 7.3. El video `video_camiones.mp4` se distribuye como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_2/releases/tag/datos-garita-v1), separado del historial Git por su tamaño.
+Las imágenes y el video del punto de control se tomaron en una planta **con autorización escrita** de la empresa. El repositorio publica 21 imágenes en `garita/imagenes/` y sus etiquetas en `garita/ground_truth.csv` para la evaluación por imagen de la sección 7.3. El video `video_camiones.mp4` se distribuye como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1), separado del historial Git por su tamaño.
 
 Estos archivos contienen placas reales y son materiales públicos del proyecto. Las 21 imágenes sirven para la evaluación por imagen. La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos; los CSV provisionales de esa carpeta son históricos. Consulta [`blind_eval/`](../blind_eval/) y [`results/README.md`](../results/README.md) para conocer su alcance.
 
@@ -84,4 +84,4 @@ Al alcanzar el 94 %, el servidor declara la placa autorizada solo si tiene una a
 
 ## Relación con la aplicación publicada
 
-Los datos descritos en este documento alimentan partes del desarrollo y la evaluación; las etiquetas y métricas se deben interpretar según su procedencia y las limitaciones anotadas en cada sección. La aplicación desplegada es [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) ([abrir aplicación](https://eduardoceballos-sirap.hf.space)); el código y las referencias públicas están en el [repositorio SIRAP_2](https://github.com/eduardoceballos666/SIRAP_2). La interfaz está disponible en español e inglés; consulta la [API](https://eduardoceballos-sirap.hf.space/docs) y los videos en el [README](../README.md).
+Los datos descritos en este documento alimentan partes del desarrollo y la evaluación; las etiquetas y métricas se deben interpretar según su procedencia y las limitaciones anotadas en cada sección. La aplicación desplegada es [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP) ([abrir aplicación](https://eduardoceballos-sirap.hf.space)); el código y las referencias públicas están en el [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). La interfaz está disponible en español e inglés; consulta la [API](https://eduardoceballos-sirap.hf.space/docs) y los videos en el [README](../README.md).
