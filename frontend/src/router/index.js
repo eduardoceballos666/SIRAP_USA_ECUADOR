@@ -31,7 +31,7 @@ router.beforeEach(async (to) => {
     return { name: 'login' }
   }
   if (to.meta.roles && !auth.hasRole(...to.meta.roles)) return '/reconocimiento'
-  document.title = `SIRAP · ${to.meta.title || 'Control de acceso'}`
+  document.title = `SIRAP_USA_ECUADOR_HF · ${to.meta.title || 'Control de acceso'}`
   return true
 })
 
