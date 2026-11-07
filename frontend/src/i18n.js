@@ -940,7 +940,7 @@ const de = {
   "Rechazo": "Ablehnung", "Apertura automática": "Automatische Öffnung", "Apertura manual": "Manuelle Öffnung", "Solo registro": "Nur protokollieren"
 }
 
-\nconst es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
+const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
 const enToEs = Object.fromEntries(Object.entries(en).map(([spanish, english]) => [english, spanish]))
 export const messages = { es, en, pt, fr, de }
 
