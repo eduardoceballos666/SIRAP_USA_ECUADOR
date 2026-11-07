@@ -103,6 +103,6 @@ Los enlaces de Drive requieren que el usuario tenga acceso a esos archivos. Las 
 
 ## 7. Aplicación, repositorio y presentación
 
-- [Aplicación desplegada](https://eduardoceballos-sirap.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP)
-- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [Documentación interactiva de la API](https://eduardoceballos-sirap.hf.space/docs)
+- [Aplicación desplegada](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
+- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [Documentación interactiva de la API](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
 - La interfaz publicada está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README principal](../../README.md).
