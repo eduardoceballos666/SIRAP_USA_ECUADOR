@@ -12,7 +12,7 @@ function changeLanguage(event) {
     <select :value="language" :aria-label="$t('Idioma')" @change="changeLanguage">
       <option value="en">English</option>
       <option value="es">Español</option>
-      <option value="pt">Português (Brasil)</option>
+      <option value="pt">Português</option>
       <option value="fr">Français</option>
       <option value="de">Deutsch</option>
     </select>
