@@ -64,7 +64,7 @@ supervisor, administrador); validación de entradas con Pydantic; mensajes de er
 | Entrenamiento / evaluación | `src/train.py`, `src/evaluate.py`, `notebooks/` | Reproducir y medir el modelo |
 | Configuración | `config/config.yaml`, secretos | Parámetros sin valores fijos en el código |
 
-**Internacionalización:** `frontend/src/i18n.js` centraliza las cadenas de español e inglés. `Idioma` cambia el catálogo activo desde el inicio de sesión o el menú común; `sirap_language` conserva la preferencia en `localStorage`. Ambas opciones se publican bajo la misma URL del Space: https://eduardoceballos-sirap.hf.space.
+**Internacionalización:** `frontend/src/i18n.js` centraliza las cadenas de español e inglés. `Idioma` cambia el catálogo activo desde el inicio de sesión o el menú común; `sirap_language` conserva la preferencia en `localStorage`. Ambas opciones se publican bajo la misma URL del Space: https://eduardoceballos-sirap-usa-ecuador-hf.hf.space.
 
 ## 2. Modelo seleccionado y justificación
 
@@ -255,9 +255,9 @@ frontend (`npm ci && npm run build`); (2) `python:3.11-slim` instala `requiremen
 
 ## Aplicación publicada y código fuente
 
-- **Aplicación:** https://eduardoceballos-sirap.hf.space
-- **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP
+- **Aplicación:** https://eduardoceballos-sirap-usa-ecuador-hf.hf.space
+- **Hugging Face Space:** https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF
 - **Código y despliegue:** https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR (configuración en `deploy/huggingface/`)
-- **API interactiva:** https://eduardoceballos-sirap.hf.space/docs
+- **API interactiva:** https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs
 
 La aplicación SIRAP 1.0 presenta el flujo descrito en esta arquitectura mediante una interfaz bilingüe (español e inglés), roles y módulos de operación. Los videos de presentación están enlazados al final del [README del repositorio](../README.md).
