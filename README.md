@@ -83,7 +83,7 @@ El Space se construye con Docker y sirve la API y la interfaz Vue. El almacenami
 
 ### Alcance por país
 
-El flujo operativo actual está enfocado en Ecuador y consulta los datos vehiculares ecuatorianos mediante el SRI. El repositorio separa los datos, configuraciones, modelos y evaluaciones por país. Los materiales de placas de EE. UU. están en preparación; la lectura del estado y la consulta a J.D. Power aún no están habilitadas. Esa integración requiere una API autorizada o permiso escrito para automatización.
+El flujo operativo actual está enfocado en Ecuador y consulta los datos vehiculares ecuatorianos mediante el SRI. El repositorio separa los datos, configuraciones, modelos y evaluaciones por país: los datos ecuatorianos están en `datasets/ecuador/` y los de EE. UU. en `datasets/usa/`. Los materiales estadounidenses están en preparación; la lectura del estado y la consulta a J.D. Power aún no están habilitadas. Esa integración requiere una API autorizada o permiso escrito para automatización.
 
 ### Qué hace SIRAP
 
@@ -417,7 +417,7 @@ The Space is built with Docker and serves the API and Vue interface. Hugging Fac
 
 ### Country scope
 
-The current operational flow is Ecuador-focused and uses the SRI for Ecuadorian vehicle information. The repository separates data, configuration, models, and evaluations by country. U.S. plate materials are preparatory; state reading and J.D. Power lookup are not enabled yet. That integration requires an authorized API or written permission for automated access.
+The current operational flow is Ecuador-focused and uses the SRI for Ecuadorian vehicle information. The repository separates data, configuration, models, and evaluations by country: Ecuador data is under `datasets/ecuador/`, and U.S. data is under `datasets/usa/`. The U.S. materials are preparatory; state reading and J.D. Power lookup are not enabled yet. That integration requires an authorized API or written permission for automated access.
 
 ### What SIRAP does
 
