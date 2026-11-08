@@ -1,7 +1,7 @@
 """Repite base vs. trial 12 con semillas emparejadas sin sustituir el modelo publicado.
 
 Requiere Ultralytics, CUDA y el data_abs.yaml de Roboflow v11 preparado por
-notebooks/shared/04_optimizacion.ipynb. Usa el mismo test SOLO para reportar, no para
+notebooks/ecuador/04_optimizacion.ipynb. Usa el mismo test SOLO para reportar, no para
 elegir hiperparámetros. Guarda una corrida por semilla y evita sobreescrituras.
 """
 from __future__ import annotations
