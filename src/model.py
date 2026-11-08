@@ -6,8 +6,8 @@ Flujo de una imagen::
                                                                └─► normalize_plate ──► Recognition
 
 * **Detector.** YOLO11-s entrenado en el notebook ``notebooks/ecuador/sirap_backend.ipynb`` (sección 3.2).
-  La aplicación carga ``models/shared/detector/best_model.onnx`` con ONNX Runtime. En desarrollo puede cargar
-  ``models/shared/detector/best_model.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
+  La aplicación carga ``models/ecuador/detector/ecuador_best.onnx`` con ONNX Runtime. En desarrollo puede cargar
+  ``models/ecuador/detector/ecuador_best.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
   el reconocimiento.
 * **OCR.** ``fast-plate-ocr`` con ``cct-s-v2-global-model`` (≈5 MB, corre en CPU).
 """
@@ -155,7 +155,7 @@ class PlateDetector:
         elif self.backend == "ultralytics":
             detections = self._detect_ultralytics(image)
         else:
-            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/shared/detector/best_model.onnx.")
+            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/ecuador/detector/ecuador_best.onnx.")
         detections.sort(key=lambda d: d.confidence, reverse=True)
         return detections[:max_detections]
 

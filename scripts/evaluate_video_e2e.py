@@ -133,7 +133,7 @@ def main() -> None:
             "repository_commit": __import__("subprocess").run(
                 ["git", "rev-parse", "HEAD"], cwd=ROOT_DIR, capture_output=True, text=True, check=False
             ).stdout.strip() or None,
-            "detector_sha256": sha256(ROOT_DIR / "models/shared/detector/best_model.onnx"),
+            "detector_sha256": sha256(ROOT_DIR / "models/ecuador/detector/ecuador_best.onnx"),
             "platform": platform.platform(),
         },
         "summary": {

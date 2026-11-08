@@ -1,7 +1,7 @@
 """Entrenamiento del detector de placas YOLO11-s (mismo protocolo que el notebook, sección 3.2).
 
-El modelo **ya está entrenado**: sus pesos viven en ``MyDrive/proyecto_integrador_placas`` y se
-copian a ``models/``. Este script existe para reproducir el entrenamiento; por defecto **no
+El modelo de Ecuador está versionado como ``models/ecuador/detector/ecuador_best.pt`` y su exportación
+ONNX como ``models/ecuador/detector/ecuador_best.onnx``. Los modelos de otros países se guardan por separado. Este script existe para reproducir el entrenamiento; por defecto **no
 reentrena** si ya hay pesos (use ``--force`` para repetirlo).
 
 Uso::
@@ -89,18 +89,22 @@ def train(data_yaml: str | Path, run_dir: str | Path = "results/runs", name: str
     return best
 
 
-def export_onnx(best_pt: str | Path, imgsz: int = 640, models_dir: str | Path = "models") -> Path:
-    """Exporta ``best.pt`` a ONNX y copia ambos a ``models/shared/detector/best_model.{pt,onnx}``."""
+def export_onnx(best_pt: str | Path, imgsz: int = 640, models_dir: str | Path = "models/ecuador/detector") -> Path:
+    """Exporta ``best.pt`` a ONNX y copia ambos a ``models/ecuador/detector/ecuador_best.{pt,onnx}``."""
     from ultralytics import YOLO  # type: ignore
 
     best_pt = resolve_path(best_pt)
     onnx_path = Path(YOLO(str(best_pt)).export(format="onnx", imgsz=imgsz, simplify=True, opset=12))
     out = resolve_path(models_dir)
     out.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(best_pt, out / "best_model.pt")
-    shutil.copy2(onnx_path, out / "best_model.onnx")
-    logger.info("Modelos copiados a %s", out)
-    return out / "best_model.onnx"
+    pt_target = out / "ecuador_best.pt"
+    onnx_target = out / "ecuador_best.onnx"
+    if best_pt.resolve() != pt_target.resolve():
+        shutil.copy2(best_pt, pt_target)
+    if Path(onnx_path).resolve() != onnx_target.resolve():
+        shutil.copy2(onnx_path, onnx_target)
+    logger.info("Modelos ecuatorianos disponibles en %s", out)
+    return onnx_target
 
 
 def main() -> None:

@@ -22,11 +22,17 @@ runs/
 *.zip
 
 
-# --- Pesos: solo se versionan los de models/ (best_model.pt ≈ 19 MB, best_model.onnx ≈ 37 MB) ---
+# --- Pesos: solo se versionan los de models/ (ecuador_best.pt ≈ 19 MB, ecuador_best.onnx ≈ 37 MB) ---
 *.pt
 *.onnx
 !models/*.pt
 !models/*.onnx
+!models/ecuador/
+!models/ecuador/**/*.pt
+!models/ecuador/**/*.onnx
+!models/usa/
+!models/usa/**/*.pt
+!models/usa/**/*.onnx
 
 # --- Sistema ---
 .DS_Store

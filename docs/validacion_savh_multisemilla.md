@@ -27,7 +27,7 @@ La diferencia media pareada en mAP50:95 es **+0,3743 puntos porcentuales**, con 
 
 Las diferencias medias adicionales son +0,001593 en mAP50 (desviación estándar muestral 0,001230) y +0,001463 en precisión (desviación estándar muestral 0,004227). La precisión disminuyó en la semilla 0. Con tres semillas, estos datos describen la variación observada y no demuestran significación estadística ni una mejora uniforme en todas las métricas.
 
-Los pesos de estas corridas son experimentales. No sustituyen `models/shared/detector/best_model.pt`, `models/shared/detector/best_model.onnx` ni el modelo desplegado en Hugging Face. La comparación histórica de una sola semilla es un experimento distinto y no debe mezclarse con este promedio.
+Los pesos de estas corridas son experimentales. No sustituyen `models/ecuador/detector/ecuador_best.pt`, `models/ecuador/detector/ecuador_best.onnx` ni el modelo desplegado en Hugging Face. La comparación histórica de una sola semilla es un experimento distinto y no debe mezclarse con este promedio.
 
 Evidencia: [comparación por semilla](../results/metrics/validacion_multisemilla_comparacion.csv), [resumen](../results/metrics/validacion_multisemilla_resumen.json), [protocolo](../results/metrics/validacion_multisemilla_protocolo.json) y [métricas individuales](../results/metrics/validacion_multisemilla_individuales/).
 

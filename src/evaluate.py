@@ -2,7 +2,7 @@
 
 Uso::
 
-    # Detector en el split test (requiere ultralytics y los pesos best_model.pt)
+    # Detector en el split test (requiere ultralytics y los pesos YOLO11-s específicos del país)
     python -m src.evaluate detector --data /ruta/data.yaml
 
     # Punta a punta con imágenes anotadas: CSV con columnas image_path, plate_gt
@@ -51,7 +51,7 @@ def f1_score(precision: float, recall: float) -> float:
     return 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
 
 
-def evaluate_detector(data_yaml: str, weights: str = "models/shared/detector/best_model.pt", imgsz: int = 640,
+def evaluate_detector(data_yaml: str, weights: str = "models/ecuador/detector/ecuador_best.pt", imgsz: int = 640,
                       split: str = "test") -> dict[str, Any]:
     """Valida YOLO11 en ``split`` con Ultralytics y guarda ``results/metrics/detector_<split>.json``."""
     from ultralytics import YOLO  # type: ignore
@@ -113,7 +113,7 @@ def main() -> None:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p_det = sub.add_parser("detector")
     p_det.add_argument("--data", required=True)
-    p_det.add_argument("--weights", default="models/shared/detector/best_model.pt")
+    p_det.add_argument("--weights", default="models/ecuador/detector/ecuador_best.pt")
     p_det.add_argument("--split", default="test")
     p_e2e = sub.add_parser("e2e")
     p_e2e.add_argument("--csv", required=True)

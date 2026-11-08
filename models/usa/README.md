@@ -1,11 +1,5 @@
 # models/usa
 
-> Purpose: Reserved location for U.S.-specific detector or OCR model checkpoints.
+Mantén los modelos estadounidenses separados de los pesos ecuatorianos. Cuando haya un detector entrenado y evaluado, guárdalo como `detector/usa_best.pt` y exporta `detector/usa_best.onnx`. Un OCR afinado para placas de EE. UU. usa `ocr/usa_ocr.onnx` y `ocr/usa_ocr_plate_config.yaml`.
 
-## Español
-
-No U.S. model is designated as production-ready yet. Store experimental checkpoints here after documenting dataset and evaluation results.
-
-## English
-
-Aún no hay un modelo estadounidense designado como listo para producción. Guarda aquí los checkpoints experimentales junto con la documentación de datos y resultados.
+Aún no hay modelos estadounidenses publicados. No copies ni renombres `ecuador_best` para ocupar estas rutas.

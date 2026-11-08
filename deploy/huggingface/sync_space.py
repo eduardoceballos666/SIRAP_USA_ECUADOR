@@ -26,7 +26,7 @@ INCLUDE = [
     "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
     "notebooks/ecuador/sirap_backend.ipynb",
-    "models/shared/detector/best_model.onnx", "models/README.md",
+    "models/ecuador/detector/ecuador_best.onnx", "models/README.md",
 ]
 IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
 

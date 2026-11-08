@@ -1,11 +1,5 @@
 # models/ecuador
 
-> Purpose: Models and OCR artifacts used for Ecuador workflows.
+El detector oficial de Ecuador está en `detector/ecuador_best.pt` y `detector/ecuador_best.onnx`. La configuración activa está en `config/countries/ecuador.yaml`. Los candidatos de reentrenamiento conservan un nombre separado y no reemplazan los pesos publicados automáticamente.
 
-## Español
-
-Active model configuration is maintained in `config/countries/ecuador.yaml`. Archive fragments are retained for traceability.
-
-## English
-
-La configuración del modelo activo se mantiene en `config/countries/ecuador.yaml`. Los fragmentos archivados se conservan para trazabilidad.
+Los artefactos de afinamiento OCR están separados en `ocr/`; la versión experimental no se activa en la app porque no superó el criterio de adopción.
