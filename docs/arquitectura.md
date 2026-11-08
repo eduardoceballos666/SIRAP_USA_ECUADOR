@@ -62,7 +62,7 @@ supervisor, administrador); validación de entradas con Pydantic; mensajes de er
 | Modelo | `src/model.py` | Detector, OCR, pipeline ALPR |
 | Datos | `src/data_processing.py`, `src/storage.py`, `data/processed/` | Validación, normalización, persistencia |
 | Entrenamiento / evaluación | `src/train.py`, `src/evaluate.py`, `notebooks/` | Reproducir y medir el modelo |
-| Configuración | `config/config.yaml`, secretos | Parámetros sin valores fijos en el código |
+| Configuración | `config/countries/ecuador.yaml`, secretos | Parámetros sin valores fijos en el código |
 
 **Internacionalización:** `frontend/src/i18n.js` centraliza las cadenas de español e inglés. `Idioma` cambia el catálogo activo desde el inicio de sesión o el menú común; `sirap_language` conserva la preferencia en `localStorage`. Ambas opciones se publican bajo la misma URL del Space: https://eduardoceballos-sirap-usa-ecuador-hf.hf.space.
 

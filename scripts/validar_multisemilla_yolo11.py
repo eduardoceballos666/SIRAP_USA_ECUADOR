@@ -1,7 +1,7 @@
 """Repite base vs. trial 12 con semillas emparejadas sin sustituir el modelo publicado.
 
 Requiere Ultralytics, CUDA y el data_abs.yaml de Roboflow v11 preparado por
-notebooks/04_optimizacion.ipynb. Usa el mismo test SOLO para reportar, no para
+notebooks/shared/04_optimizacion.ipynb. Usa el mismo test SOLO para reportar, no para
 elegir hiperparámetros. Guarda una corrida por semilla y evita sobreescrituras.
 """
 from __future__ import annotations
@@ -108,7 +108,7 @@ def main() -> None:
         "ultralytics": ultralytics.__version__,
         "pytorch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0),
-        "modelo_deploy": "SIN CAMBIOS: models/best_model.onnx",
+        "modelo_deploy": "SIN CAMBIOS: models/shared/detector/best_model.onnx",
         "fecha_utc": datetime.now(timezone.utc).isoformat(),
     }
     manifest_file = output / "protocolo.json"

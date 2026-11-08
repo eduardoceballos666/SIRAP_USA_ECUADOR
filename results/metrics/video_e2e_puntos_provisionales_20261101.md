@@ -1,6 +1,6 @@
 # Resultado histórico de la evaluación puntual del video
 
-Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con 18 cuadros puntuales. **Esa referencia ya no está vigente.** La referencia final es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv): 20 pasadas con intervalos inclusivos y columnas `plate_gt,frame_start,frame_end`, armada con dos anotaciones ciegas del video completo y adjudicada en el video. Los archivos de 18 puntos y el borrador de intervalos se conservan solo como históricos; ver [la revisión de la referencia final](../../blind_eval/video_ground_truth_review.md).
+Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con 18 cuadros puntuales. **Esa referencia ya no está vigente.** La referencia final es [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../../evaluation/ecuador/blind_evaluation/video_ground_truth.csv): 20 pasadas con intervalos inclusivos y columnas `plate_gt,frame_start,frame_end`, armada con dos anotaciones ciegas del video completo y adjudicada en el video. Los archivos de 18 puntos y el borrador de intervalos se conservan solo como históricos; ver [la revisión de la referencia final](../../evaluation/ecuador/blind_evaluation/video_ground_truth_review.md).
 
 | Métrica histórica (18 puntos, antes del cotejo) | Resultado |
 |---|---:|
@@ -15,7 +15,7 @@ Esta corrida de la sección 7.2 usó una versión anterior de la referencia, con
 | Lecturas fuera de los cuadros de referencia | 34 |
 | Cuadros procesados | 18.115 |
 
-**Estos valores son históricos y no describen la referencia final.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Las métricas actuales están en el [informe de la corrida final](video_e2e_intervalos_final.md). Para reproducirlas en Colab, ejecuta la sección 0 y las celdas previas requeridas, luego 6.9 y 7.2 con el mismo video, la referencia `blind_eval/video_ground_truth.csv` y la lista autorizada que se desea evaluar.
+**Estos valores son históricos y no describen la referencia final.** El repositorio no conserva el registro por lectura de esa corrida; por eso no se pueden recalcular a partir de este resumen agregado. Las métricas actuales están en el [informe de la corrida final](video_e2e_intervalos_final.md). Para reproducirlas en Colab, ejecuta la sección 0 y las celdas previas requeridas, luego 6.9 y 7.2 con el mismo video, la referencia `evaluation/ecuador/blind_evaluation/video_ground_truth.csv` y la lista autorizada que se desea evaluar.
 
 ## Alcance y límites
 

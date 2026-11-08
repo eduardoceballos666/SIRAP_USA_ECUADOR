@@ -1,3 +1,7 @@
+**Purpose:** data/README.md contains project files and instructions. This description is in English.
+
+> Purpose: Small application data, examples, and data usage notes.
+
 # Datos de SIRAP
 
 | Carpeta | Contenido | ¿En el repositorio? |
@@ -25,9 +29,9 @@
 
 ## 3. Imágenes de la garita (propias)
 
-Las imágenes y el video del punto de control se tomaron en una planta **con autorización escrita** de la empresa. El repositorio publica 21 imágenes en `garita/imagenes/` y sus etiquetas en `garita/ground_truth.csv` para la evaluación por imagen de la sección 7.3. El video `video_camiones.mp4` se distribuye como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1), separado del historial Git por su tamaño.
+Las imágenes y el video del punto de control se tomaron en una planta **con autorización escrita** de la empresa. El repositorio publica 21 imágenes en `datasets/ecuador/gate/imagenes/` y sus etiquetas en `datasets/ecuador/gate/ground_truth.csv` para la evaluación por imagen de la sección 7.3. El video `video_camiones.mp4` se distribuye como asset del Release [`datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1), separado del historial Git por su tamaño.
 
-Estos archivos contienen placas reales y son materiales públicos del proyecto. Las 21 imágenes sirven para la evaluación por imagen. La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos; los CSV provisionales de esa carpeta son históricos. Consulta [`blind_eval/`](../blind_eval/) y [`results/README.md`](../results/README.md) para conocer su alcance.
+Estos archivos contienen placas reales y son materiales públicos del proyecto. Las 21 imágenes sirven para la evaluación por imagen. La referencia final del video es [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../evaluation/ecuador/blind_evaluation/video_ground_truth.csv), con columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos; los CSV provisionales de esa carpeta son históricos. Consulta [`evaluation/ecuador/blind_evaluation/`](../evaluation/ecuador/blind_evaluation/) y [`results/README.md`](../results/README.md) para conocer su alcance.
 
 ## 4. Autorizaciones y registros del pipeline
 
@@ -67,7 +71,7 @@ del almacenamiento operativo de la aplicación web.
 
 | Archivo | Origen | Resultado esperado |
 |---|---|---|
-| `garita3_PBA-8901.jpg` | Recorte de la guía de diseño `docs/img/vue_dashboard.png` (se quitó el recuadro verde) | Autorizado – lista blanca |
+| `garita3_PBA-8901.jpg` | Recorte de la guía de diseño `docs/images/vue_dashboard.png` (se quitó el recuadro verde) | Autorizado – lista blanca |
 | `garita2_GBO-0429.jpg` | La misma imagen con la placa reemplazada (sintética) | Denegado – lista restringida |
 | `garita1_GSA-1234.jpg` | La misma imagen con la placa reemplazada (sintética) | No registrado |
 | `garita3_PCD-5678_desenfocada.jpg` | Placa reemplazada y desenfoque gaussiano (sintética) | Verificación manual (confianza baja) |
@@ -85,3 +89,8 @@ Al alcanzar el 94 %, el servidor declara la placa autorizada solo si tiene una a
 ## Relación con la aplicación publicada
 
 Los datos descritos en este documento alimentan partes del desarrollo y la evaluación; las etiquetas y métricas se deben interpretar según su procedencia y las limitaciones anotadas en cada sección. La aplicación desplegada es [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) ([abrir aplicación](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space)); el código y las referencias públicas están en el [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). La interfaz está disponible en español e inglés; consulta la [API](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs) y los videos en el [README](../README.md).
+
+
+## English
+
+This folder contains application samples and local runtime CSVs. Public datasets and evaluation references belong under `datasets/`; production records and credentials remain in the private storage repository. The application continues to use its configured paths under this folder.

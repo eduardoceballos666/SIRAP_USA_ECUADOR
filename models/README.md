@@ -1,11 +1,15 @@
+**Purpose:** models/README.md contains project files and instructions. This description is in English.
+
+> Purpose: Versioned detector and OCR model artifacts separated by country or shared use.
+
 # Modelos
 
 | Archivo | Qué es | Cómo se obtiene |
 |---|---|---|
-| `best_model.pt` | Pesos de **YOLO11-s** entrenado (mejor época en *val*), publicados en el repositorio | Ya disponible en `models/best_model.pt`; la ruta de Google Drive fue el destino original de entrenamiento y no es necesaria para ejecutar la aplicación ni el notebook |
-| `best_model.onnx` | El mismo modelo exportado a ONNX (640 px) | `python -m src.train --export-only models/best_model.pt` |
+| `best_model.pt` | Pesos de **YOLO11-s** entrenado (mejor época en *val*), publicados en el repositorio | Ya disponible en `models/shared/detector/best_model.pt`; la ruta de Google Drive fue el destino original de entrenamiento y no es necesaria para ejecutar la aplicación ni el notebook |
+| `best_model.onnx` | El mismo modelo exportado a ONNX (640 px) | `python -m src.train --export-only models/shared/detector/best_model.pt` |
 | *OCR* | `fast-plate-ocr` · `cct-s-v2-global-model` (≈5 MB) | Se descarga solo la primera vez que corre la app |
-| `ocr_afinado.onnx` + `ocr_afinado_plate_config.yaml` *(opcional)* | OCR afinado con placas ecuatorianas | `notebooks/06_afinamiento_ocr.ipynb`; súbalo **solo** si la sección 5 de ese notebook decide «adoptar». Si existen, la app los usa en lugar del modelo del hub |
+| `ocr_afinado.onnx` + `ocr_afinado_plate_config.yaml` *(opcional)* | OCR afinado con placas ecuatorianas | `notebooks/ecuador/ocr_finetuning.ipynb`; súbalo **solo** si la sección 5 de ese notebook decide «adoptar». Si existen, la app los usa en lugar del modelo del hub |
 
 La aplicación carga el modelo **ONNX** con ONNX Runtime. En desarrollo puede cargar `best_model.pt` si está
 instalado `ultralytics`. El reconocimiento requiere uno de estos pesos YOLO11-s: si ninguno se carga, la aplicación
@@ -37,9 +41,14 @@ YOLO11-s + fast-plate-ocr. Si se conservan pesos de esas versiones, guárdelos c
 
 ## Umbral operativo OCR
 
-La aplicación usa un umbral de confianza OCR de **94 %**, según [`config/config.yaml`](../config/config.yaml). Las lecturas por debajo pasan a verificación manual.
+La aplicación usa un umbral de confianza OCR de **94 %**, según [`config/countries/ecuador.yaml`](../config/countries/ecuador.yaml). Las lecturas por debajo pasan a verificación manual.
 
 
 ## Uso en la aplicación SIRAP
 
 Los pesos descritos aquí se integran con la aplicación web publicada en [Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) ([abrir aplicación](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space)). El código de integración, las métricas y la documentación están en el [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR). La [API](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs) ofrece documentación interactiva; la interfaz se puede usar en español e inglés.
+
+
+## English
+
+The generic YOLO11 detector is stored under `models/shared/detector/`. Ecuador OCR tuning files that are not currently adopted are archived under `models/ecuador/ocr/archive/`. The `usa/` model folders are reserved for separately trained and evaluated U.S. checkpoints.

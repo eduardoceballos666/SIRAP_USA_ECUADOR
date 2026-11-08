@@ -1,0 +1,13 @@
+country:
+  code: "US"
+  name: "United States"
+
+plates:
+  require_state: true
+  normalization: "uppercase_alphanumeric"
+
+vehicle_lookup:
+  provider: "jdpower"
+  enabled: false
+  authorization_required: true
+  notes: "Enable only after an authorized API or written permission is available."

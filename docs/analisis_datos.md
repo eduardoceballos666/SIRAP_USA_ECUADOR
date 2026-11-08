@@ -9,7 +9,7 @@ SIRAP trabaja con dos conjuntos de datos que responden a preguntas distintas:
 
 Este documento describe la composición, calidad, patrones y preparación de ambos conjuntos. Las métricas del detector y del OCR corresponden a protocolos diferentes; no son una sola métrica de desempeño de la aplicación ni una garantía para cada cámara o condición de uso.
 
-El análisis reproducible está en [01_exploracion.ipynb](../notebooks/01_exploracion.ipynb) y en la sección 1 del [notebook de backend](../notebooks/SIRAP_backend.ipynb). Las cifras de composición del detector están resumidas en [dataset_resumen.json](../results/metrics/dataset_resumen.json); las métricas OCR más recientes están en [ocr_savh_aprobaciones_398.json](../results/metrics/ocr_savh_aprobaciones_398.json). Las figuras citadas abajo se conservan en `results/figures/`.
+El análisis reproducible está en [01_exploracion.ipynb](../notebooks/shared/01_exploracion.ipynb) y en la sección 1 del [notebook de backend](../notebooks/ecuador/sirap_backend.ipynb). Las cifras de composición del detector están resumidas en [dataset_resumen.json](../results/metrics/dataset_resumen.json); las métricas OCR más recientes están en [ocr_savh_aprobaciones_398.json](../results/metrics/ocr_savh_aprobaciones_398.json). Las figuras citadas abajo se conservan en `results/figures/`.
 
 ## 1. Datos para detectar placas
 
@@ -117,7 +117,7 @@ El recálculo más reciente usa salidas OCR guardadas, sin ejecutar inferencia n
 | Umbral 0,99: aceptadas | 346/398 = **86,9 %** | Cobertura; 52 pasarían a revisión manual |
 | Umbral 0,99: exactas entre aceptadas | 343/346 | Tres lecturas aceptadas no coinciden exactamente |
 
-El umbral **0,94** está configurado en `config/config.yaml` y se usa como referencia para el flujo descrito en el proyecto. El umbral **0,99** de la tabla es una comparación offline, no una afirmación de que la aplicación desplegada opere con ese valor.
+El umbral **0,94** está configurado en `config/countries/ecuador.yaml` y se usa como referencia para el flujo descrito en el proyecto. El umbral **0,99** de la tabla es una comparación offline, no una afirmación de que la aplicación desplegada opere con ese valor.
 
 Los cortes anteriores de **374/399** y **373/397** corresponden a referencias y filtros previos. Se conservan en los archivos históricos, pero no son directamente comparables con **388/398** porque cambió el conjunto de etiquetas evaluables. El aumento de EMR no demuestra una mejora del modelo: no se reentrenó el OCR y la revisión no fue ciega.
 

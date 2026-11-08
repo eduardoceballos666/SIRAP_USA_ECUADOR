@@ -1,6 +1,6 @@
 """Procesamiento de datos de SIRAP: validación de imágenes, recortes y normalización de placas.
 
-La normalización es la misma del notebook de backend (``notebooks/SIRAP_backend.ipynb``,
+La normalización es la misma del notebook de backend (``notebooks/ecuador/sirap_backend.ipynb``,
 sección 2.1, «Normalización de placas»), validada con las placas reales de SAVH Guayaquil:
 
 * Una placa válida tiene **3 letras + 4 dígitos** (formato actual) o **3 letras + 3 dígitos**
