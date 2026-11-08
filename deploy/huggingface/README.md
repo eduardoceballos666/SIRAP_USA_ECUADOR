@@ -1,7 +1,3 @@
-**Purpose:** deploy/huggingface/README.md contains project files and instructions. This description is in English.
-
-> Purpose: Hugging Face Space deployment and synchronization scripts.
-
 ---
 title: SIRAP_USA_ECUADOR_HF
 emoji: 🚗
