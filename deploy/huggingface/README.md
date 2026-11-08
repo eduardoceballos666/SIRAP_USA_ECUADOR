@@ -1,3 +1,7 @@
+**Purpose:** deploy/huggingface/README.md contains project files and instructions. This description is in English.
+
+> Purpose: Hugging Face Space deployment and synchronization scripts.
+
 ---
 title: SIRAP_USA_ECUADOR_HF
 emoji: 🚗
@@ -49,7 +53,7 @@ El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano
 
 ## Umbral y revisión humana
 
-La configuración vigente en [config/config.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/config.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+La configuración vigente en [config/countries/ecuador.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/countries/ecuador.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
 
 La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
 
@@ -63,3 +67,8 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
 SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
+
+
+## English
+
+This folder contains the Hugging Face Space deployment guide and synchronization script. Deployment uses the shared application code and the Ecuador configuration by default. The U.S. lookup provider is not active until J.D. Power authorizes an API integration or grants written permission for automation.

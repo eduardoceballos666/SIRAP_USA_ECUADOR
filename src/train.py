@@ -90,7 +90,7 @@ def train(data_yaml: str | Path, run_dir: str | Path = "results/runs", name: str
 
 
 def export_onnx(best_pt: str | Path, imgsz: int = 640, models_dir: str | Path = "models") -> Path:
-    """Exporta ``best.pt`` a ONNX y copia ambos a ``models/best_model.{pt,onnx}``."""
+    """Exporta ``best.pt`` a ONNX y copia ambos a ``models/shared/detector/best_model.{pt,onnx}``."""
     from ultralytics import YOLO  # type: ignore
 
     best_pt = resolve_path(best_pt)

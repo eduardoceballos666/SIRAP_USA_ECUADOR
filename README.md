@@ -1,3 +1,7 @@
+**Purpose:** README.md contains project files and instructions. This description is in English.
+
+> Purpose: Project documentation and instructions for the repository.
+
 <div align="center">
 
 # SIRAP
@@ -5,7 +9,7 @@
 
 **Aplicación web para apoyar el control de acceso vehicular en garitas.**
 
-[Aplicación en vivo](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) · [Manual de usuario](docs/manual_usuario.md) · Swagger en la ruta `/docs` del Space · [Notebook principal](notebooks/SIRAP_backend.ipynb)
+[Aplicación en vivo](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) · [Manual de usuario](docs/manual_usuario.md) · Swagger en la ruta `/docs` del Space · [Notebook principal](notebooks/ecuador/sirap_backend.ipynb)
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
@@ -16,7 +20,7 @@
 
 **Interfaz disponible en inglés, español, portugués brasileño, francés y alemán. El inglés es el idioma inicial.**
 
-<img src="docs/img/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
+<img src="docs/images/docs/images/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
 
 </div>
 
@@ -97,7 +101,7 @@ La aplicación ofrece inglés, español, portugués brasileño, francés y alem�
 | Administración | Gestión de vehículos, autorizaciones, restricciones, garitas, usuarios y datos de demostración |
 | Acerca del modelo | Explicación del modelo, resultados, entrenamiento y limitaciones |
 
-Capturas: [Reconocimiento](docs/img/vue_reconocimiento.png), [Dashboard](docs/img/vue_dashboard.png), [Verificación](docs/img/vue_verificacion.png) y [vista móvil](docs/img/vue_movil.png).
+Capturas: [Reconocimiento](docs/images/docs/images/vue_reconocimiento.png), [Dashboard](docs/images/vue_dashboard.png), [Verificación](docs/images/vue_verificacion.png) y [vista móvil](docs/images/vue_movil.png).
 
 La interfaz es adaptable a celular y escritorio. El tema claro es el predeterminado en ambos; el usuario también puede seleccionar el tema oscuro. Valida el tipo, el tamaño y la resolución de las imágenes, muestra estados de carga y mensajes de error comprensibles, y permite comparar las lecturas obtenidas durante la sesión.
 
@@ -150,12 +154,12 @@ La aplicación consulta servicios públicos para obtener datos complementarios d
 |---|---|
 | [License Plate Recognition v11](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) | Dataset de detección con 10.125 imágenes: 7.057 de entrenamiento, 2.048 de validación y 1.020 de prueba; licencia CC BY 4.0 |
 | [SAVH Guayaquil ANPR Plate Images](https://zenodo.org/records/21120307) | Recortes de placas ecuatorianas para revisar OCR. El registro consultado no muestra una licencia para el archivo específico usado; revisar sus condiciones antes de redistribuirlo |
-| Imágenes de garita | 21 imágenes y ground_truth.csv incluidos en garita/ para la evaluación por imagen 7.3 |
+| Imágenes de garita | 21 imágenes y ground_truth.csv incluidos en datasets/ecuador/gate/ para la evaluación por imagen 7.3 |
 | Video video_camiones.mp4 | Video fuente publicado como asset del Release [datos-garita-v1](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1); tamaño aproximado 459,3 MB |
 | Lista de placas para el notebook | data/authorized_plates.csv está versionada en este repositorio y se usa como dato de demostración/evaluación; no contiene credenciales |
 | Datos operativos de la aplicación | Vehículos, autorizaciones, operaciones, usuarios, garitas, hashes de credenciales y detecciones enriquecidas se almacenan en el repositorio privado |
 
-La lista de placas de demostración/evaluación [`data/authorized_plates.csv`](data/authorized_plates.csv) y la **referencia final del video** [`blind_eval/video_ground_truth.csv`](blind_eval/video_ground_truth.csv) están publicadas intencionalmente como artefactos del proyecto. La referencia tiene las columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos sobre el video completo; es el archivo que usa la sección 7.2. Los CSV provisionales de `blind_eval/` son históricos. No se deben añadir credenciales, datos operativos privados ni nuevas predicciones identificables sin revisión. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
+La lista de placas de demostración/evaluación [`data/authorized_plates.csv`](data/authorized_plates.csv) y la **referencia final del video** [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](evaluation/ecuador/blind_evaluation/video_ground_truth.csv) están publicadas intencionalmente como artefactos del proyecto. La referencia tiene las columnas `plate_gt,frame_start,frame_end` y 20 pasadas con intervalos inclusivos sobre el video completo; es el archivo que usa la sección 7.2. Los CSV provisionales de `evaluation/ecuador/blind_evaluation/` son históricos. No se deben añadir credenciales, datos operativos privados ni nuevas predicciones identificables sin revisión. Los secretos de despliegue se configuran como variables de entorno o secretos del proveedor.
 
 Más detalles: [análisis de datos](docs/analisis_datos.md), [descripción de los datos](data/README.md) y [consideraciones éticas](docs/consideraciones_eticas.md).
 
@@ -184,7 +188,7 @@ El CSV permite comparar por época las pérdidas de entrenamiento y validación,
 | Garita, evaluación por imagen 7.3 | Informe: EMR **8/21 (38,1 %)** y 37,69 ms; salida guardada del notebook: **9/21 (42,9 %)** y 1,400674 s | Corridas distintas; no combinarlas. La salida del notebook no conserva fecha ni ID de corrida. |
 | Video de garita, evaluación 7.2 | Reejecución más reciente: EMR **18/30 (60 %)**; recall de placas únicas **16/17 (94,12 %)**; **2/30** falsas autorizaciones observadas entre lecturas clasificables | 51 lecturas: 30 con referencia y 21 sin clasificar. La tasa integral del video no es estimable. La referencia contiene 20 pasadas (17 placas únicas) y excluye dos pasadas dudosas. La corrida guardada anterior se documenta por separado. [Informe de métricas](results/metrics/video_e2e_intervalos_final.md) |
 
-Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md), la [corrida final de video 7.2](results/metrics/video_e2e_intervalos_final.md) y el informe histórico de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen sus resultados y límites. La referencia final del video y su cotejo se documentan en [`blind_eval/video_ground_truth_review.md`](blind_eval/video_ground_truth_review.md).
+Los archivos agregados y las figuras pequeñas están en [métricas](results/metrics/) y [figuras](results/figures/). El resumen detallado de la [evaluación por imágenes de garita](results/metrics/garita_imagenes_e2e_20261101.md), la [corrida final de video 7.2](results/metrics/video_e2e_intervalos_final.md) y el informe histórico de la [evaluación puntual de video](results/metrics/video_e2e_puntos_provisionales_20261101.md) describen sus resultados y límites. La referencia final del video y su cotejo se documentan en [`evaluation/ecuador/blind_evaluation/video_ground_truth_review.md`](evaluation/ecuador/blind_evaluation/video_ground_truth_review.md).
 
 <img src="results/figures/resumen_yolo11_completo.png" alt="Resumen de resultados del detector YOLO11-s" width="900">
 
@@ -251,16 +255,16 @@ En producción, los CSV operativos se leen y actualizan desde el repositorio pri
 
 ## Notebook y reproducibilidad
 
-El notebook principal [notebooks/SIRAP_backend.ipynb](notebooks/SIRAP_backend.ipynb) contiene preparación de entorno, análisis de datos, preprocesamiento, entrenamiento, calibración, evaluación del detector y OCR, análisis de video y evaluación de las imágenes de garita.
+El notebook principal [notebooks/ecuador/sirap_backend.ipynb](notebooks/ecuador/sirap_backend.ipynb) contiene preparación de entorno, análisis de datos, preprocesamiento, entrenamiento, calibración, evaluación del detector y OCR, análisis de video y evaluación de las imágenes de garita.
 
 1. Abre el notebook desde GitHub en Google Colab y ejecuta la sección 0; clona el repositorio y prepara el entorno sin montar Google Drive.
 2. Para descargar el dataset de Roboflow, guarda ROBOFLOW_API_KEY en Secrets de Colab. Si se usa una fuente local, coloca el ZIP en data/raw/dataset_placas_yolo.zip y configura DATASET_SOURCE = local.
 3. La sección 0 descarga video_camiones.mp4 desde el Release datos-garita-v1 a artifacts/video_camiones.mp4 y comprueba su integridad. El video fuente se usa por defecto; el video de muestra es opcional.
 4. Ejecuta en el mismo runtime las secciones previas requeridas por el pipeline. La sección 0 usa el checkpoint y los umbrales versionados cuando inicia una sesión nueva; no necesitas reentrenar para evaluar. Si vas a entrenar, selecciona `TRAINING_PRESET = "completo"`; después de reentrenar, vuelve a correr la calibración antes de evaluar. Los historiales por época y sus resúmenes están versionados en [resultados de entrenamiento](#entrenamiento-yolo11).
-5. La evaluación 7.3 usa las 21 imágenes y garita/ground_truth.csv versionadas en el repositorio.
+5. La evaluación 7.3 usa las 21 imágenes y datasets/ecuador/gate/ground_truth.csv versionadas en el repositorio.
 6. Las salidas nuevas se escriben en el espacio temporal de Colab. Descarga desde Colab los videos anotados u otros resultados grandes que quieras conservar.
 
-El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también publica `notebooks/SIRAP_backend.ipynb` cuando se actualiza en `main`. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
+El notebook no incrusta el video fuente ni publica automáticamente los videos anotados. El workflow [deploy-hf-space.yml](.github/workflows/deploy-hf-space.yml) también publica `notebooks/ecuador/sirap_backend.ipynb` cuando se actualiza en `main`. El [README de artefactos](artifacts/README.md) describe los medios grandes y cómo se distribuyen. La guía del resto de notebooks está en [notebooks/README.md](notebooks/README.md).
 
 ## Privacidad, seguridad y uso responsable
 
@@ -278,11 +282,11 @@ SIRAP_USA_ECUADOR/
 ├── .github/workflows/       # Automatización y despliegue
 ├── api/                     # API FastAPI
 ├── app/ y frontend/         # Interfaz web
-├── blind_eval/              # Referencia final del video (video_ground_truth.csv) y su revisión
+├── evaluation/ecuador/blind_evaluation/              # Referencia final del video (video_ground_truth.csv) y su revisión
 ├── config/                  # Configuración sin secretos
 ├── data/                    # Ejemplos, listas y documentación de datos
 ├── docs/                    # Manual, arquitectura, análisis y capturas
-├── garita/                  # 21 imágenes y referencia ground_truth.csv
+├── datasets/ecuador/gate/                  # 21 imágenes y referencia ground_truth.csv
 ├── models/                  # Modelo entrenado y exportación ONNX
 ├── notebooks/               # Análisis, entrenamiento y evaluación
 ├── results/                 # Métricas, informes y figuras compactas
@@ -291,13 +295,13 @@ SIRAP_USA_ECUADOR/
 ├── artifacts/               # Instrucciones para recursos pesados
 ├── Dockerfile
 ├── LICENSE
-├── manual_usuario.pdf
+├── docs/project_materials/manual_usuario.pdf
 └── README.md
 ```
 
 ## Documentación del proyecto
 
-- [Manual de usuario](docs/manual_usuario.md) y [manual en PDF](manual_usuario.pdf).
+- [Manual de usuario](docs/manual_usuario.md) y [manual en PDF](docs/project_materials/manual_usuario.pdf).
 - [Arquitectura](docs/arquitectura.md).
 - [Análisis de datos](docs/analisis_datos.md).
 - [Optimización del detector](docs/optimizacion.md).
@@ -332,3 +336,14 @@ Gracias a Gladys María Villegas Rugel por la asesoría académica, a la empresa
 
 - [Video pitch del proyecto (máximo 5 minutos)](https://www.youtube.com/watch?v=DBaeSUo64xE)
 - [Video de respuestas a las preguntas](https://youtu.be/TUrEQ9sEwYM)
+
+
+---
+
+## English
+
+SIRAP is a web application that supports vehicle access checks. The current operational flow is Ecuador-focused. The repository is organized to keep one shared frontend and API while separating country-specific datasets, rules, model artifacts, and evaluation results.
+
+Ecuador materials are under `datasets/ecuador/`, `evaluation/ecuador/`, and `notebooks/ecuador/`. U.S. plate images and OCR references are under `datasets/usa/`; the U.S. state-reading and vehicle-lookup profile is preparatory. J.D. Power is the intended U.S. lookup source, but automated access must wait for an authorized API or written permission.
+
+Folder-specific instructions are in the bilingual READMEs under `api/`, `frontend/`, `datasets/`, `models/`, `notebooks/`, and `results/`. Deployment instructions remain under `deploy/huggingface/`.

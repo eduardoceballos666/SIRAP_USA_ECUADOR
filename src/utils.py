@@ -21,14 +21,14 @@ import yaml
 
 #: Raíz del repositorio (carpeta que contiene ``src/``).
 ROOT_DIR: Path = Path(__file__).resolve().parents[1]
-CONFIG_PATH: Path = ROOT_DIR / "config" / "config.yaml"
+CONFIG_PATH: Path = ROOT_DIR / "config" / "countries" / "ecuador.yaml"
 
 
 def resolve_path(relative: str | os.PathLike) -> Path:
     """Convierte una ruta relativa a la raíz del repositorio en una ruta absoluta.
 
     Args:
-        relative: ruta relativa (p. ej. ``"models/best_model.onnx"``) o absoluta.
+        relative: ruta relativa (p. ej. ``"models/shared/detector/best_model.onnx"``) o absoluta.
 
     Returns:
         La ruta absoluta correspondiente.
@@ -39,7 +39,7 @@ def resolve_path(relative: str | os.PathLike) -> Path:
 
 @lru_cache(maxsize=4)
 def load_config(path: str | os.PathLike | None = None) -> dict[str, Any]:
-    """Lee ``config/config.yaml`` (o la ruta indicada) y devuelve un diccionario.
+    """Lee ``config/countries/ecuador.yaml`` (o la ruta indicada) y devuelve un diccionario.
 
     Args:
         path: ruta alternativa al archivo de configuración.
