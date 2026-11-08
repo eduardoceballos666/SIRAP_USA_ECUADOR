@@ -32,7 +32,21 @@ Los notebooks documentan el análisis de datos, la preparación, el entrenamient
 2. Roboflow es la fuente de dataset predeterminada. Configura `ROBOFLOW_API_KEY` en Secrets de Colab si vas a descargar ese dataset y ejecutar sus secciones de preparación o entrenamiento. Como alternativa, cambia `DATASET_SOURCE = "local"` y proporciona un ZIP YOLO en `data/raw/dataset_placas_yolo.zip`.
 3. La sección 0 descarga el video fuente desde el [Release `datos-garita-v1`](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/releases/tag/datos-garita-v1) a `artifacts/video_camiones.mp4` y valida su integridad. La sección 6.1 usa ese video por defecto (`USE_SAMPLE_VIDEO = False`). `True` selecciona el video de demostración de estacionamiento, que sirve para comprobar el flujo, no para medir el caso de los camiones.
 4. Las celdas de Colab y sus archivos temporales se pierden al reiniciar la sesión. En una sesión limpia, el notebook usa el checkpoint publicado `models/shared/detector/best_model.pt` y recupera los umbrales versionados de `results/metrics/umbrales.json` si no hay valores generados en esa sesión; no necesitas volver a entrenar ni calibrar para usar esos valores. Ejecuta las celdas previas que indique cada evaluación en el mismo runtime. Si decides reentrenar, activa `FORCE_RETRAIN = True` o corre el entrenamiento correspondiente; luego ejecuta 4.1 para recalibrar los umbrales.
-5. Las evaluaciones guardan salidas nuevas en `/content/SIRAP_workspace`. Descarga desde el panel **Files** los archivos que quieras conservar. Los videos anotados no se incrustan en el notebook ni se publican automáticamente como assets de Release.
+5. Los resultados persistentes se escriben dentro del clon en `results/metrics/`, `results/figures/`, `results/ecuador/` y, para evidencia OCR experimental, `evaluation/ecuador/savh/artifacts/ocr/`. Los checkpoints de entrenamiento se conservan en el espacio temporal de Colab hasta que una celda del flujo los copie a `models/ecuador/`. El notebook publica los cambios a `main` al llegar a su celda final si existe el secreto `GITHUB_TOKEN` de Colab con permiso Contents: Read and write; si falta, conserva los resultados en el clon e informa cómo configurarlo. Los videos grandes no se publican como assets de Release.
+
+## Rutas de archivos y publicación
+
+### Español
+
+Los notebooks clonan o reutilizan `SIRAP_USA_ECUADOR` sin borrar directorios que no sean clones Git. Leen las referencias de video desde `evaluation/ecuador/blind_evaluation/`, las imágenes y etiquetas de garita desde `datasets/ecuador/gate/`, SAVH desde `evaluation/ecuador/savh/artifacts/` y los datos operativos desde `data/`. Los datasets descargados para entrenamiento se mantienen en el disco temporal de Colab para no llenar el repositorio con copias de trabajo.
+
+Las métricas y tablas nuevas se guardan en `results/metrics/`; los gráficos en `results/figures/`; los videos generados en `results/ecuador/videos/`; y los modelos ecuatorianos aprobados o candidatos en `models/ecuador/`. Cada notebook contiene una celda final de publicación. Para que el envío funcione, agrega `GITHUB_TOKEN` en **Secrets** de Colab con permiso de escritura sobre contenidos del repositorio. No pegues el token en el código. GitHub no acepta archivos de 90 MiB o más mediante esta ruta de publicación; esos archivos quedan locales y deben almacenarse con Git LFS o en un servicio de artefactos.
+
+### English
+
+The notebooks clone or reuse `SIRAP_USA_ECUADOR` without deleting directories that are not Git clones. They read video references from `evaluation/ecuador/blind_evaluation/`, gate images and labels from `datasets/ecuador/gate/`, SAVH from `evaluation/ecuador/savh/artifacts/`, and operational data from `data/`. Training datasets downloaded for a run stay on Colab's temporary disk so working copies do not bloat the repository.
+
+New metrics and tables go to `results/metrics/`; plots to `results/figures/`; generated videos to `results/ecuador/videos/`; and approved or candidate Ecuador models to `models/ecuador/`. Each notebook includes a final publishing cell. To push results, add a `GITHUB_TOKEN` secret in Colab with repository Contents write access. Do not paste the token into notebook code. GitHub rejects files of 90 MiB or larger through this publishing path; keep those files local and use Git LFS or an artifact service.
 
 ## Historial y resumen de entrenamiento YOLO11
 
