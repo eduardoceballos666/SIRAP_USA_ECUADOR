@@ -1,6 +1,6 @@
 # Evaluación del video de garita: secciones 6.9 y 7.2
 
-La referencia publicada es [`blind_eval/video_ground_truth.csv`](../../blind_eval/video_ground_truth.csv): contiene 20 pasadas anotadas, 17 placas únicas e intervalos inclusivos. Dos pasadas dudosas (cuadros 0–247 y 1142–1488) siguen excluidas; por eso la referencia no cubre todas las pasadas identificadas en el video.
+La referencia publicada es [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../../evaluation/ecuador/blind_evaluation/video_ground_truth.csv): contiene 20 pasadas anotadas, 17 placas únicas e intervalos inclusivos. Dos pasadas dudosas (cuadros 0–247 y 1142–1488) siguen excluidas; por eso la referencia no cubre todas las pasadas identificadas en el video.
 
 ## Reejecución más reciente en Colab
 

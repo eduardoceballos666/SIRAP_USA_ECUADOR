@@ -2,8 +2,8 @@
 
 Este documento reúne la búsqueda de hiperparámetros del detector, la comparación de configuraciones completas, la validación con varias semillas, la calibración de umbrales y el experimento independiente de afinamiento del OCR. Cada resultado se identifica por su conjunto y protocolo para no confundir experimentos distintos.
 
-- Notebook de optimización: [04_optimizacion.ipynb](../notebooks/04_optimizacion.ipynb)
-- Notebook de afinamiento OCR: [06_afinamiento_ocr.ipynb](../notebooks/06_afinamiento_ocr.ipynb)
+- Notebook de optimización: [04_optimizacion.ipynb](../notebooks/shared/04_optimizacion.ipynb)
+- Notebook de afinamiento OCR: [06_afinamiento_ocr.ipynb](../notebooks/ecuador/ocr_finetuning.ipynb)
 - Métricas: `results/metrics/optimizacion_*.csv|json`
 - Figuras: `results/figures/opt_*.png`
 
@@ -119,7 +119,7 @@ La configuración del trial 12 se reentrenó con el protocolo completo: 40 époc
 
 La precisión y el recall usan el umbral de máximo F1 de Ultralytics. El mAP de placas pequeñas no se midió para la configuración optimizada. El entrenamiento completo llegó a las 40 épocas sin activar *early stopping*.
 
-**Decisión:** se mantienen los pesos entregados (`models/best_model.pt` y `models/best_model.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
+**Decisión:** se mantienen los pesos entregados (`models/shared/detector/best_model.pt` y `models/shared/detector/best_model.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
 
 Para un próximo reentrenamiento se recomienda probar la configuración del trial 12, en especial `lr0≈1,6e-4`, `optimizer="AdamW"` y `cos_lr=True`; los valores están en [optimizacion_resumen.json](../results/metrics/optimizacion_resumen.json).
 
@@ -189,7 +189,7 @@ El modelo base superó mAP@0.5=0,85 en validación desde la segunda época y mAP
 
 ## 7. Afinamiento del OCR
 
-El experimento de [06_afinamiento_ocr.ipynb](../notebooks/06_afinamiento_ocr.ipynb) evaluó si adaptar `cct-s-v2-global-model` a placas ecuatorianas mejoraba la lectura. Se partió de los pesos del modelo y se separaron los datos **por placa** para evitar que una misma placa apareciera en entrenamiento y prueba.
+El experimento de [06_afinamiento_ocr.ipynb](../notebooks/ecuador/ocr_finetuning.ipynb) evaluó si adaptar `cct-s-v2-global-model` a placas ecuatorianas mejoraba la lectura. Se partió de los pesos del modelo y se separaron los datos **por placa** para evitar que una misma placa apareciera en entrenamiento y prueba.
 
 | Decisión | Motivo |
 |---|---|

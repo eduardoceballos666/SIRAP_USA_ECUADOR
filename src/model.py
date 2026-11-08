@@ -5,9 +5,9 @@ Flujo de una imagen::
     imagen ──► PlateDetector ──► cajas de placa ──► recorte ──► PlateReader (OCR)
                                                                └─► normalize_plate ──► Recognition
 
-* **Detector.** YOLO11-s entrenado en el notebook ``notebooks/SIRAP_backend.ipynb`` (sección 3.2).
-  La aplicación carga ``models/best_model.onnx`` con ONNX Runtime. En desarrollo puede cargar
-  ``models/best_model.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
+* **Detector.** YOLO11-s entrenado en el notebook ``notebooks/ecuador/sirap_backend.ipynb`` (sección 3.2).
+  La aplicación carga ``models/shared/detector/best_model.onnx`` con ONNX Runtime. En desarrollo puede cargar
+  ``models/shared/detector/best_model.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
   el reconocimiento.
 * **OCR.** ``fast-plate-ocr`` con ``cct-s-v2-global-model`` (≈5 MB, corre en CPU).
 """
@@ -155,7 +155,7 @@ class PlateDetector:
         elif self.backend == "ultralytics":
             detections = self._detect_ultralytics(image)
         else:
-            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/best_model.onnx.")
+            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/shared/detector/best_model.onnx.")
         detections.sort(key=lambda d: d.confidence, reverse=True)
         return detections[:max_detections]
 
@@ -217,7 +217,7 @@ class PlateReader:
         onnx_file = resolve_path(onnx_path) if onnx_path else None
         config_file = resolve_path(plate_config_path) if plate_config_path else None
         if onnx_file and config_file and onnx_file.exists() and config_file.exists():
-            # OCR afinado con placas ecuatorianas (notebooks/06_afinamiento_ocr.ipynb)
+            # OCR afinado con placas ecuatorianas (notebooks/ecuador/ocr_finetuning.ipynb)
             self.model_name = f"{model_name} afinado ({onnx_file.name})"
             self._model = LicensePlateRecognizer(onnx_model_path=onnx_file, plate_config_path=config_file,
                                                  device=device)
@@ -260,7 +260,7 @@ class ALPRPipeline:
 
     @classmethod
     def from_config(cls, config: dict[str, Any] | None = None) -> "ALPRPipeline":
-        """Crea el pipeline con ``config/config.yaml`` (umbral calibrado si está guardado)."""
+        """Crea el pipeline con ``config/countries/ecuador.yaml`` (umbral calibrado si está guardado)."""
         cfg = config or load_config()
         det_cfg, ocr_cfg = cfg["detector"], cfg["ocr"]
         calibrated = load_json("results/metrics/umbrales.json") or {}
