@@ -20,7 +20,7 @@
 
 **Interfaz disponible en inglés, español, portugués brasileño, francés y alemán. El inglés es el idioma inicial.**
 
-<img src="docs/images/docs/images/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
+<img src="docs/images/vue_reconocimiento.png" alt="Pantalla de reconocimiento de SIRAP" width="900">
 
 </div>
 
@@ -101,7 +101,7 @@ La aplicación ofrece inglés, español, portugués brasileño, francés y alem�
 | Administración | Gestión de vehículos, autorizaciones, restricciones, garitas, usuarios y datos de demostración |
 | Acerca del modelo | Explicación del modelo, resultados, entrenamiento y limitaciones |
 
-Capturas: [Reconocimiento](docs/images/docs/images/vue_reconocimiento.png), [Dashboard](docs/images/vue_dashboard.png), [Verificación](docs/images/vue_verificacion.png) y [vista móvil](docs/images/vue_movil.png).
+Capturas: [Reconocimiento](docs/images/vue_reconocimiento.png), [Dashboard](docs/images/vue_dashboard.png), [Verificación](docs/images/vue_verificacion.png) y [vista móvil](docs/images/vue_movil.png).
 
 La interfaz es adaptable a celular y escritorio. El tema claro es el predeterminado en ambos; el usuario también puede seleccionar el tema oscuro. Valida el tipo, el tamaño y la resolución de las imágenes, muestra estados de carga y mensajes de error comprensibles, y permite comparar las lecturas obtenidas durante la sesión.
 

@@ -2,8 +2,8 @@
 
 Este documento reúne la búsqueda de hiperparámetros del detector, la comparación de configuraciones completas, la validación con varias semillas, la calibración de umbrales y el experimento independiente de afinamiento del OCR. Cada resultado se identifica por su conjunto y protocolo para no confundir experimentos distintos.
 
-- Notebook de optimización: [04_optimizacion.ipynb](../notebooks/shared/04_optimizacion.ipynb)
-- Notebook de afinamiento OCR: [06_afinamiento_ocr.ipynb](../notebooks/ecuador/ocr_finetuning.ipynb)
+- Notebook de optimización: [04_optimizacion.ipynb](../notebooks/ecuador/04_optimizacion.ipynb)
+- Notebook de afinamiento OCR: [06_afinamiento_ocr.ipynb](../notebooks/ecuador/06_afinamiento_ocr.ipynb)
 - Métricas: `results/metrics/optimizacion_*.csv|json`
 - Figuras: `results/figures/opt_*.png`
 
@@ -189,7 +189,7 @@ El modelo base superó mAP@0.5=0,85 en validación desde la segunda época y mAP
 
 ## 7. Afinamiento del OCR
 
-El experimento de [06_afinamiento_ocr.ipynb](../notebooks/ecuador/ocr_finetuning.ipynb) evaluó si adaptar `cct-s-v2-global-model` a placas ecuatorianas mejoraba la lectura. Se partió de los pesos del modelo y se separaron los datos **por placa** para evitar que una misma placa apareciera en entrenamiento y prueba.
+El experimento de [06_afinamiento_ocr.ipynb](../notebooks/ecuador/06_afinamiento_ocr.ipynb) evaluó si adaptar `cct-s-v2-global-model` a placas ecuatorianas mejoraba la lectura. Se partió de los pesos del modelo y se separaron los datos **por placa** para evitar que una misma placa apareciera en entrenamiento y prueba.
 
 | Decisión | Motivo |
 |---|---|
