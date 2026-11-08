@@ -6,7 +6,7 @@ Ejecutar desde la raíz del repositorio::
 
     streamlit run app/app.py
 
-La guía visual es ``docs/img/SIRAP_Dashboard.png``. La lógica (detector, OCR, regla de decisión,
+La guía visual es ``docs/images/SIRAP_Dashboard.png``. La lógica (detector, OCR, regla de decisión,
 archivos CSV) vive en ``src/``; este archivo solo arma la interfaz.
 """
 

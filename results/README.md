@@ -1,3 +1,7 @@
+**Purpose:** results/README.md contains project files and instructions. This description is in English.
+
+> Purpose: Operational results, metrics, and country-separated reports.
+
 # Resultados de SIRAP
 
 Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes. Cada artefacto debe leerse con el protocolo y las limitaciones indicadas; una métrica de detector, OCR, imagen o video no representa por sí sola el rendimiento total de la aplicación.
@@ -24,7 +28,7 @@ Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes.
 ### Umbrales que no deben confundirse
 
 - El umbral de decisión del detector YOLO se calibra en validación y se publica en [`metrics/umbrales.json`](metrics/umbrales.json), alrededor de 0,30.
-- La configuración actual del OCR de la aplicación define 0,94 en [`config/config.yaml`](../config/config.yaml). Las lecturas por debajo del umbral requieren verificación manual.
+- La configuración actual del OCR de la aplicación define 0,94 en [`config/countries/ecuador.yaml`](../config/countries/ecuador.yaml). Las lecturas por debajo del umbral requieren verificación manual.
 - El valor 0,99 mencionado en algunos análisis OCR es un umbral comparado offline; no es el valor de `umbrales.json` ni el umbral OCR configurado actualmente en la aplicación.
 - [`metrics/regla_decision_savh.json`](metrics/regla_decision_savh.json) compara decisiones offline con una lista simulada. No constituye una prueba integral de acceso ni una medición con la lista real de autorizaciones.
 
@@ -41,7 +45,7 @@ Estos archivos usan subconjuntos, referencias y protocolos distintos. Sus porcen
 | [`metrics/blind_independent_video_eval_20261030.json`](metrics/blind_independent_video_eval_20261030.json) y [reporte detallado](metrics/validacion_ciega_video_20261030.md) | Holdout ciego de OCR: 57 imágenes puntuadas; OCR base 42/57 (73,7 %) y afinado 35/57 (61,4 %). | Es una evaluación de imágenes OCR, no de video. Un caso sin referencia aprobada se excluyó; la revisión no tuvo doble adjudicación. |
 | [`metrics/ocr_afinamiento.json`](metrics/ocr_afinamiento.json) | Compara OCR base y afinado en 86 imágenes de test. | El EMR fue 94,2 % para ambos; el archivo indica `adoptar: false`. No presentar el modelo afinado como mejora comprobada. |
 
-La mayoría de los reportes agregados no incluye matrículas ni imágenes. Se publican intencionalmente como materiales del proyecto la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv), la **referencia final del video** [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv) (20 pasadas, columnas `plate_gt,frame_start,frame_end`) y el registro [`metrics/YOLO11_yolo11s_completo_decisions_log.csv`](metrics/YOLO11_yolo11s_completo_decisions_log.csv). Este último contiene lecturas por cuadro, transcripciones OCR y estados de acceso de una corrida; no constituye por sí solo una métrica integral. Los CSV provisionales de `blind_eval/` (18 puntos y borrador de intervalos) son históricos. No agregues otros archivos operativos privados ni predicciones identificables sin revisión.
+La mayoría de los reportes agregados no incluye matrículas ni imágenes. Se publican intencionalmente como materiales del proyecto la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv), la **referencia final del video** [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../evaluation/ecuador/blind_evaluation/video_ground_truth.csv) (20 pasadas, columnas `plate_gt,frame_start,frame_end`) y el registro [`metrics/YOLO11_yolo11s_completo_decisions_log.csv`](metrics/YOLO11_yolo11s_completo_decisions_log.csv). Este último contiene lecturas por cuadro, transcripciones OCR y estados de acceso de una corrida; no constituye por sí solo una métrica integral. Los CSV provisionales de `evaluation/ecuador/blind_evaluation/` (18 puntos y borrador de intervalos) son históricos. No agregues otros archivos operativos privados ni predicciones identificables sin revisión.
 
 ## Evaluaciones de video e imágenes de garita
 
@@ -54,7 +58,7 @@ La mayoría de los reportes agregados no incluye matrículas ni imágenes. Se pu
 | [`metrics/YOLO11_yolo11s_completo_decisions_log.csv`](metrics/YOLO11_yolo11s_completo_decisions_log.csv) | Registro de decisiones de una corrida YOLO11 con `frame_index`, OCR normalizado y estado. | Es el archivo de entrada de la evaluación del notebook; contiene lecturas identificables y no debe interpretarse como métrica agregada. |
 | [`metrics/garita_imagenes_e2e_20261101.md`](metrics/garita_imagenes_e2e_20261101.md) | Informe publicado: EMR 8/21 (38,1 %), 37,69 ms; salida guardada del notebook: EMR 9/21 (42,9 %), 1,400674 s. | Son corridas distintas sin ID común; no combinar. La salida del notebook no conserva fecha. Ambas quedan bajo la meta EMR del 80 %. |
 
-La referencia final del video es [`blind_eval/video_ground_truth.csv`](../blind_eval/video_ground_truth.csv), con 20 pasadas. La reejecución más reciente de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md); el JSON registra 51 lecturas, 30 comparables y 21 sin referencia.
+La referencia final del video es [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../evaluation/ecuador/blind_evaluation/video_ground_truth.csv), con 20 pasadas. La reejecución más reciente de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md); el JSON registra 51 lecturas, 30 comparables y 21 sin referencia.
 
 ## Optimización y estabilidad multisemilla del detector
 
@@ -69,7 +73,7 @@ Los pesos de experimentos y optimización no reemplazan automáticamente el mode
 
 ## Ejecución y conservación de resultados
 
-El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. La referencia final del video es `blind_eval/video_ground_truth.csv`; el archivo de 18 puntos se conserva solo como histórico. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
+El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. La referencia final del video es `evaluation/ecuador/blind_evaluation/video_ground_truth.csv`; el archivo de 18 puntos se conserva solo como histórico. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
 
 Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
 
@@ -78,3 +82,8 @@ Si un resultado está pendiente o su referencia es incompleta, indícalo como ta
 - [Aplicación SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
 - La interfaz está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README principal](../README.md).
+
+
+## English
+
+This folder stores experiment metrics, figures, and reports. Historical metrics remain at their existing `metrics/` and `figures/` paths for compatibility. New country-specific reports should be placed under `results/ecuador/` or `results/usa/`; shared detector results belong under `results/shared/`.
