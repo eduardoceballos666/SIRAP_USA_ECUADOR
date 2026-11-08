@@ -16,8 +16,8 @@ app:
 detector:
   # Pesos del YOLO11-s entrenado en el notebook (sección 3.2). Se busca en orden:
   # Se intenta cargar ONNX (recomendado para el Space) y luego best.pt (requiere ultralytics).
-  pesos_onnx: "models/shared/detector/best_model.onnx"
-  pesos_pt: "models/shared/detector/best_model.pt"
+  pesos_onnx: "models/ecuador/detector/ecuador_best.onnx"
+  pesos_pt: "models/ecuador/detector/ecuador_best.pt"
   imgsz_entrenamiento: 640
   imgsz_inferencia: 640        # el notebook usa 1280 en el video de la garita (placas lejanas); 640 en imágenes cercanas
   conf_minima: 0.25            # se reemplaza por el umbral calibrado en val (0.30) de results/metrics/umbrales.json
@@ -31,8 +31,8 @@ ocr:
   dispositivo: "cpu"
   # OCR afinado con placas ecuatorianas (notebooks/ecuador/ocr_finetuning.ipynb). Si ambos archivos existen, la app
   # los usa en lugar del modelo del hub; si no, sigue con cct-s-v2-global-model.
-  onnx_afinado: "models/ocr_afinado.onnx"
-  plate_config_afinado: "models/ocr_afinado_plate_config.yaml"
+  onnx_afinado: "models/ecuador/ocr/ecuador_ocr.onnx"
+  plate_config_afinado: "models/ecuador/ocr/ecuador_ocr_plate_config.yaml"
 
 placas:
   # Placas ecuatorianas: 3 letras + 3 o 4 dígitos; se escriben XXX-0000 (las de 3 dígitos se completan con 0).

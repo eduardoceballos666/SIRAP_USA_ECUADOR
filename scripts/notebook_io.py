@@ -56,9 +56,14 @@ def repository_paths(repo_root: str | Path) -> dict[str, Path]:
         "savh_ocr": root / "evaluation" / "ecuador" / "savh" / "artifacts" / "ocr",
         "blind_eval": root / "evaluation" / "ecuador" / "blind_evaluation",
         "models": root / "models" / "ecuador",
+        "detector": root / "models" / "ecuador" / "detector",
+        "ocr_models": root / "models" / "ecuador" / "ocr",
+        "detector_weights": root / "models" / "ecuador" / "detector" / "ecuador_best.pt",
+        "detector_onnx": root / "models" / "ecuador" / "detector" / "ecuador_best.onnx",
+        "ocr_onnx": root / "models" / "ecuador" / "ocr" / "ecuador_ocr.onnx",
         "workspace": Path("/content/SIRAP_workspace"),
     }
-    for key in ("metrics", "figures", "ecuador_results", "video_results", "workspace"):
+    for key in ("metrics", "figures", "ecuador_results", "video_results", "workspace", "detector", "ocr_models"):
         paths[key].mkdir(parents=True, exist_ok=True)
     return paths
 

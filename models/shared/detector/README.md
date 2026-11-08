@@ -1,11 +1,3 @@
 # models/shared/detector
 
-> Purpose: Shared YOLO plate detector checkpoints.
-
-## Español
-
-These checkpoints were moved without changing their Git blobs. Keep country-specific OCR models outside this folder.
-
-## English
-
-Estos checkpoints se trasladaron sin cambiar sus objetos Git. Mantén los modelos OCR específicos de país fuera de esta carpeta.
+Esta carpeta no contiene un detector activo. Los pesos se guardan en carpetas específicas por país: `models/ecuador/detector/ecuador_best.*` y, cuando exista un modelo estadounidense validado, `models/usa/detector/usa_best.*`.

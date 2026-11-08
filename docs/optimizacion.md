@@ -119,7 +119,7 @@ La configuración del trial 12 se reentrenó con el protocolo completo: 40 époc
 
 La precisión y el recall usan el umbral de máximo F1 de Ultralytics. El mAP de placas pequeñas no se midió para la configuración optimizada. El entrenamiento completo llegó a las 40 épocas sin activar *early stopping*.
 
-**Decisión:** se mantienen los pesos entregados (`models/shared/detector/best_model.pt` y `models/shared/detector/best_model.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
+**Decisión:** se mantienen los pesos entregados (`models/ecuador/detector/ecuador_best.pt` y `models/ecuador/detector/ecuador_best.onnx`). La configuración optimizada mejora mAP@0.5:0.95, pero apenas cambia mAP@0.5 y reduce ligeramente el recall. Como SIRAP recorta la placa antes del OCR, una caja más ajustada no implica necesariamente una mejora práctica de lectura. Cambiar los pesos también requeriría exportar ONNX, recalibrar el umbral del detector y repetir las evaluaciones de la aplicación.
 
 Para un próximo reentrenamiento se recomienda probar la configuración del trial 12, en especial `lr0≈1,6e-4`, `optimizer="AdamW"` y `cos_lr=True`; los valores están en [optimizacion_resumen.json](../results/metrics/optimizacion_resumen.json).
 

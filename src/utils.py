@@ -28,7 +28,7 @@ def resolve_path(relative: str | os.PathLike) -> Path:
     """Convierte una ruta relativa a la raíz del repositorio en una ruta absoluta.
 
     Args:
-        relative: ruta relativa (p. ej. ``"models/shared/detector/best_model.onnx"``) o absoluta.
+        relative: ruta relativa (p. ej. ``"models/ecuador/detector/ecuador_best.onnx"``) o absoluta.
 
     Returns:
         La ruta absoluta correspondiente.

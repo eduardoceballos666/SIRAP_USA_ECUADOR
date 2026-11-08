@@ -108,7 +108,7 @@ def main() -> None:
         "ultralytics": ultralytics.__version__,
         "pytorch": torch.__version__,
         "gpu": torch.cuda.get_device_name(0),
-        "modelo_deploy": "SIN CAMBIOS: models/shared/detector/best_model.onnx",
+        "modelo_deploy": "SIN CAMBIOS: models/ecuador/detector/ecuador_best.onnx",
         "fecha_utc": datetime.now(timezone.utc).isoformat(),
     }
     manifest_file = output / "protocolo.json"
