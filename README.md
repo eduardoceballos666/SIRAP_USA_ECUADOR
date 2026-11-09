@@ -20,7 +20,7 @@ El OCR `fast-plate-ocr`, las reglas de acceso, la API y la interfaz se mantienen
 
 ## Entrenamiento y evaluación
 
-El entrenamiento y evaluación activos están en `src/train.py` y `src/evaluate.py`; usan **COCO Detection** y `transformers.Trainer`. El entrenamiento guarda el checkpoint Safetensors y exporta un IR; la evaluación utiliza OpenVINO Runtime, igual que la app. Los notebooks Ecuador y USA están organizados por separado en [`notebooks/`](notebooks/README.md).
+El entrenamiento y evaluación activos están en `src/train.py` y `src/evaluate.py`; usan **COCO Detection** y `transformers.Trainer`. El entrenamiento guarda el checkpoint Safetensors y exporta un IR; la evaluación utiliza OpenVINO Runtime, igual que la app. Ecuador conserva notebooks por etapa; todo el flujo USA está consolidado en [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb). Consulta el [índice de notebooks](notebooks/README.md).
 
 ```bash
 # Instalar el entorno local de entrenamiento/desarrollo CPU
@@ -33,7 +33,7 @@ python -m src.train --country ecuador --data-dir /ruta/dataset-coco --epochs 30
 python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco --split test
 ```
 
-Configura `ROBOFLOW_API_KEY` como secreto del entorno si usas `--roboflow`; no pegues llaves en notebooks ni las guardes en Git. El descargador usa `plateblur/european-usa-license-plates` v1 y exporta COCO Segmentation; el entrenamiento toma sus cajas y unifica las tres etiquetas en una clase de placa. La ficha del proyecto muestra un test pequeño, así que para reportar métricas finales reserva un test independiente mayor. Existe una función opcional para convertir anotaciones heredadas a COCO; no instala ni usa Ultralytics.
+Configura `ROBOFLOW_API_KEY` como secreto del entorno si descargas datos desde Roboflow; no pegues llaves en notebooks ni las guardes en Git. El descargador usa `plateblur/european-usa-license-plates` v1 y exporta COCO Segmentation; el detector usa las cajas y unifica las tres etiquetas en una clase de placa. El notebook USA crea un test interno agrupado de al menos 400 imágenes a partir de la misma exportación; no es un conjunto externo. Sin IDs de vehículo o sesión, la separación se limita a familias de nombres y hashes exactos. También puede convertir escenas USA anotadas a COCO.
 
 En Colab con GPU, usa la celda de instalación del notebook y conserva el PyTorch con CUDA que ofrece Colab. `requirements.txt` contiene el runtime de la app (incluido OpenVINO); `requirements-training.txt` separa las dependencias de ajuste y exportación; `requirements-dev.txt` añade herramientas de desarrollo y pruebas.
 
@@ -41,18 +41,16 @@ Las corridas multisemilla y la búsqueda Optuna consumen GPU y están apagadas p
 
 ## Notebooks
 
-| Tarea | Ecuador | Estados Unidos |
+| Perfil | Notebook activo | Flujo |
 |---|---|---|
-| Preparación de datos | [02](notebooks/ecuador/02_preprocesamiento.ipynb) | [02](notebooks/usa/02_preprocesamiento.ipynb) |
-| Entrenamiento | [03](notebooks/ecuador/03_modelado.ipynb) | [03](notebooks/usa/03_modelado.ipynb) |
-| Optimización y evaluación | [04–05](notebooks/ecuador/04_optimizacion.ipynb) · [evaluación](notebooks/ecuador/05_evaluacion.ipynb) | [04–05](notebooks/usa/04_optimizacion.ipynb) · [evaluación](notebooks/usa/05_evaluacion.ipynb) |
-| Inferencia / video | [Backend RT-DETR + OCR](notebooks/ecuador/sirap_backend.ipynb) | [Detección RT-DETR](notebooks/usa/sirap_backend.ipynb) |
+| Ecuador | [Backend RT-DETR + OCR](notebooks/ecuador/sirap_backend.ipynb) | Flujo de Ecuador por etapas |
+| Estados Unidos | [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb) | Notebook unificado: COCO, entrenamiento, validación, OCR y OpenVINO |
 
-El notebook USA aún no declara lecturas OCR ni decisiones de acceso; requiere normalización y datos de placas estadounidenses. Las versiones anteriores de notebooks y backend permanecen en el historial de Git; no forman parte del flujo activo.
+El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extremo; estas no activan decisiones de acceso en la app. La integración USA en la aplicación requiere reglas y normalización específicas del país. Los notebooks USA por etapas fueron consolidados y sus versiones previas permanecen en el historial de Git.
 
 ## Aplicación web
 
-La app integra Reconocimiento y Acceso, Historial, Dashboard y Administración con perfiles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés y alemán. El Space utiliza el perfil Ecuador por defecto; el flujo USA de notebooks evalúa detector por separado y aún requiere normalización/OCR específicos antes de decisiones de acceso.
+La app integra Reconocimiento y Acceso, Historial, Dashboard y Administración con perfiles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés y alemán. El Space utiliza el perfil Ecuador por defecto. El notebook USA incluye evaluaciones separadas de detección y OCR; la integración de ese perfil en decisiones de acceso requiere reglas específicas del país.
 
 Los registros de operación persisten en el repositorio privado configurado mediante secretos de Hugging Face; no subas datos operativos a este repo. Los cambios de `main` se sincronizan al Space mediante [GitHub Actions](.github/workflows/deploy-hf-space.yml).
 
@@ -60,7 +58,7 @@ Los registros de operación persisten en el repositorio privado configurado medi
 
 Los archivos antiguos con `yolo11` en el nombre y sus reportes describen experimentos anteriores. No deben citarse como métricas del checkpoint RT-DETR. Los resultados nuevos se guardan con sufijo `rtdetr`; revisa [`results/README.md`](results/README.md) para distinguirlos.
 
-SAVH se utiliza para OCR en recortes; la evaluación de detección necesita escenas completas anotadas. La validación de video por intervalos solo cubre tramos con ground truth y no determina todos los falsos negativos. Los perfiles Ecuador y USA necesitan datasets, normalización y evaluación independientes.
+SAVH se utiliza para OCR en recortes; la evaluación de detección necesita escenas completas anotadas. Los perfiles Ecuador y USA requieren datasets, normalización y evaluación independientes.
 
 ## Licencias
 
@@ -74,4 +72,4 @@ SIRAP is a vehicle license-plate recognition and access-control application. Its
 
 The shared checkpoint has not been validated specifically for Ecuador or the United States. Previous YOLO metrics and confidence thresholds are not carried over. No country-specific RT-DETR test metrics are currently versioned; configured detector thresholds are provisional. Fine-tune and evaluate each profile using representative data and a reserved test split.
 
-Training uses COCO Detection in `src/train.py`, then `src/export_openvino.py` creates the IR. The Roboflow downloader uses `plateblur/european-usa-license-plates` v1 as COCO Segmentation and trains on its bounding boxes as one plate class. Its published test split is small, so reserve a larger independent set for final metrics. Evaluation uses the same OpenVINO inference path as the app. Country-specific notebooks are indexed in [`notebooks/README.md`](notebooks/README.md). The Hugging Face Space is [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Previous YOLO notebooks remain available in Git history.
+Training uses COCO Detection in `src/train.py`, then `src/export_openvino.py` creates the IR. The Roboflow downloader uses `plateblur/european-usa-license-plates` v1 as COCO Segmentation and maps its bounding boxes to one plate class. The consolidated USA notebook builds a grouped internal holdout of at least 400 images from the same export; it is not an external dataset, and vehicle/session separation requires supplied identifiers. Ecuador retains staged notebooks; the USA workflow is in [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb). The Hugging Face Space is [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Earlier staged USA notebooks remain in Git history.
