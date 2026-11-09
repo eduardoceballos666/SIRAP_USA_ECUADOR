@@ -206,5 +206,14 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <li>{{ $t("SIRAP_USA_ECUADOR_HF") }} <b>{{ $t("no debe usarse") }}</b> {{ $t("para vigilancia masiva, rastreo de personas ni fines distintos al control de acceso de la instalación. Detalles en") }} <code>{{ $t("docs/consideraciones_eticas.md") }}</code>{{ $t(".") }}</li>
       </ul>
     </section>
+    <section class="card space-y-3 leading-relaxed xl:col-span-2">
+      <h2 class="card-title"><span class="icon-chip"><AppIcon name="info" /></span> {{ $t("Licencia del software") }}</h2>
+      <p>{{ $t("El código original de SIRAP_USA_ECUADOR se distribuye bajo Apache License 2.0. Los modelos y recursos de terceros mantienen sus propias licencias.") }}</p>
+      <p>
+        <a class="underline" href="https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR" target="_blank" rel="noopener noreferrer">{{ $t("Código fuente") }}</a>
+        ·
+        <a class="underline" href="https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">{{ $t("Licencia Apache-2.0") }}</a>
+      </p>
+    </section>
   </div>
 </template>
