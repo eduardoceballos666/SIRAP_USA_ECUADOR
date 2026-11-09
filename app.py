@@ -1,4 +1,4 @@
-La aplicación vive en ``app/app.py`` (estructura pedida en el proyecto final). Este archivo existe
+"""La aplicación vive en ``app/app.py`` (estructura pedida en el proyecto final). Este archivo existe
 para que el despliegue actual, configurado con ``app.py`` en la raíz, siga funcionando sin cambios.
 
 Localmente se puede ejecutar cualquiera de los dos::

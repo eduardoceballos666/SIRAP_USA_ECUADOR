@@ -129,7 +129,7 @@ def get_sample(name: str) -> FileResponse:
 @router.post("/recognize", response_model=schemas.RecognizeOut, summary="Reconocer la placa de una imagen")
 def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 10 MB"),
               _: dict = Depends(current_user)) -> schemas.RecognizeOut:
-    """Detecta la placa con YOLO11-s, la lee con fast-plate-ocr, la normaliza y aplica la regla de acceso.
+    """Detecta la placa con RT-DETRv2, la lee con fast-plate-ocr, la normaliza y aplica la regla de acceso.
 
     No registra nada: el operador confirma después con ``POST /api/operations``.
     """
@@ -312,7 +312,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
         row = {
             "event_id": str(uuid.uuid4()),
             "fecha_hora": now_local().isoformat(sep=" ", timespec="seconds"),
-            "modelo_detector": "YOLO11-s" if body.det_confidence is not None else "",
+            "modelo_detector": "RT-DETRv2 R18" if body.det_confidence is not None else "",
             "camara": "",
             "garita": body.garita,
             "operador": user["nombre"],
@@ -323,7 +323,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             "texto_ocr": body.placa_leida or final,
             "formato_valido": True,
             "confianza_ocr": body.confianza_ocr,
-            "confianza_yolo": body.det_confidence,
+            "confianza_detector": body.det_confidence,
             "disparador": "operacion_confirmada",
             "resultado_acceso": decision.resultado,
             "lista": decision.lista,

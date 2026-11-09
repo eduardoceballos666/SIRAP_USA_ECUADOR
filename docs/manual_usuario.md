@@ -10,7 +10,7 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 | **VERSIÓN / REVISIÓN**                                          | **DESTINATARIOS**                          |
 |-----------------------------------------------------------------|--------------------------------------------|
-| Aplicación SIRAP 1.0 · Manual revisado el 30 de octubre de 2026 | Operadores, supervisores y administradores |
+| Aplicación SIRAP 1.0 · Manual revisado el 9 de noviembre de 2026 | Operadores, supervisores y administradores |
 
 | **ALCANCE** Guía orientada a la interfaz mostrada en los documentos del proyecto. Algunas funciones, permisos y métricas dependen de la configuración de la instancia. |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -45,7 +45,7 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 El código original de SIRAP_USA_ECUADOR se distribuye bajo **Apache License, versión 2.0 (Apache-2.0)**. El texto completo está en [LICENSE](../LICENSE) y el aviso de autoría en [NOTICE](../NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Este cambio aplica a la versión actual del código original.
 
-Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes de terceros conservan sus respectivas licencias.
+El detector configurado es RT-DETRv2 R18 con Transformers. El checkpoint `merve/license-plates-rtdetrv2` se publica bajo Apache-2.0. Los componentes y datasets de terceros conservan sus respectivas licencias; consulte `THIRD_PARTY_NOTICES.md`.
 
 **Recursos del proyecto**
 
@@ -59,11 +59,11 @@ Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes 
 
 SIRAP utiliza componentes de terceros para la detección y lectura de placas, el procesamiento de imágenes y datos, la API y la interfaz web. Sus marcas, derechos y licencias pertenecen a sus respectivos titulares.
 
-> **• Ultralytics YOLO11:** entrenamiento del detector de placas.
+> **• Transformers + RT-DETRv2 R18:** detección de placas. El entrenamiento usa PyTorch y el checkpoint de placas Apache-2.0.
 >
-> **• PyTorch:** framework de aprendizaje profundo utilizado en el entorno de entrenamiento; no es el motor de inferencia del despliegue web.
+> **• PyTorch:** framework de aprendizaje profundo utilizado en inferencia del detector y entrenamiento.
 >
-> **• ONNX Runtime:** ejecución del modelo exportado en la aplicación.
+> **• ONNX Runtime:** motor utilizado por el componente OCR `fast-plate-ocr`; el detector se carga directamente con Transformers y PyTorch.
 >
 > **• fast-plate-ocr:** reconocimiento de los caracteres de las placas.
 >
@@ -228,7 +228,7 @@ Este documento describe cada pantalla de SIRAP, indica qué hace cada control y 
 
 # 1. Presentación y funcionamiento
 
-SIRAP es una aplicación web que ayuda a identificar placas vehiculares en imágenes o fotogramas de video, consultar permisos de acceso y dejar constancia de la decisión tomada por el operador. Utiliza detección de placas basada en YOLO11s y reconocimiento óptico de caracteres (OCR).
+SIRAP es una aplicación web que ayuda a identificar placas vehiculares en imágenes o fotogramas de video, consultar permisos de acceso y dejar constancia de la decisión tomada por el operador. Utiliza detección de placas RT-DETRv2 R18 mediante Transformers y reconocimiento óptico de caracteres (OCR). El checkpoint compartido tiene licencia Apache-2.0; su rendimiento en cada país requiere evaluación independiente. Las métricas YOLO históricas no describen este detector.
 
 ## Proceso de trabajo
 
@@ -286,11 +286,11 @@ El menú puede variar según el perfil. Si una opción aparece solo para consult
 
 ## Cambiar el idioma de la interfaz
 
-SIRAP ofrece **Español** (idioma predeterminado) y **English** desde la misma [dirección de la aplicación](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. Elija **English** para cambiar a inglés o **Español** para volver a español. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
+SIRAP ofrece **English** como idioma inicial, además de **Español, Português, Français** y **Deutsch**, desde la misma [dirección de la aplicación](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space); no se requiere una URL distinta. En el inicio de sesión, use el selector **Idioma**. Después de ingresar, encontrará el mismo selector en el menú común, como se muestra en la figura. La preferencia se conserva en este navegador al navegar y al volver a abrir SIRAP.
 
-![Selector de idioma Español / English en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
+![Selector de idioma en el menú común de SIRAP](img/selector_idioma_sirap.jpeg)
 
-*Figura 2. Selector «Idioma» del menú común. Seleccione Español o English para cambiar el idioma de la interfaz.*
+*Figura 2. Selector «Idioma» del menú común. Seleccione uno de los cinco idiomas disponibles para cambiar la interfaz.*
 
 # 3. Reconocimiento y Acceso
 
@@ -893,7 +893,7 @@ Mantenga cerrada la barrera y siga el procedimiento de contingencia autorizado. 
 | TÉRMINO           | EXPLICACIÓN SENCILLA                                                           |
 |-------------------|--------------------------------------------------------------------------------|
 | OCR               | Tecnología que reconoce letras y números dentro de la imagen de una placa.     |
-| YOLO11s           | Modelo de detección utilizado para ubicar la región de la placa.               |
+| RT-DETRv2 R18 | Detector basado en Transformers que ubica la región de la placa. |
 | Lista blanca      | Relación de placas con autorización vigente.                                   |
 | Lista restringida | Relación de placas cuyo acceso debe denegarse mientras esté vigente.           |
 | Placa leída       | Texto propuesto inicialmente por el sistema.                                   |

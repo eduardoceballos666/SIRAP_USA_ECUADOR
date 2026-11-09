@@ -22,17 +22,11 @@ runs/
 *.zip
 
 
-# --- Pesos: solo se versionan los de models/ (ecuador_best.pt ≈ 19 MB, ecuador_best.onnx ≈ 37 MB) ---
+# --- Checkpoints y artefactos generados: no versionar pesos de entrenamiento ---
 *.pt
 *.onnx
-!models/*.pt
-!models/*.onnx
-!models/ecuador/
-!models/ecuador/**/*.pt
-!models/ecuador/**/*.onnx
-!models/usa/
-!models/usa/**/*.pt
-!models/usa/**/*.onnx
+*.safetensors
+models/*/detector/rtdetr_r18/
 
 # --- Sistema ---
 .DS_Store

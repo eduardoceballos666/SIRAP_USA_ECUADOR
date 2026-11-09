@@ -1,18 +1,11 @@
-# Modelos SIRAP / SIRAP Models
+# Modelos SIRAP
 
-Los modelos se separan por país para que cambiar la configuración activa no reemplace los pesos de Ecuador.
+El detector de la aplicación Ecuador se ejecuta con **Transformers + RT-DETRv2 R18**. El checkpoint público `merve/license-plates-rtdetrv2` tiene licencia Apache-2.0 y se carga automáticamente cuando no existe un ajuste fino local.
 
-| País | Detector PyTorch | Detector ONNX | OCR afinado (opcional) |
-|---|---|---|---|
-| Ecuador | `models/ecuador/detector/ecuador_best.pt` | `models/ecuador/detector/ecuador_best.onnx` | `models/ecuador/ocr/ecuador_ocr.onnx` y `ecuador_ocr_plate_config.yaml` |
-| Estados Unidos | `models/usa/detector/usa_best.pt` | `models/usa/detector/usa_best.onnx` | `models/usa/ocr/usa_ocr.onnx` y `usa_ocr_plate_config.yaml` |
+| Perfil | Checkpoint local | Estado |
+|---|---|---|
+| Ecuador | `models/ecuador/detector/rtdetr_r18/` | El flujo de entrenamiento lo crea; requiere ajuste y validación local antes de presentarlo como modelo ecuatoriano. |
+| Estados Unidos | `models/usa/detector/rtdetr_r18/` | Ruta independiente; requiere datos, ajuste y validación de placas estadounidenses. |
+| Compartido | `merve/license-plates-rtdetrv2` en Hugging Face | RT-DETRv2 R18 para matrículas; Apache-2.0. No es una validación del dominio de cada país. |
 
-Los pesos de Ecuador están publicados y son los que referencia `config/countries/ecuador.yaml`. El experimento de afinamiento OCR ecuatoriano no se recomienda para uso en la app; sus artefactos están archivados. Aún no hay pesos estadounidenses designados ni publicados. No renombres ni copies el modelo de Ecuador como si fuera un modelo de EE. UU.
-
-## Exportar el detector ecuatoriano
-
-`python -m src.train --export-only models/ecuador/detector/ecuador_best.pt` actualiza la exportación en la misma carpeta de Ecuador. Las corridas experimentales deben conservar nombres de candidato, por ejemplo `ecuador_candidate_completo.pt`, hasta que se decida adoptar una nueva versión.
-
-## OCR
-
-La app usa el OCR general `cct-s-v2-global-model` mientras no existan los dos archivos OCR afinados indicados en la configuración de ese país. Un OCR afinado solo se activa para el país cuya configuración apunte a sus archivos.
+La API de la app carga por defecto `config/countries/ecuador.yaml`; el directorio USA se reserva para el entrenamiento independiente hasta completar integración de OCR y reglas. Cada checkpoint fino incluye `config.json`, pesos Safetensors, procesador y `sirap_training.json`. No cargues archivos `.pt` o `.onnx` de YOLO como si fueran pesos Transformers. OCR se mantiene separado y sigue usando `fast-plate-ocr` salvo que la configuración indique archivos afinados válidos.

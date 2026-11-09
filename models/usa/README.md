@@ -1,5 +1,5 @@
-# models/usa
+# Perfil de modelos: Estados Unidos
 
-Mantén los modelos estadounidenses separados de los pesos ecuatorianos. Cuando haya un detector entrenado y evaluado, guárdalo como `detector/usa_best.pt` y exporta `detector/usa_best.onnx`. Un OCR afinado para placas de EE. UU. usa `ocr/usa_ocr.onnx` y `ocr/usa_ocr_plate_config.yaml`.
+Mantén el detector independiente en `detector/rtdetr_r18/`. Entrénalo con placas estadounidenses anotadas en COCO y valídalo en un conjunto reservado antes de declararlo modelo USA. Mientras esa carpeta no contenga un checkpoint Transformers, el pipeline puede usar `merve/license-plates-rtdetrv2` como punto de partida general; sus métricas no son específicas de Estados Unidos.
 
-Aún no hay modelos estadounidenses publicados. No copies ni renombres `ecuador_best` para ocupar estas rutas.
+El OCR también requiere normalización y reglas propias de placas estadounidenses. Esta migración no da por completada esa validación.

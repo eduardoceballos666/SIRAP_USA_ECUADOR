@@ -1,5 +1,3 @@
-# models/ecuador
+# Perfil de modelos: Ecuador
 
-El detector oficial de Ecuador está en `detector/ecuador_best.pt` y `detector/ecuador_best.onnx`. La configuración activa está en `config/countries/ecuador.yaml`. Los candidatos de reentrenamiento conservan un nombre separado y no reemplazan los pesos publicados automáticamente.
-
-Los artefactos de afinamiento OCR están separados en `ocr/`; la versión experimental no se activa en la app porque no superó el criterio de adopción.
+El detector RT-DETRv2 R18 se guarda en `detector/rtdetr_r18/` al ajustarlo con datos ecuatorianos en formato COCO. Si la carpeta no contiene un checkpoint Transformers, la configuración usa temporalmente `merve/license-plates-rtdetrv2` (Apache-2.0), que no ha sido validado específicamente para Ecuador. El OCR configurado es `fast-plate-ocr` y no cambia con el detector.

@@ -1,12 +1,14 @@
 # Resultados de `sirap_backend.ipynb`
 
+> **Informe histórico de YOLO11.** Estas cifras corresponden a la corrida de 2026 y no describen ni validan el checkpoint RT-DETRv2 R18 vigente.
+
 Este informe organiza por tema las métricas de la corrida guardada y las evaluaciones posteriores. Se distinguen los resultados originales de las reevaluaciones con referencias corregidas o nuevas imágenes. Las métricas de detector, OCR, video y garita tienen alcances diferentes y no deben combinarse como una sola medida de exactitud.
 
 ![Resumen de métricas](sirap_backend_resumen.png)
 
 ## Resumen de resultados
 
-| Componente | Resultado vigente | Alcance |
+| Componente | Resultado histórico | Alcance |
 |---|---:|---|
 | Detector en test | mAP@0.5: 0,972; mAP@0.5:0.95: 0,693; precisión/recall/F1: 0,986/0,956/0,971 | Métricas del detector; no miden el OCR ni la operación completa |
 | Placas pequeñas | mAP@0.5:0.95: 0,481 | Es el tamaño más difícil en la evaluación del detector |

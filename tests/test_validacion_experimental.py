@@ -2,7 +2,7 @@
 import pandas as pd
 
 from scripts.auditar_savh import audit
-from scripts.validar_multisemilla_yolo11 import summary_for
+from scripts.validar_multisemilla_rtdetr import summary_for
 
 
 def test_auditoria_savh_agrupa_copias_y_no_inventa_respuestas():
@@ -38,9 +38,9 @@ def test_auditoria_savh_detecta_respuestas_en_conflicto():
 def test_resumen_multisemilla_deltas_emparejadas_y_parcial():
     rows = [
         {"semilla": 0, "modelo": "base", "map50_95": 0.60, "recall": 0.90},
-        {"semilla": 0, "modelo": "optimizada", "map50_95": 0.61, "recall": 0.88},
+        {"semilla": 0, "modelo": "candidata", "map50_95": 0.61, "recall": 0.88},
         {"semilla": 1, "modelo": "base", "map50_95": 0.62, "recall": 0.91},
-        {"semilla": 1, "modelo": "optimizada", "map50_95": 0.64, "recall": 0.92},
+        {"semilla": 1, "modelo": "candidata", "map50_95": 0.64, "recall": 0.92},
     ]
     summary = summary_for(rows, [0, 1, 2])
     assert summary["estado"] == "parcial"

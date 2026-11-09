@@ -94,7 +94,7 @@ def evaluate_video(path: Path, reference: str, pipeline: ALPRPipeline, interval_
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--csv", required=True, help="Private CSV: video_path,plate_gt")
-    parser.add_argument("--output", default="results/metrics/video_e2e.json")
+    parser.add_argument("--output", default="results/metrics/video_e2e_rtdetr.json")
     parser.add_argument("--sample-interval", type=float, default=1.0)
     parser.add_argument("--ocr-threshold", type=float, default=0.94)
     parser.add_argument("--same-plate-gap", type=float, default=7.5)
@@ -133,7 +133,7 @@ def main() -> None:
             "repository_commit": __import__("subprocess").run(
                 ["git", "rev-parse", "HEAD"], cwd=ROOT_DIR, capture_output=True, text=True, check=False
             ).stdout.strip() or None,
-            "detector_sha256": sha256(ROOT_DIR / "models/ecuador/detector/ecuador_best.onnx"),
+            "detector_checkpoint": pipeline.detector.source,
             "platform": platform.platform(),
         },
         "summary": {

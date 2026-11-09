@@ -14,15 +14,17 @@ onMounted(async () => {
   try { info.value = await api('/api/model/info') } catch (e) { session.notify(e.message, 'bad') }
 })
 const m = computed(() => info.value?.metricas || {})
+const hasDetectorMetrics = computed(() => m.value.detector_test?.map50 !== undefined && m.value.detector_test?.map50 !== null)
+const hasTimingMetrics = computed(() => Boolean(m.value.velocidad || m.value.e2e))
 const cards = computed(() => {
   const d = m.value.detector_test || {}, o = m.value.ocr_savh || {}, e = m.value.e2e || {}
   return [
     { label: t('mAP@0.5 (test)'), value: num(d.map50), sub: `${d.imagenes ?? '—'} ${t('imágenes')} · ${d.placas ?? '—'} ${t('placas')}` },
-    { label: t('mAP@0.5:0.95'), value: num(d.map50_95), sub: t('Detector YOLO11-s') },
+    { label: t('mAP@0.5:0.95'), value: num(d.map50_95), sub: t('Detector RT-DETRv2 R18') },
     { label: t('Precisión / Recall'), value: `${num(d.precision, 3)} / ${num(d.recall, 3)}`, sub: `F1 ${num(d.f1)}` },
     { label: t('Exactitud OCR (SAVH)'), value: pct(o.emr, 1), sub: `${o.n ?? '—'} ${t('placas de Guayaquil')} · CER ${pct(o.cer, 1)}` },
     { label: t('Tiempo por decisión'), value: e.tiempo_ms_promedio ? `${Math.round(e.tiempo_ms_promedio)} ms` : '—', sub: t('Detección + OCR (meta < 1 s)') },
-    { label: t('Umbral del detector'), value: num(m.value.umbrales?.YOLO11?.conf, 2), sub: t('Calibrado en validación') },
+    { label: t('Umbral del detector'), value: num(m.value.umbrales?.['RT-DETRv2']?.conf, 2), sub: t('Provisional; calibrar en validación') },
   ]
 })
 const dark = computed(() => session.theme === 'dark')
@@ -146,12 +148,15 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
   <section class="mt-5" aria-labelledby="metrics-charts-heading">
     <h2 id="metrics-charts-heading" class="card-title">{{ $t("Gráficos de métricas y mediciones") }}</h2>
     <div class="grid gap-5 xl:grid-cols-2">
-      <section class="card">
-        <h3 class="font-bold">{{ $t("Evaluación del detector YOLO11-s") }}</h3>
-        <p class="text-sm text-muted">{{ $t("Resultados del conjunto de prueba (") }}{{ m.detector_test?.imagenes ?? '—' }} {{ $t("imágenes,") }} {{ m.detector_test?.placas ?? '—' }} {{ $t("placas).") }}</p>
-        <VChart :option="detectorChart" autoresize style="height: 270px" />
+      <section class="card" :class="{ 'xl:col-span-2': !hasDetectorMetrics }">
+        <h3 class="font-bold">{{ $t("Evaluación del detector RT-DETRv2 R18") }}</h3>
+        <template v-if="hasDetectorMetrics">
+          <p class="text-sm text-muted">{{ $t("Resultados del conjunto de prueba (") }}{{ m.detector_test?.imagenes ?? '—' }} {{ $t("imágenes,") }} {{ m.detector_test?.placas ?? '—' }} {{ $t("placas).") }}</p>
+          <VChart :option="detectorChart" autoresize style="height: 270px" />
+        </template>
+        <p v-else class="mt-3 text-sm text-muted">{{ $t("Aún no hay métricas RT-DETR de prueba. Ajusta y evalúa el modelo con un conjunto reservado para este país.") }}</p>
       </section>
-      <section class="card">
+      <section v-if="hasDetectorMetrics" class="card">
         <h3 class="font-bold">{{ $t("Detección según tamaño de placa") }}</h3>
         <p class="text-sm text-muted">{{ $t("mAP@0.5:0.95; permite comparar la localización por tamaño.") }}</p>
         <VChart :option="plateSizeChart" autoresize style="height: 230px" />
@@ -161,14 +166,14 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
         <p class="text-sm text-muted">{{ $t("SAVH,") }} {{ m.ocr_savh?.n ?? '—' }} {{ $t("placas revisadas. CER:") }} {{ pct(m.ocr_savh?.cer, 1) }} {{ $t("(menor es mejor).") }}</p>
         <VChart :option="ocrChart" autoresize style="height: 210px" />
       </section>
-      <section class="card">
+      <section v-if="hasTimingMetrics" class="card">
         <h3 class="font-bold">{{ $t("Tiempo medido por etapa") }}</h3>
         <p class="text-sm text-muted">{{ $t("Milisegundos; el tiempo completo corresponde a detección + OCR en el video de garita.") }}</p>
         <VChart :option="latencyChart" autoresize style="height: 230px" />
       </section>
-      <section class="card xl:col-span-2">
-        <h3 class="font-bold">{{ $t("Comparación antes y después de Optuna") }}</h3>
-        <p class="text-sm text-muted">{{ $t("Métricas del conjunto de prueba; se muestra el modelo base y la configuración optimizada.") }}</p>
+      <section v-if="opt.comparacion_test" class="card xl:col-span-2">
+        <h3 class="font-bold">{{ $t("Optimización RT-DETR (validación)") }}</h3>
+        <p class="text-sm text-muted">{{ $t("Comparación de configuraciones RT-DETR usando el split de validación.") }}</p>
         <VChart :option="optimizationChart" autoresize style="height: 230px" />
       </section>
     </div>
@@ -179,7 +184,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     <section class="card space-y-3 leading-relaxed">
       <h2 class="card-title">{{ $t("Cómo funciona") }}</h2>
       <ol class="list-decimal space-y-2 pl-5">
-        <li><b>{{ $t("Detección:") }}</b> {{ info?.detector || 'YOLO11-s' }} {{ $t("localiza la placa en la imagen.") }}</li>
+        <li><b>{{ $t("Detección:") }}</b> {{ info?.detector || 'RT-DETRv2 R18' }} {{ $t("localiza la placa en la imagen.") }}</li>
         <li><b>{{ $t("Lectura:") }}</b> {{ info?.ocr || 'fast-plate-ocr' }} {{ $t("lee los caracteres del recorte; la confianza es la probabilidad mínima por carácter.") }}</li>
         <li><b>{{ $t("Normalización:") }}</b> {{ $t("se corrigen confusiones típicas (O↔0, I↔1, S↔5…) y se valida el formato ecuatoriano") }} <code>{{ $t("XXX-0000") }}</code>{{ $t(".") }}</li>
         <li><b>{{ $t("Decisión:") }}</b> {{ $t("la placa se busca en la base: lista blanca →") }} <b class="text-ok-dark">{{ $t("Autorizado") }}</b>{{ $t(", lista restringida →") }} <b class="text-bad">{{ $t("Denegado") }}</b>{{ $t(", sin registro →") }} <b class="text-warn">{{ $t("No registrado") }}</b>{{ $t("; confianza baja →") }} <b class="text-warn">{{ $t("Verificación manual") }}</b>{{ $t(".") }}</li>
@@ -188,8 +193,9 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     </section>
     <section class="card space-y-3 leading-relaxed">
       <h2 class="card-title">{{ $t("Entrenamiento y validación") }}</h2>
-      <p>{{ $t("YOLO11-s entrenado") }} {{ tr.epocas_corridas ?? '—' }} {{ $t("épocas (imgsz") }} {{ tr.imgsz ?? 640 }}{{ $t(", batch") }} {{ tr.batch ?? 16 }}{{ $t(",") }}
-        {{ tr.optimizer || 'AdamW' }}{{ $t(") sobre") }} <i>{{ tr.dataset || 'license-plate-recognition' }}</i>{{ $t(", en") }} {{ num(tr.horas, 2) }} {{ $t("h de GPU.") }}</p>
+      <p v-if="tr.epochs_requested">{{ $t("RT-DETRv2 R18 ajustado con Transformers") }} {{ tr.epochs_requested }} {{ $t("épocas sobre") }}
+        <i>{{ tr.dataset_dir || 'dataset COCO Detection' }}</i>{{ $t(".") }}</p>
+      <p v-else>{{ $t("El checkpoint compartido de placas tiene licencia Apache-2.0. El ajuste fino y las métricas por país están pendientes.") }}</p>
       <p v-if="opt.comparacion_test">{{ $t("Optimización de hiperparámetros (Optuna, 24") }} <i>{{ $t("trials") }}</i>{{ $t("):") }} <code>{{ $t("lr0") }}</code> {{ $t("fue el factor dominante.\n        Con") }} <code>{{ $t("lr0") }}</code> {{ $t("≈") }} {{ opt.mejor_config?.lr0?.toExponential(1) }} {{ $t("el mAP@0.5:0.95 de") }} <i>{{ $t("test") }}</i> {{ $t("pasa de") }}
         {{ num(opt.comparacion_test.map50_95?.base) }} {{ $t("a") }} {{ num(opt.comparacion_test.map50_95?.optimizada) }} {{ $t("con el mismo mAP@0.5;\n        se mantiene el modelo entregado (detalles en") }} <code>{{ $t("docs/optimizacion.md") }}</code>{{ $t(").") }}</p>
       <p>{{ $t("El OCR se evaluó con placas reales de Guayaquil (SAVH). Un afinamiento con placas ecuatorianas\n        (") }}{{ ft.particion?.train ?? '—' }} {{ $t("recortes de entrenamiento) no mejoró de forma significativa\n        (EMR") }} {{ pct(ft.original?.emr, 1) }} {{ $t("original), por lo que se mantiene el modelo preentrenado.") }}</p>
@@ -198,7 +204,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     <section class="card space-y-3 leading-relaxed xl:col-span-2 border-l-4 border-warn">
       <h2 class="card-title"><span class="icon-chip !bg-warn"><AppIcon name="alert" /></span> {{ $t("Limitaciones y advertencias") }}</h2>
       <ul class="list-disc space-y-1.5 pl-5">
-        <li>{{ $t("El detector se entrenó con placas de varios países; no es específico de Ecuador. El OCR se validó con placas reales\n          de") }} <b>{{ $t("SAVH Guayaquil") }}</b>{{ $t(", pero rinde menos con placas sucias, dañadas, de noche, muy inclinadas o lejanas\n          (mAP@0.5:0.95 de placas pequeñas:") }} {{ num(m.detector_test?.map50_95_pequenas) }}{{ $t(").") }}</li>
+        <li>{{ $t("El checkpoint compartido RT-DETRv2 se ajustó con un dataset general de matrículas; no equivale a un modelo validado para Ecuador o Estados Unidos. Los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas reales de") }} <b>{{ $t("SAVH Guayaquil") }}</b>{{ $t(", pero su rendimiento puede bajar con placas sucias, dañadas, de noche, inclinadas o lejanas.") }}</li>
         <li>{{ $t("El umbral OCR operativo es") }} {{ pct(info?.umbral_ocr ?? 0.94) }}{{ $t(". Se eligió considerando los recursos CPU limitados del hosting: en video y cámara, la interfaz analiza cada segundo y puede terminar antes cuando confirma la misma placa en dos cuadros, evitando cuadros adicionales. El umbral no acelera cada inferencia. Las lecturas inferiores o inconsistentes pasan a verificación manual. El operador solicita la apertura; la barrera no se abre solo por reconocer una placa.") }}</li>
         <li>{{ $t("El EMR punta a punta en la garita real aún no se midió (falta la referencia anotada del video).") }}</li>
         <li>{{ $t("Las imágenes de ejemplo derivan del diseño de la interfaz; no son capturas reales. La barrera de esta versión es") }}

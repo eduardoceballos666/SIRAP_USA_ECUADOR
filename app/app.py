@@ -39,7 +39,7 @@ CFG = load_config()
 LOG = get_logger("sirap.app")
 SAMPLES_DIR = ROOT / "data" / "samples"
 THRESHOLD = float(CFG["decision"]["umbral_confianza_ocr"])
-DET_THRESHOLD = float((load_json("results/metrics/umbrales.json") or {}).get("YOLO11", {}).get(
+DET_THRESHOLD = float((load_json("results/metrics/umbrales_rtdetr.json") or {}).get("RT-DETRv2", {}).get(
     "conf", CFG["detector"].get("conf_decision", 0.30)))
 MODULES = ["Dashboard", "Reconocimiento y Acceso", "Historial", "Administración", "Acerca del modelo"]
 RESULT_LABELS = {"AUTORIZADO": "Autorizado", "DENEGADO": "Denegado", "NO_REGISTRADO": "No registrado",
@@ -549,18 +549,19 @@ def _metric(value, fmt="{:.3f}") -> str:
 def page_about() -> None:
     page_header("Acerca del modelo")
     pipeline = get_pipeline()
-    det = load_json("results/metrics/detector_test.json") or {}
+    det = load_json("results/metrics/detector_rtdetr_ecuador_test.json") or {}
     ocr = load_json("results/metrics/ocr_savh.json") or {}
-    e2e = load_json("results/metrics/e2e.json") or {}
-    vel = load_json("results/metrics/velocidad.json") or {}
+    e2e = load_json("results/metrics/e2e_rtdetr.json") or {}
+    vel = load_json("results/metrics/velocidad_rtdetr.json") or {}
     targets = CFG["metas"]
     a, b = st.columns([1.25, 1], gap="medium")
     with a, st.container(key="card_about"):
         st.markdown(ui.card_head("info", "Cómo funciona"), unsafe_allow_html=True)
         st.markdown(f"""
-1. **Detección** – YOLO11-s (Ultralytics, ≈9,4 M parámetros) localiza la placa. Se entrenó con el dataset
-   *License Plate Recognition* de Roboflow Universe (v11, 10 125 imágenes, CC BY 4.0), 40 épocas a 640 px
-   (0,70 h en una GPU L4).
+1. **Detección** – RT-DETRv2 R18 con Transformers localiza la placa. El checkpoint compartido
+   [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2) está bajo Apache-2.0
+   y deriva de [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). Si existe, la app
+   prioriza el checkpoint local de Ecuador generado por el notebook 03.
 2. **Lectura (OCR)** – `fast-plate-ocr` con el modelo `{CFG['ocr']['modelo']}` (≈5 MB, CPU) lee los caracteres
    y entrega una probabilidad por carácter; la **confianza OCR** es la menor de ellas (el carácter menos seguro).
 3. **Normalización** – la lectura se lleva al formato ecuatoriano `XXX-0000` y se corrigen confusiones
@@ -592,15 +593,17 @@ def page_about() -> None:
         st.caption("Valores de results/metrics/*.json, copiados de las salidas del notebook (preset «completo»). "
                    "«pendiente» = medición que todavía no existe (el EMR punta a punta necesita la referencia "
                    "anotada de la garita).")
-        hist = ROOT / "results" / "figures" / "resumen_yolo11_completo.png"
+        hist = ROOT / "results" / "figures" / "resumen_rtdetr_completo.png"
         if hist.exists():
             with st.expander("Ver gráficos de evaluación del detector"):
                 st.image(str(hist), width="stretch")
     with st.container(key="card_limits"):
         st.markdown(ui.card_head("warn", "Limitaciones y advertencias"), unsafe_allow_html=True)
         st.markdown("""
-- El detector se entrenó con placas de varios países; no es específico de Ecuador. El OCR se validó con placas
-  reales de **SAVH Guayaquil**, pero su rendimiento baja con placas sucias, dañadas, de noche, muy inclinadas o lejanas.
+- El checkpoint compartido se ajustó con placas de un dataset general; no equivale a un modelo validado para
+  Ecuador o Estados Unidos. Los resultados del detector RT-DETRv2 se mostrarán después de ejecutar su evaluación;
+  los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas de **SAVH Guayaquil**, pero su
+  rendimiento puede bajar con placas sucias, dañadas, de noche, muy inclinadas o lejanas.
 - Una lectura con confianza baja **no** se decide automáticamente: pasa a verificación manual.
 - Las imágenes de ejemplo de esta demo derivan del diseño de la interfaz (ver `data/README.md`); no son capturas reales.
 - La barrera de esta versión es **simulada** y la base de demostración contiene datos **ficticios**.

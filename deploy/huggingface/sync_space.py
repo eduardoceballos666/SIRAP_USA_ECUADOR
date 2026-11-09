@@ -1,7 +1,6 @@
 """Publica la versión FastAPI + Vue de SIRAP en un Space Docker de Hugging Face.
 
-Lo ejecuta el workflow ``.github/workflows/deploy-hf-space.yml``. Copia los archivos de la app y el notebook
-``notebooks/ecuador/sirap_backend.ipynb`` solicitado para mantenerlo disponible en el Space; excluye documentación y pesos .pt.
+Lo ejecuta el workflow ``.github/workflows/deploy-hf-space.yml``. Copia los archivos de la app y los notebooks de inferencia RT-DETR por país; no incluye checkpoints YOLO heredados.
 
 Variables: ``HF_TOKEN`` (obligatoria, con permiso de escritura), ``HF_SPACE`` (``usuario/nombre``),
 ``SIRAP_DATA_GITHUB_TOKEN`` (obligatoria para validar el respaldo privado antes de desplegar),
@@ -25,8 +24,8 @@ ROOT = Path(__file__).resolve().parents[2]
 INCLUDE = [
     "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE", "NOTICE",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
-    "notebooks/ecuador/sirap_backend.ipynb",
-    "models/ecuador/detector/ecuador_best.onnx", "models/README.md",
+    "notebooks/ecuador/sirap_backend.ipynb", "notebooks/usa/sirap_backend.ipynb",
+    "models/README.md",
 ]
 IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
 

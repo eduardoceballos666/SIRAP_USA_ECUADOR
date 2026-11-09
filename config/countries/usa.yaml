@@ -2,6 +2,17 @@ country:
   code: "US"
   name: "United States"
 
+detector:
+  architecture: "RT-DETRv2 R18"
+  model_id: "merve/license-plates-rtdetrv2"
+  base_model_id: "PekingU/rtdetr_v2_r18vd"
+  checkpoint: "models/usa/detector/rtdetr_r18"
+  class_id: 0
+  device: "auto"
+  training_size: 640
+  inference_size: 640
+  confidence: 0.25
+
 plates:
   require_state: true
   normalization: "uppercase_alphanumeric"

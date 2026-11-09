@@ -46,7 +46,7 @@ def get_barrier():
 def thresholds() -> tuple[float, float, int]:
     """(umbral OCR, umbral de decisión del detector, distancia de «casi coincide»)."""
     cfg = get_config()
-    det = (load_json("results/metrics/umbrales.json") or {}).get("YOLO11", {}).get(
+    det = (load_json("results/metrics/umbrales_rtdetr.json") or {}).get("RT-DETRv2", {}).get(
         "conf", cfg["detector"].get("conf_decision", 0.30))
     return float(cfg["decision"]["umbral_confianza_ocr"]), float(det), int(cfg["decision"]["distancia_max_similar"])
 

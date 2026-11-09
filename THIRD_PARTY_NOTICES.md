@@ -1,16 +1,20 @@
 # Avisos de componentes y recursos de terceros
 
-La Apache License, versión 2.0, de [LICENSE](LICENSE) cubre el código original de SIRAP_USA_ECUADOR en la versión actual. El aviso de autoría está en [NOTICE](NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Este cambio no sustituye ni modifica las licencias o condiciones de modelos, pesos, bibliotecas y conjuntos de datos de terceros.
+La licencia [Apache License 2.0](LICENSE) cubre el código original de SIRAP_USA_ECUADOR en esta versión. El aviso de autoría está en [NOTICE](NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Cada modelo, biblioteca y conjunto de datos mantiene sus propios términos.
 
-## Modelos y bibliotecas
+## Detector y bibliotecas
 
-- **Ultralytics YOLO11:** detector utilizado para localizar placas. Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0, conforme a las condiciones de Ultralytics.
-- **fast-plate-ocr:** biblioteca de reconocimiento óptico de caracteres (OCR) distribuida bajo MIT.
-- **OpenCV (`opencv-python-headless` 4.12.0.88):** operaciones auxiliares de redimensionado y codificación JPEG. No realiza la detección de placas; esta corresponde a YOLO11. Licencia Apache 2.0 ([texto oficial](https://github.com/opencv/opencv/blob/4.12.0/LICENSE)).
+- **Checkpoint `merve/license-plates-rtdetrv2`:** RT-DETRv2 R18 ajustado para detectar matrículas, distribuido en Hugging Face bajo **Apache-2.0**. [Ficha del modelo](https://huggingface.co/merve/license-plates-rtdetrv2). Su tarjeta identifica como base a `PekingU/rtdetr_v2_r18vd`.
+- **Checkpoint base `PekingU/rtdetr_v2_r18vd`:** RT-DETRv2 R18 para Transformers, Apache-2.0. [Ficha del modelo](https://huggingface.co/PekingU/rtdetr_v2_r18vd).
+- **Transformers y PyTorch:** infraestructura de carga, ajuste fino e inferencia del detector. Conservan sus licencias de software respectivas; no se utiliza Ultralytics.
+- **fast-plate-ocr:** reconocimiento óptico de caracteres (OCR), MIT.
+- **OpenCV (`opencv-python-headless`):** lectura y conversión de imágenes/video. Apache-2.0 ([licencia](https://github.com/opencv/opencv/blob/4.12.0/LICENSE)).
+
+Los checkpoints finos que se produzcan a partir de esos pesos deben conservar la atribución y los avisos aplicables a su checkpoint de origen. Las métricas históricas YOLO no describen RT-DETR.
 
 ## Conjuntos de datos
 
-- **License Plate Recognition — Roboflow Universe:** conjunto de datos utilizado para entrenar y evaluar el detector, bajo CC BY 4.0. Consulte la [ficha del conjunto](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e) para sus condiciones de atribución.
-- **SAVH Guayaquil ANPR Plate Images Dataset — Zenodo:** utilizado para evaluar OCR con placas ecuatorianas. El registro consultado no muestra una licencia para el archivo específico; revise sus condiciones antes de redistribuirlo.
+- **License Plate Recognition — Roboflow Universe:** detección de matrículas; el entrenamiento descarga exportación COCO. Atribución CC BY 4.0 según la [ficha del dataset](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e).
+- **SAVH Guayaquil ANPR Plate Images Dataset — Zenodo:** evaluación OCR ecuatoriana. El registro consultado no muestra licencia para el archivo específico; revise sus condiciones antes de redistribuirlo.
 
-Las marcas, derechos y licencias de cada componente y recurso pertenecen a sus titulares. Para el inventario de otras dependencias de software, consulte la sección de [agradecimientos y referencias](README.md#11-agradecimientos-y-referencias).
+Para el inventario de otras dependencias consulte [agradecimientos y referencias](README.md#agradecimientos-y-referencias).

@@ -6,12 +6,11 @@ red se omiten.
 
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from src.access_control import decide_access
 from src.evaluate import character_error_rate, exact_match_rate, f1_score
-from src.model import Detection, PlateDetector, _nms
+from src.model import Detection, PlateDetector
 
 SAMPLES = Path(__file__).resolve().parents[1] / "data" / "samples"
 
@@ -55,16 +54,11 @@ def test_metrics():
 
 
 # ---- detector -------------------------------------------------------------------------------
-def test_nms_removes_overlaps():
-    boxes = np.array([[0, 0, 10, 10], [1, 1, 10, 10], [50, 50, 60, 60]], np.float32)
-    scores = np.array([0.9, 0.8, 0.7], np.float32)
-    assert _nms(boxes, scores, 0.5) == [0, 2]
-
-
-def test_detector_without_weights_raises_clear_error(tmp_path):
-    detector = PlateDetector(tmp_path / "no.onnx", None)
-    with pytest.raises(RuntimeError, match="No se pudo cargar el detector YOLO11-s"):
-        detector.detect(np.zeros((200, 200, 3), np.uint8))
+def test_detector_rejects_legacy_onnx_checkpoint(tmp_path):
+    legacy = tmp_path / "old_detector.onnx"
+    legacy.write_bytes(b"legacy checkpoint")
+    with pytest.raises(ValueError, match="no es una carpeta Transformers"):
+        PlateDetector(legacy, model_id="merve/license-plates-rtdetrv2")
 
 
 def test_detection_area():

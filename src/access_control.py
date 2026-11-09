@@ -3,7 +3,7 @@
 Regla (en este orden):
 
 1. Sin placa válida, confianza del detector menor que su umbral de decisión calibrado en *val*
-   (0,30 para YOLO11-s) o confianza OCR menor que el umbral → **VERIFICACION_MANUAL**.
+   (umbral provisional RT-DETRv2, calibrado por perfil) o confianza OCR menor que el umbral → **VERIFICACION_MANUAL**.
 2. Placa en la lista **RESTRINGIDA** vigente → **DENEGADO**.
 3. Placa en la lista **BLANCA** vigente → **AUTORIZADO**.
 4. Placa no registrada pero a distancia ≤ 1 de una registrada (posible error del OCR)
@@ -55,7 +55,7 @@ def decide_access(plate: str | None, ocr_confidence: float, store: Any,
         store: almacén con ``get_vehicle(placa)`` y ``registered_plates()`` (``src.storage.CsvStore``).
         confidence_threshold: umbral bajo el cual se pide verificación manual.
         max_similar_distance: distancia de Levenshtein para sugerir una placa registrada parecida.
-        det_confidence: confianza del detector YOLO11-s (``None`` si la placa se escribió a mano).
+        det_confidence: confianza del detector RT-DETRv2 (``None`` si la placa se escribió a mano).
         det_threshold: umbral de decisión del detector (``conf_decision`` calibrado en *val*).
 
     Returns:

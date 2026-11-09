@@ -235,7 +235,7 @@ def crop_with_margin(image: np.ndarray, box: Sequence[float], margin: float = 0.
 
 def letterbox(image: np.ndarray, size: int = 640,
               color: tuple[int, int, int] = (114, 114, 114)) -> tuple[np.ndarray, float, tuple[int, int]]:
-    """Redimensiona manteniendo la proporción y rellena hasta ``size``×``size`` (como Ultralytics).
+    """Redimensiona y rellena una imagen para obtener un lienzo cuadrado de ``size`` píxeles.
 
     Returns:
         ``(imagen, escala, (relleno_x, relleno_y))`` para deshacer la transformación de las cajas.
