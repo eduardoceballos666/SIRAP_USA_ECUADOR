@@ -26,6 +26,8 @@ INCLUDE = [
     "requirements-training.in", "requirements.in", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
     "docs", "notebooks", "models/README.md",
+    "datasets/usa/README.md", "datasets/usa/detection_coco/README.md",
+    "datasets/usa/detection_coco/annotations_template.csv", "scripts/usa_annotations_to_coco.py",
     "models/ecuador/detector/rtdetrv2_s/openvino",
     "models/usa/detector/rtdetrv2_s/openvino",
 ]
