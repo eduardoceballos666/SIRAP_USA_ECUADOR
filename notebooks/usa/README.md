@@ -1,6 +1,6 @@
 # Flujo de notebooks Estados Unidos
 
-Esta carpeta contiene el flujo RT-DETRv2-S con ajuste Transformers/PyTorch y exportación OpenVINO IR para el perfil USA. Incluye exploración, preparación COCO, entrenamiento, optimización, evaluación, OCR y validación multisemilla.
+Esta carpeta contiene el flujo RT-DETRv2-S con ajuste Transformers/PyTorch y exportación OpenVINO IR para el perfil USA. Incluye exploración, preparación COCO, entrenamiento, optimización, evaluación, OCR y validación multisemilla. El notebook [02 de preprocesamiento](02_preprocesamiento.ipynb) descarga `plateblur/european-usa-license-plates` v1 en COCO Segmentation y unifica las tres etiquetas de placas para entrenar el detector de una clase.
 
 El [backend USA](sirap_backend_USA.ipynb) incluye el paso ejecutable para crear COCO desde escenas completas y cajas CSV, el entrenamiento con tres semillas, selección por mAP50-95 de validación, exportación OpenVINO y pruebas de detección, OCR, robustez y latencia.
 
