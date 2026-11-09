@@ -23,7 +23,7 @@ from huggingface_hub import HfApi
 
 ROOT = Path(__file__).resolve().parents[2]
 INCLUDE = [
-    "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE",
+    "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE", "NOTICE",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
     "notebooks/ecuador/sirap_backend.ipynb",
     "models/ecuador/detector/ecuador_best.onnx", "models/README.md",
