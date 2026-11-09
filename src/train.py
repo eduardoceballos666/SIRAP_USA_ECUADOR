@@ -7,9 +7,9 @@ sin instalar ni usar Ultralytics.
 
 Ejemplos::
 
-    python -m src.train --country ecuador --data-dir /content/license-plates-coco
-    python -m src.train --country usa --data-dir /content/us-plates-coco --epochs 30
-    python -m src.train --country usa --roboflow
+    python -m src.train --country ecuador --data-dir /content/license-plates-coco --epochs 30 --early-stopping-patience 5
+    python -m src.train --country usa --data-dir /content/us-plates-coco --epochs 50 --early-stopping-patience 8
+    python -m src.train --country usa --roboflow --epochs 50 --early-stopping-patience 8
     python -m src.train --convert-yolo --data-yaml /content/dataset/data.yaml --output-dir /content/dataset-coco
 """
 
@@ -196,8 +196,9 @@ def convert_yolo_to_coco(data_yaml: str | Path, output_dir: str | Path) -> Path:
 
 def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str = DEFAULT_MODEL_ID,
                    output_dir: str | Path | None = None, run_dir: str | Path | None = None,
-                   epochs: int = 30, batch_size: int = 8, learning_rate: float = 5e-5,
-                   weight_decay: float = 1e-4, seed: int = 42, force: bool = False) -> Path:
+                   epochs: int | None = None, batch_size: int = 8, learning_rate: float = 5e-5,
+                   weight_decay: float = 1e-4, seed: int = 42, force: bool = False,
+                   early_stopping_patience: int | None = None) -> Path:
     """Ajusta RT-DETRv2-S y exporta el checkpoint del país a OpenVINO IR."""
     import torch
     from transformers import (AutoImageProcessor, EarlyStoppingCallback, RTDetrV2ForObjectDetection,
@@ -205,6 +206,19 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
 
     if country not in {"ecuador", "usa"}:
         raise ValueError("country debe ser 'ecuador' o 'usa'.")
+    training_defaults = {
+        "ecuador": {"epochs": 30, "early_stopping_patience": 5},
+        "usa": {"epochs": 50, "early_stopping_patience": 8},
+    }
+    defaults = training_defaults[country]
+    epochs = defaults["epochs"] if epochs is None else epochs
+    early_stopping_patience = (
+        defaults["early_stopping_patience"]
+        if early_stopping_patience is None
+        else early_stopping_patience
+    )
+    if epochs < 1 or early_stopping_patience < 1:
+        raise ValueError("epochs y early_stopping_patience deben ser enteros positivos.")
     final_dir = resolve_path(output_dir or f"models/{country}/detector/rtdetrv2_s")
     transformers_dir = final_dir / "transformers"
     openvino_dir = final_dir / "openvino"
@@ -255,7 +269,7 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         eval_dataset=val_data,
         data_collator=lambda rows: detection_collator(rows, processor),
         processing_class=processor,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
+        callbacks=[EarlyStoppingCallback(early_stopping_patience=early_stopping_patience)],
     )
     trainer.train()
     trainer.save_model(str(transformers_dir))
@@ -272,6 +286,7 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         "train_images": len(train_data),
         "validation_images": len(val_data),
         "epochs_requested": epochs,
+        "early_stopping_patience": early_stopping_patience,
         "batch_size": batch_size,
         "learning_rate": learning_rate,
         "weight_decay": weight_decay,
@@ -300,7 +315,10 @@ def main() -> None:
     parser.add_argument("--output-dir", default=None, help="Carpeta del modelo; por defecto models/<country>/detector/rtdetrv2_s")
     parser.add_argument("--run-dir", default=None, help="Carpeta de checkpoints temporales del Trainer")
     parser.add_argument("--model-id", default=DEFAULT_MODEL_ID)
-    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--epochs", type=int, default=None,
+                        help="Máximo; por defecto 30 para Ecuador y 50 para USA.")
+    parser.add_argument("--early-stopping-patience", type=int, default=None,
+                        help="Por defecto 5 para Ecuador y 8 para USA.")
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--learning-rate", type=float, default=5e-5)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
@@ -319,7 +337,8 @@ def main() -> None:
     train_detector(data_dir, country=args.country, model_id=args.model_id,
                    output_dir=args.output_dir, run_dir=args.run_dir, epochs=args.epochs,
                    batch_size=args.batch_size, learning_rate=args.learning_rate,
-                   weight_decay=args.weight_decay, seed=args.seed, force=args.force)
+                   weight_decay=args.weight_decay, seed=args.seed, force=args.force,
+                   early_stopping_patience=args.early_stopping_patience)
 
 
 if __name__ == "__main__":
