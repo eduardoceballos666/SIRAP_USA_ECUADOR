@@ -7,7 +7,7 @@ sdk: docker
 app_port: 7860
 pinned: false
 license: apache-2.0
-short_description: Reconocimiento de placas y control de acceso (RT-DETRv2 R18 + OCR)
+short_description: Detector RT-DETRv2 R18 y OCR de placas
 ---
 
 # SIRAP_USA_ECUADOR_HF · Sistema de Detección y Reconocimiento Automático de Placas
