@@ -1,14 +1,15 @@
 """Ajuste fino de RT-DETRv2-S con Transformers para los perfiles Ecuador y USA.
 
 Entrena desde el checkpoint Apache-2.0 de matrículas ``merve/license-plates-rtdetrv2``.
-Los datasets se leen en COCO Detection; ``convert-yolo`` permite convertir un dataset
-local YOLO antiguo sin instalar ni usar Ultralytics.
+Los datasets se leen como detección COCO. El proyecto Roboflow USA se descarga en COCO
+Segmentation y usa sus cajas ``bbox``; ``convert-yolo`` convierte etiquetas heredadas
+sin instalar ni usar Ultralytics.
 
 Ejemplos::
 
     python -m src.train --country ecuador --data-dir /content/license-plates-coco
     python -m src.train --country usa --data-dir /content/us-plates-coco --epochs 30
-    python -m src.train --country ecuador --roboflow
+    python -m src.train --country usa --roboflow
     python -m src.train --convert-yolo --data-yaml /content/dataset/data.yaml --output-dir /content/dataset-coco
 """
 
@@ -28,9 +29,11 @@ from src.utils import get_logger, get_secret, resolve_path, save_json
 logger = get_logger("sirap.train")
 DEFAULT_MODEL_ID = "merve/license-plates-rtdetrv2"
 BASE_MODEL_ID = "PekingU/rtdetr_v2_r18vd"
-RF_WORKSPACE = "roboflow-universe-projects"
-RF_PROJECT = "license-plate-recognition-rxg4e"
-RF_VERSION = 11
+RF_TITLE = "European + USA License plates"
+RF_WORKSPACE = "plateblur"
+RF_PROJECT = "european-usa-license-plates"
+RF_VERSION = 1
+RF_FORMAT = "coco-segmentation"
 
 
 def _annotation_file(data_dir: str | Path, split: str) -> Path:
@@ -51,18 +54,18 @@ def _annotation_file(data_dir: str | Path, split: str) -> Path:
 
 
 def download_roboflow_dataset(target_dir: str | Path = "data/raw", api_key: str | None = None) -> Path:
-    """Descarga la versión de Roboflow como COCO Detection y devuelve la carpeta."""
+    """Descarga el proyecto de placas en COCO Segmentation; el detector usa bbox."""
     key = api_key or get_secret("ROBOFLOW_API_KEY")
     if not key:
         raise RuntimeError("Falta ROBOFLOW_API_KEY en el entorno o en Secrets de Colab.")
     from roboflow import Roboflow  # importación diferida: solo se necesita al descargar
 
-    location = resolve_path(target_dir) / f"{RF_PROJECT}-v{RF_VERSION}-coco"
+    location = resolve_path(target_dir) / f"{RF_PROJECT}-v{RF_VERSION}-{RF_FORMAT}"
     if location.exists():
         logger.info("Se usará el dataset ya descargado: %s", location)
         return location
     project = Roboflow(api_key=key).workspace(RF_WORKSPACE).project(RF_PROJECT)
-    project.version(RF_VERSION).download("coco", location=str(location))
+    project.version(RF_VERSION).download(RF_FORMAT, location=str(location))
     return location
 
 
