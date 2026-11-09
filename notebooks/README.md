@@ -9,7 +9,7 @@ The active detector is RT-DETRv2-S (ResNet-18vd). Fine-tuning uses Transformers/
 
 The former USA notebooks for exploration, preprocessing, modeling, optimization, evaluation, OCR, and multi-seed validation have been merged into the consolidated USA notebook and removed from the active folder. Their prior revisions remain in Git history.
 
-For USA training, add `ROBOFLOW_API_KEY` to Colab Secrets before downloading the default Roboflow dataset. The notebook also supports full-scene USA annotations through [the COCO dataset guide](../datasets/usa/detection_coco/README.md) and [the converter](../scripts/usa_annotations_to_coco.py).
+For USA training, add `ROBOFLOW_API_KEY` to Colab Secrets before downloading the default Roboflow dataset. The consolidated USA notebook also includes an optional, disabled-by-default Cloudflare camera workflow; add `CAMARA_URL` and `CAMARA_TOKEN` to Colab Secrets. Live session outputs remain in Colab's temporary workspace and should not be committed. The notebook also supports full-scene USA annotations through [the COCO dataset guide](../datasets/usa/detection_coco/README.md) and [the converter](../scripts/usa_annotations_to_coco.py).
 
 The USA test builder creates a grouped internal holdout with at least 400 images from the selected source export. It is not an external dataset; vehicle/session separation is guaranteed only when those identifiers are provided. The model test is locked until the checkpoint and threshold are selected using validation and frozen.
 
