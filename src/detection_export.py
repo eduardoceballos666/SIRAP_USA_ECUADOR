@@ -26,7 +26,7 @@ logger = get_logger("sirap.detection_export")
 CSV_FIELDS = (
     "event_id", "fecha_hora", "modelo_detector", "corrida", "video", "camara", "garita",
     "operador", "tipo_movimiento", "accion", "origen", "track_id", "frame_index", "segundo_video",
-    "placa", "texto_ocr", "formato_valido", "confianza_ocr", "confianza_yolo",
+    "placa", "texto_ocr", "formato_valido", "confianza_ocr", "confianza_detector",
     "area_deteccion_px", "disparador", "resultado_acceso", "lista",
     "estado_vehiculo_planta", "transportista", "marca_planta", "modelo_planta", "color_planta",
     "tipo_vehiculo_planta", "propietario_registrado", "marca_coincide_sri",

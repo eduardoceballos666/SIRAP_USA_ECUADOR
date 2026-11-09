@@ -7,18 +7,18 @@ sdk: docker
 app_port: 7860
 pinned: false
 license: apache-2.0
-short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
+short_description: Reconocimiento de placas y control de acceso (RT-DETRv2 R18 + OCR)
 ---
 
 # SIRAP_USA_ECUADOR_HF · Sistema de Detección y Reconocimiento Automático de Placas
 
-**Reconocimiento de placas y control de acceso (YOLO11 + OCR)**
+**Reconocimiento de placas y control de acceso (RT-DETRv2 R18 + OCR)**
 
 **Versión del producto: SIRAP_USA_ECUADOR_HF 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
 
 ## Acceso e idioma
 
-Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Español es el idioma inicial. Para cambiar a inglés, selecciona **English** en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. Selecciona **Español** para volver. Ambas opciones usan la misma dirección y la preferencia se conserva en ese navegador.
+Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El idioma inicial es inglés. Puedes seleccionar Español, English, Português, Français o Deutsch en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. La preferencia se conserva en ese navegador.
 
 Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
@@ -47,11 +47,15 @@ El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano
 | `data/processed/*.csv` | Registros operativos de la aplicación |
 | `data/processed/detecciones.csv` | Eventos de detección con enriquecimiento del SRI |
 
+## Detector y licencia
+
+La aplicación usa Transformers + RT-DETRv2 R18 con el checkpoint de matrículas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), cuya ficha indica **Apache-2.0**. Su modelo base es [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). El OCR `fast-plate-ocr` es independiente. Los resultados y umbrales históricos de YOLO no se reutilizan; las métricas RT-DETR por país están pendientes de entrenamiento y evaluación con datos reservados.
+
 ## Umbral y revisión humana
 
-La configuración vigente en [config/countries/ecuador.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/countries/ecuador.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+El umbral OCR configurado en [config/countries/ecuador.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/countries/ecuador.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
 
-La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
+El umbral de detección RT-DETR está marcado como provisional hasta calibrarlo sobre validación. La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
 
 ## Enlaces
 
@@ -62,7 +66,7 @@ La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, la
 - **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
-SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español e inglés. La configuración del Space y su despliegue se administran desde este repositorio.
+SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, francés y alemán. La configuración del Space y su despliegue se administran desde este repositorio.
 
 
 ## English

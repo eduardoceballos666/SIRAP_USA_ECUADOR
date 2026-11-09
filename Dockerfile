@@ -15,7 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -u 1000 user
-ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH \
+ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH HF_HOME=/home/user/.cache/huggingface \
     SIRAP_DATA_DIR=/home/user/app/data/processed \
     SIRAP_GITHUB_REQUIRED=1 \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
@@ -31,7 +31,8 @@ RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright python -m playwright install --with-
     && rm -rf /var/lib/apt/lists/*
 USER user
 # Descarga el OCR (≈5 MB) durante la construcción para que el primer reconocimiento sea inmediato.
-RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-v2-global-model')"
+RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-v2-global-model')" \
+    && python -c "from transformers import AutoImageProcessor, RTDetrV2ForObjectDetection; m='merve/license-plates-rtdetrv2'; AutoImageProcessor.from_pretrained(m); RTDetrV2ForObjectDetection.from_pretrained(m)"
 
 COPY --chown=user . .
 COPY --chown=user --from=frontend /app/frontend/dist frontend/dist

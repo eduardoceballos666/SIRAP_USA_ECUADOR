@@ -1,89 +1,15 @@
-**Purpose:** results/README.md contains project files and instructions. This description is in English.
+# Resultados y métricas
 
-> Purpose: Operational results, metrics, and country-separated reports.
+## Métricas vigentes de RT-DETR
 
-# Resultados de SIRAP
+Los comandos de `src/evaluate.py` guardan los resultados nuevos con nombres `*_rtdetr*.json` en esta carpeta. Por ejemplo, la evaluación COCO produce `detector_rtdetr_<país>_<split>.json`; el entrenamiento genera `entrenamiento_rtdetr.json`. Los resultados solo serán válidos después de definir dataset, partición, checkpoint y protocolo en cada archivo.
 
-Esta carpeta reúne métricas agregadas, tablas, gráficos compactos y reportes. Cada artefacto debe leerse con el protocolo y las limitaciones indicadas; una métrica de detector, OCR, imagen o video no representa por sí sola el rendimiento total de la aplicación.
+A la fecha de esta migración no hay métricas de test RT-DETR específicas de Ecuador ni de Estados Unidos versionadas en el repositorio. El modelo público de matrículas sirve de checkpoint inicial; no equivale a un modelo validado para esos países. Los umbrales de detección heredados de YOLO no se reutilizan: los valores de configuración están marcados como provisionales y deben calibrarse en validación.
 
-| Carpeta | Contenido |
-|---|---|
-| [`figures/`](figures/) | Gráficos pequeños para documentación e informes. |
-| [`metrics/`](metrics/) | Métricas y resultados agregados en JSON, CSV y Markdown. |
-| [`reports/`](reports/) | Reportes generados. Los logs de ejecución locales se excluyen de Git. |
+## Artefactos YOLO históricos
 
-## Detector, entrenamiento y velocidad
+Los CSV, JSON y gráficos existentes cuyo nombre, contenido o fuente indica YOLO/Ultralytics pertenecen a corridas anteriores. También son históricos `detector_test.json`, `entrenamiento.json`, `entrenamiento_yolo11_*.json`, `e2e.json`, `velocidad.json`, `umbrales.json`, los logs de decisiones y las figuras YOLO. No se deben mostrar, comparar ni atribuir al checkpoint RT-DETR. Las versiones anteriores de notebooks se conservan en el historial de Git.
 
-| Artefacto | Contenido y alcance |
-|---|---|
-| [`metrics/dataset_resumen.json`](metrics/dataset_resumen.json) | Cantidad de imágenes e instancias por partición y distribución de tamaños del test. |
-| [`metrics/entrenamiento.json`](metrics/entrenamiento.json) y [`metrics/entrenamiento_yolo11_results.csv`](metrics/entrenamiento_yolo11_results.csv) | Configuración, duración y resultados por época del entrenamiento YOLO11-s. |
-| [`metrics/entrenamiento_yolo11_rapido.json`](metrics/entrenamiento_yolo11_rapido.json) y [`metrics/entrenamiento_yolo11_rapido_results.csv`](metrics/entrenamiento_yolo11_rapido_results.csv) | Corrida exploratoria de 15 épocas: 30 % de entrenamiento y 25 % de validación; mAP@0.5:0.95 de 0,66085. No reemplaza ni se compara como equivalente al entrenamiento completo de 40 épocas. |
-| [`figures/entrenamiento_yolo11_rapido.png`](figures/entrenamiento_yolo11_rapido.png) y [`figures/yolo11_*_test_*.png`](figures/) | Curvas de la corrida rápida y gráficos de evaluación de las corridas YOLO11 completa y rápida. Las imágenes de lotes de entrenamiento/validación no se publican aquí. |
-| [`metrics/detector_test.json`](metrics/detector_test.json) | mAP, precisión, recall y F1 del detector en test; P, recall y F1 usan el umbral de decisión calibrado en validación. |
-| [`metrics/umbrales.json`](metrics/umbrales.json) | Umbral de confianza de detección YOLO11 calibrado con validación. No contiene el umbral OCR. |
-| [`metrics/velocidad.json`](metrics/velocidad.json) | Latencias, FPS, parámetros y GFLOPs medidos para inferencia del detector en GPU. |
-| [`metrics/video_garita.json`](metrics/video_garita.json) | Conteos y rendimiento de una corrida operativa anterior del video completo (52 seguimientos/lecturas). | No contiene las métricas de exactitud de la corrida final; consulta `metrics/video_e2e_intervalos_final.md` para 7.2.
+## Datos y privacidad
 
-### Umbrales que no deben confundirse
-
-- El umbral de decisión del detector YOLO se calibra en validación y se publica en [`metrics/umbrales.json`](metrics/umbrales.json), alrededor de 0,30.
-- La configuración actual del OCR de la aplicación define 0,94 en [`config/countries/ecuador.yaml`](../config/countries/ecuador.yaml). Las lecturas por debajo del umbral requieren verificación manual.
-- El valor 0,99 mencionado en algunos análisis OCR es un umbral comparado offline; no es el valor de `umbrales.json` ni el umbral OCR configurado actualmente en la aplicación.
-- [`metrics/regla_decision_savh.json`](metrics/regla_decision_savh.json) compara decisiones offline con una lista simulada. No constituye una prueba integral de acceso ni una medición con la lista real de autorizaciones.
-
-## OCR y evaluación de referencias SAVH
-
-Estos archivos usan subconjuntos, referencias y protocolos distintos. Sus porcentajes no se deben combinar como si fueran una sola corrida.
-
-| Artefacto | Resultado o propósito | Alcance y limitación |
-|---|---|---|
-| [`metrics/ocr_savh.json`](metrics/ocr_savh.json) | Resultado histórico: 374/399 exactas (93,7 %), CER 0,010. | Incluye 69 sugerencias de etiqueta que en esa versión estaban sin confirmar. Es una métrica offline, no una validación independiente. |
-| [`metrics/ocr_savh_aprobaciones_398.json`](metrics/ocr_savh_aprobaciones_398.json) | Recálculo: 388/398 exactas (97,49 %), CER 0,003649. | Condicionado a respuestas de revisión no ciegas; en algunos desacuerdos se pudieron ver sugerencias OCR. No demuestra mejora del modelo. |
-| [`metrics/ocr_savh_revision_asistida_397.json`](metrics/ocr_savh_revision_asistida_397.json) | Revisión asistida de etiquetas y recálculo sobre un subconjunto de 397. | Resultado provisional de una revisión anterior; no sustituye las referencias ni la evaluación ciega. |
-| [`metrics/ocr_savh_validacion_ciega_piloto.json`](metrics/ocr_savh_validacion_ciega_piloto.json) | Piloto visual de 84 imágenes del split de prueba. | No es cierre independiente: 13 discrepancias con referencias archivadas requieren adjudicación. |
-| [`metrics/blind_independent_video_eval_20261030.json`](metrics/blind_independent_video_eval_20261030.json) y [reporte detallado](metrics/validacion_ciega_video_20261030.md) | Holdout ciego de OCR: 57 imágenes puntuadas; OCR base 42/57 (73,7 %) y afinado 35/57 (61,4 %). | Es una evaluación de imágenes OCR, no de video. Un caso sin referencia aprobada se excluyó; la revisión no tuvo doble adjudicación. |
-| [`metrics/ocr_afinamiento.json`](metrics/ocr_afinamiento.json) | Compara OCR base y afinado en 86 imágenes de test. | El EMR fue 94,2 % para ambos; el archivo indica `adoptar: false`. No presentar el modelo afinado como mejora comprobada. |
-
-La mayoría de los reportes agregados no incluye matrículas ni imágenes. Se publican intencionalmente como materiales del proyecto la lista de demostración/evaluación [`data/authorized_plates.csv`](../data/authorized_plates.csv), la **referencia final del video** [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../evaluation/ecuador/blind_evaluation/video_ground_truth.csv) (20 pasadas, columnas `plate_gt,frame_start,frame_end`) y el registro [`metrics/YOLO11_yolo11s_completo_decisions_log.csv`](metrics/YOLO11_yolo11s_completo_decisions_log.csv). Este último contiene lecturas por cuadro, transcripciones OCR y estados de acceso de una corrida; no constituye por sí solo una métrica integral. Los CSV provisionales de `evaluation/ecuador/blind_evaluation/` (18 puntos y borrador de intervalos) son históricos. No agregues otros archivos operativos privados ni predicciones identificables sin revisión.
-
-## Evaluaciones de video e imágenes de garita
-
-| Artefacto | Resultado o propósito | Alcance y limitación |
-|---|---|---|
-| [`metrics/e2e.json`](metrics/e2e.json) | Resumen general de evaluación y latencia promedio (99,21 ms); EMR y CER están en `null`. | No contiene las métricas de la corrida 7.2 por intervalos; consulta el informe final específico. |
-| [`metrics/video_e2e_muestra.json`](metrics/video_e2e_muestra.json) | Evaluación E2E de cinco clips: 3/5 coincidencias exactas (60 %). | Aplicó la regla de misma placa en dos cuadros aceptados con OCR ≥0,94 dentro de 7,5 s. No hubo comparación de un solo cuadro para medir el efecto aislado; no sustituye la evaluación integral del video operativo. |
-| [`metrics/video_e2e_puntos_provisionales_20261101.json`](metrics/video_e2e_puntos_provisionales_20261101.json) y [reporte](metrics/video_e2e_puntos_provisionales_20261101.md) | Informe histórico de la evaluación puntual: 11/18 exactas (61,1 %) y 9/16 recuperadas. | Usó una referencia puntual anterior; no representa los resultados de la corrida final por intervalos. La cifra 7/52 se retiró por error de cálculo. |
-| [`metrics/video_e2e_intervalos_final.json`](metrics/video_e2e_intervalos_final.json) y [reporte](metrics/video_e2e_intervalos_final.md) | Reejecución más reciente: EMR 18/30 (60 %), recall de placas únicas 16/17 (94,12 %) y 2/30 falsas autorizaciones observadas entre lecturas clasificables. | 51 lecturas; 30 con referencia y 21 sin referencia. La tasa integral no es estimable; dos pasadas dudosas siguen excluidas. La corrida guardada anterior se documenta por separado. |
-| [`metrics/YOLO11_yolo11s_completo_decisions_log.csv`](metrics/YOLO11_yolo11s_completo_decisions_log.csv) | Registro de decisiones de una corrida YOLO11 con `frame_index`, OCR normalizado y estado. | Es el archivo de entrada de la evaluación del notebook; contiene lecturas identificables y no debe interpretarse como métrica agregada. |
-| [`metrics/garita_imagenes_e2e_20261101.md`](metrics/garita_imagenes_e2e_20261101.md) | Informe publicado: EMR 8/21 (38,1 %), 37,69 ms; salida guardada del notebook: EMR 9/21 (42,9 %), 1,400674 s. | Son corridas distintas sin ID común; no combinar. La salida del notebook no conserva fecha. Ambas quedan bajo la meta EMR del 80 %. |
-
-La referencia final del video es [`evaluation/ecuador/blind_evaluation/video_ground_truth.csv`](../evaluation/ecuador/blind_evaluation/video_ground_truth.csv), con 20 pasadas. La reejecución más reciente de 7.2 se resume en [`metrics/video_e2e_intervalos_final.md`](metrics/video_e2e_intervalos_final.md); el JSON registra 51 lecturas, 30 comparables y 21 sin referencia.
-
-## Optimización y estabilidad multisemilla del detector
-
-| Artefacto | Contenido |
-|---|---|
-| [`metrics/optimizacion_trials.csv`](metrics/optimizacion_trials.csv) | Hiperparámetros y métricas de validación de los 24 trials de Optuna. |
-| [`metrics/optimizacion_importancia.csv`](metrics/optimizacion_importancia.csv) | Importancia de hiperparámetros por fANOVA y permutación. |
-| [`metrics/optimizacion_antes_despues.csv`](metrics/optimizacion_antes_despues.csv) y [`metrics/optimizacion_resumen.json`](metrics/optimizacion_resumen.json) | Configuración seleccionada y comparación experimental base/optimizada en test; no implica que los pesos optimizados estén desplegados. |
-| [`metrics/validacion_multisemilla_comparacion.csv`](metrics/validacion_multisemilla_comparacion.csv), [resumen](metrics/validacion_multisemilla_resumen.json), [protocolo](metrics/validacion_multisemilla_protocolo.json) y [resultados individuales](metrics/validacion_multisemilla_individuales/) | Seis entrenamientos en tres pares de semillas. La mejora media de mAP50:95 es descriptiva; tres semillas no demuestran significación estadística ni mejora punta a punta. |
-
-Los pesos de experimentos y optimización no reemplazan automáticamente el modelo publicado. El detalle y las limitaciones están en [`docs/validacion_savh_multisemilla.md`](../docs/validacion_savh_multisemilla.md).
-
-## Ejecución y conservación de resultados
-
-El notebook actualizado lee los insumos versionados desde GitHub y no requiere Google Drive para iniciar. Las salidas nuevas de Colab se guardan en `/content/SIRAP_workspace` y no se publican automáticamente. Conserva en el repositorio métricas agregadas, tablas y gráficos pequeños; distribuye el video fuente como artefacto separado y no lo incrustes en el notebook. La referencia final del video es `evaluation/ecuador/blind_evaluation/video_ground_truth.csv`; el archivo de 18 puntos se conserva solo como histórico. Antes de publicar nuevas predicciones, anotaciones detalladas o registros operativos, confirma su alcance, procedencia y autorización.
-
-Si un resultado está pendiente o su referencia es incompleta, indícalo como tal; no extrapoles métricas ni completes etiquetas por intuición.
-
-## Aplicación, repositorio y videos
-
-- [Aplicación SIRAP](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space) · [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
-- [Repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) · [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs)
-- La interfaz está disponible en español e inglés. Los videos de presentación y preguntas están enlazados al final del [README principal](../README.md).
-
-
-## English
-
-This folder stores experiment metrics, figures, and reports. Historical metrics remain at their existing `metrics/` and `figures/` paths for compatibility. New country-specific reports should be placed under `results/ecuador/` or `results/usa/`; shared detector results belong under `results/shared/`.
+Los registros de acceso de producción se mantienen en `SIRAP_datos_privados`. No agregues CSV operativos ni imágenes de matrículas identificables a este repositorio. Las referencias de evaluación publicadas deben conservar el alcance y las limitaciones descritos en `evaluation/`.

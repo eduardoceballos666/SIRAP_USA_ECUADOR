@@ -86,9 +86,18 @@ def dashboard(days: int = Query(7, ge=1, le=365), include_demo: bool = True,
 
 @router.get("/model/info", summary="Métricas y descripción del modelo")
 def model_info(_: dict = Depends(current_user)) -> dict[str, Any]:
-    names = ("detector_test", "ocr_savh", "e2e", "velocidad", "entrenamiento", "umbrales", "ocr_afinamiento",
-             "regla_decision_savh", "optimizacion_resumen")
+    metrics = {
+        "detector_test": load_json("results/metrics/detector_rtdetr_ecuador_test.json"),
+        "ocr_savh": load_json("results/metrics/ocr_savh.json"),
+        "e2e": load_json("results/metrics/e2e_rtdetr.json"),
+        "velocidad": load_json("results/metrics/velocidad_rtdetr.json"),
+        "entrenamiento": load_json("results/metrics/entrenamiento_rtdetr.json"),
+        "umbrales": load_json("results/metrics/umbrales_rtdetr.json"),
+        "ocr_afinamiento": load_json("results/metrics/ocr_afinamiento.json"),
+        "regla_decision_savh": load_json("results/metrics/regla_decision_savh.json"),
+        "optimizacion_resumen": load_json("results/metrics/optimizacion_rtdetr_resumen.json"),
+    }
     ocr_threshold, det_threshold, _ = thresholds()
-    return {"metricas": {n: load_json(f"results/metrics/{n}.json") for n in names},
+    return {"metricas": metrics,
             "detector": get_pipeline().detector.name, "ocr": get_pipeline().reader.model_name,
             "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold}

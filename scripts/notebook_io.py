@@ -58,8 +58,7 @@ def repository_paths(repo_root: str | Path) -> dict[str, Path]:
         "models": root / "models" / "ecuador",
         "detector": root / "models" / "ecuador" / "detector",
         "ocr_models": root / "models" / "ecuador" / "ocr",
-        "detector_weights": root / "models" / "ecuador" / "detector" / "ecuador_best.pt",
-        "detector_onnx": root / "models" / "ecuador" / "detector" / "ecuador_best.onnx",
+        "detector_checkpoint": root / "models" / "ecuador" / "detector" / "rtdetr_r18",
         "ocr_onnx": root / "models" / "ecuador" / "ocr" / "ecuador_ocr.onnx",
         "workspace": Path("/content/SIRAP_workspace"),
     }

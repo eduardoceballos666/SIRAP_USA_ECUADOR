@@ -31,7 +31,7 @@ logger = get_logger("sirap.api")
 async def lifespan(_: FastAPI):
     get_store()
     try:
-        get_pipeline()  # carga YOLO11-s y el OCR una sola vez
+        get_pipeline()  # carga RT-DETRv2 R18 y el OCR una sola vez
     except Exception as exc:  # noqa: BLE001 - la API arranca aunque falte el modelo
         logger.error("No se pudo precargar el pipeline: %s", exc)
     yield
@@ -40,7 +40,7 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="SIRAP_USA_ECUADOR_HF API",
     version=__version__,
-    description="Sistema de Detección y Reconocimiento Automático de Placas · YOLO11-s + fast-plate-ocr.",
+    description="Sistema de Detección y Reconocimiento Automático de Placas · RT-DETRv2 R18 + fast-plate-ocr.",
     lifespan=lifespan,
 )
 app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_credentials=True,

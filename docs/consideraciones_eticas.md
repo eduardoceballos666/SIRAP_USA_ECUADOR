@@ -4,7 +4,7 @@
 
 SIRAP lee placas de vehículos, las asocia con personas y empresas y decide si una barrera se abre. Una placa no es
 solo un número: **identifica indirectamente a una persona** y, acumulada en un historial, revela sus horarios y
-movimientos. Este documento analiza los riesgos del sistema y lo que se hizo para mitigarlos.
+movimientos. Este documento analiza los riesgos del sistema y lo que se hizo para mitigarlos. Las cifras de detector y equidad descritas en las secciones heredadas corresponden a la versión anterior con YOLO11; no son métricas del RT-DETRv2 R18 actual. El checkpoint RT-DETR compartido no está validado por país y aún requiere evaluación representativa.
 
 ---
 
@@ -14,16 +14,16 @@ movimientos. Este documento analiza los riesgos del sistema y lo que se hizo par
 
 | Sesgo | Dónde | Efecto posible |
 |---|---|---|
-| **Geográfico** | El detector se entrenó con placas de varios países (Roboflow), no ecuatorianas | Menor precisión con tipografías, colores o marcos propios de Ecuador |
+| **Geográfico** | El checkpoint compartido de RT-DETR se ajustó con un dataset general de placas; no hay evaluación local publicada | La precisión en tipografías, colores y marcos ecuatorianos o estadounidenses todavía no está cuantificada |
 | **Provincial** | El OCR se validó con SAVH **Guayaquil**, donde predominan las placas de Guayas (`G…`) | Rendimiento no verificado para placas de otras provincias |
 | **Tipo de vehículo** | El caso original fue la entrada de camiones a una planta; el dataset de detección mezcla autos y motos (placas extranjeras de dos filas) | Las placas de camiones (sucias, a veces pintadas) pueden leerse peor; el OCR no se evaluó con motos ecuatorianas |
 | **Condiciones de captura** | Imágenes mayormente diurnas y con buena iluminación | Más errores de noche, con lluvia, contraluz o placas deterioradas |
 | **Estado de la placa** | Placas legibles sobrerrepresentadas tras la revisión de SAVH (472 legibles de 739) | La métrica de OCR (EMR 93,7 %) no refleja las 267 ilegibles, que deben ir a verificación manual |
-| **Tamaño (distancia)** | 17,6 % de las placas de *test* son pequeñas | mAP@0.5:0.95 de 0,481 en pequeñas vs. 0,744 en grandes: los vehículos lejanos se detectan peor |
+| **Tamaño (distancia)** | El conjunto anterior contenía placas de tamaños diversos; aún falta medir RT-DETR por tamaño | Es posible que las placas lejanas sean más difíciles; debe medirse con el modelo y los datos vigentes |
 
 ### 1.2 ¿A quién podría perjudicar?
 
-El error que más afecta a una persona es el **falso rechazo**: un residente o proveedor autorizado cuya placa se lee
+El riesgo que más afecta a una persona es el **falso rechazo**: un residente o proveedor autorizado cuya placa se lee
 mal y queda esperando. Este error se concentra en quienes tienen **placas antiguas, dañadas, sucias o de otras
 provincias**, y en vehículos de carga — es decir, con más frecuencia en conductores de vehículos más viejos o de
 trabajo. El **falso acceso** (abrir a quien no debía) afecta a la seguridad de toda la comunidad.
@@ -33,15 +33,9 @@ trabajo. El **falso acceso** (abrir a quien no debía) afecta a la seguridad de 
 SIRAP no usa atributos demográficos y no clasifica personas. La pregunta de equidad es si **el error del sistema se
 reparte igual** entre grupos de vehículos/placas. Por eso:
 
-- Se mide el mAP **por tamaño de placa** (pequeñas / medianas / grandes), que se relaciona con la distancia y el
-  tipo de vehículo.
-- Resultado: mAP@0.5:0.95 de 0,481 (pequeñas), 0,729 (medianas) y 0,744 (grandes). La brecha es real; en el video
-  se compensa analizando a 1280 px y en la app con verificación manual.
-- En la evaluación offline SAVH con la lista simulada y el umbral anterior 0,94 hubo **0 falsos autorizados** de 202
-  placas no autorizadas, **1 rechazo indebido** de 197 autorizadas y 48/399 (12,0 %) casos enviados a revisión manual.
-  Se aceptaron 14 lecturas erróneas (3,5 % del total), frente a 12 (3,0 %) en el escenario de estudio a 0,99. Son
-  resultados por recorte con predicciones guardadas, no rendimiento punta a punta en video; 69 de las 399 etiquetas
-  SAVH son sugerencias todavía no confirmadas.
+- Se debe medir mAP por tamaño (pequeñas / medianas / grandes) con el RT-DETR vigente y reportar el tamaño de cada muestra.
+- La evaluación de YOLO anterior registró mAP@0.5:0.95 de 0,481 en pequeñas, 0,729 en medianas y 0,744 en grandes. Es evidencia histórica de un modelo diferente; no se atribuye a RT-DETR.
+- Las tasas offline SAVH y los umbrales 0,94/0,99 descritos en informes históricos son de corridas anteriores. No predicen el desempeño del detector RT-DETR ni una tasa de autorizaciones en producción.
 - Se recomienda medir el EMR por **formato** (3 vs 4 dígitos: placas antiguas vs nuevas) y por **provincia**
   (primera letra) cuando haya datos suficientes; esa métrica de paridad queda como trabajo futuro.
 

@@ -1,15 +1,8 @@
-"""Modelos de SIRAP: detector de placas (YOLO11-s), lector OCR (fast-plate-ocr) y pipeline ALPR.
+"""Modelos de SIRAP: RT-DETRv2 R18 con Transformers, OCR y pipeline ALPR.
 
-Flujo de una imagen::
-
-    imagen ──► PlateDetector ──► cajas de placa ──► recorte ──► PlateReader (OCR)
-                                                               └─► normalize_plate ──► Recognition
-
-* **Detector.** YOLO11-s entrenado en el notebook ``notebooks/ecuador/sirap_backend.ipynb`` (sección 3.2).
-  La aplicación carga ``models/ecuador/detector/ecuador_best.onnx`` con ONNX Runtime. En desarrollo puede cargar
-  ``models/ecuador/detector/ecuador_best.pt`` con Ultralytics. Si no puede cargar ninguno, informa un error y detiene
-  el reconocimiento.
-* **OCR.** ``fast-plate-ocr`` con ``cct-s-v2-global-model`` (≈5 MB, corre en CPU).
+El detector predeterminado es el checkpoint público
+``merve/license-plates-rtdetrv2`` (Apache-2.0), ajustado para detectar matrículas.
+Cuando existe un checkpoint local del país, tiene prioridad sobre el checkpoint público.
 """
 
 from __future__ import annotations
@@ -20,22 +13,18 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from src.data_processing import (DEFAULT_PATTERNS, clean_text, crop_with_margin, letterbox,
-                                 normalize_plate)
+from src.data_processing import DEFAULT_PATTERNS, clean_text, crop_with_margin, normalize_plate
 from src.utils import get_logger, load_config, load_json, resolve_path, timer
 
 logger = get_logger("sirap.model")
+DEFAULT_PLATE_CHECKPOINT = "merve/license-plates-rtdetrv2"
 
-
-# --------------------------------------------------------------------------------------------
-# Resultados
-# --------------------------------------------------------------------------------------------
 
 @dataclass
 class Detection:
-    """Una caja de placa detectada en la imagen."""
+    """Una caja de matrícula detectada; coordenadas xyxy en píxeles de la imagen original."""
 
-    box: tuple[float, float, float, float]  # x1, y1, x2, y2 en píxeles de la imagen original
+    box: tuple[float, float, float, float]
     confidence: float
 
     @property
@@ -48,259 +37,212 @@ class Detection:
 class Recognition:
     """Resultado completo del reconocimiento de una imagen."""
 
-    plate: str | None                       # placa normalizada XXX-0000 (None si no es válida)
-    plate_raw: str = ""                     # texto tal como lo devolvió el OCR
-    ocr_confidence: float = 0.0             # menor probabilidad entre los caracteres (0–1), como en el notebook
-    ocr_mean_confidence: float = 0.0        # promedio de la probabilidad por carácter (0–1)
-    det_confidence: float = 0.0             # confianza del detector (0–1)
+    plate: str | None
+    plate_raw: str = ""
+    ocr_confidence: float = 0.0
+    ocr_mean_confidence: float = 0.0
+    det_confidence: float = 0.0
     box: tuple[float, float, float, float] | None = None
     crop: np.ndarray | None = field(default=None, repr=False)
-    detector: str = ""                      # "YOLO11-s (ONNX)" o "YOLO11-s (PyTorch)"
+    detector: str = ""
     timings_ms: dict[str, float] = field(default_factory=dict)
-    candidates: int = 0                     # cajas evaluadas
+    candidates: int = 0
 
     @property
     def found(self) -> bool:
-        """``True`` si se encontró y leyó una placa con formato válido."""
         return self.plate is not None
 
     def as_dict(self) -> dict[str, Any]:
-        """Versión serializable (sin el recorte) para registrar o exportar."""
+        """Versión serializable para registrar o exportar, sin incluir el recorte."""
         return {
-            "plate": self.plate, "plate_raw": self.plate_raw,
+            "plate": self.plate,
+            "plate_raw": self.plate_raw,
             "ocr_confidence": round(self.ocr_confidence, 4),
             "ocr_mean_confidence": round(self.ocr_mean_confidence, 4),
             "det_confidence": round(self.det_confidence, 4),
             "box": [round(v, 1) for v in self.box] if self.box else None,
-            "detector": self.detector, "timings_ms": {k: round(v, 1) for k, v in self.timings_ms.items()},
+            "detector": self.detector,
+            "timings_ms": {k: round(v, 1) for k, v in self.timings_ms.items()},
         }
 
 
-# --------------------------------------------------------------------------------------------
-# Detector
-# --------------------------------------------------------------------------------------------
-
-def _nms(boxes: np.ndarray, scores: np.ndarray, iou_threshold: float) -> list[int]:
-    """Supresión de no máximos (NMS) simple en NumPy. ``boxes`` en formato x1, y1, x2, y2."""
-    order = scores.argsort()[::-1]
-    keep: list[int] = []
-    while order.size:
-        i = int(order[0])
-        keep.append(i)
-        if order.size == 1:
-            break
-        rest = order[1:]
-        xx1 = np.maximum(boxes[i, 0], boxes[rest, 0])
-        yy1 = np.maximum(boxes[i, 1], boxes[rest, 1])
-        xx2 = np.minimum(boxes[i, 2], boxes[rest, 2])
-        yy2 = np.minimum(boxes[i, 3], boxes[rest, 3])
-        inter = np.clip(xx2 - xx1, 0, None) * np.clip(yy2 - yy1, 0, None)
-        area_i = (boxes[i, 2] - boxes[i, 0]) * (boxes[i, 3] - boxes[i, 1])
-        area_r = (boxes[rest, 2] - boxes[rest, 0]) * (boxes[rest, 3] - boxes[rest, 1])
-        iou = inter / np.maximum(area_i + area_r - inter, 1e-9)
-        order = rest[iou <= iou_threshold]
-    return keep
-
-
 class PlateDetector:
-    """Localiza placas en una imagen RGB.
+    """Carga y ejecuta RT-DETRv2 mediante Transformers y PyTorch.
 
     Args:
-        onnx_path: pesos exportados a ONNX (``yolo export format=onnx``).
-        pt_path: pesos ``best.pt`` de Ultralytics.
-        imgsz: tamaño de inferencia (lado del cuadrado).
-        conf: confianza mínima de una caja.
-        iou: umbral de solapamiento del NMS.
+        checkpoint: carpeta local creada por ``src.train``. Si no existe, se usa
+            ``model_id`` desde el Hub de Hugging Face.
+        model_id: checkpoint compatible con ``RTDetrV2ForObjectDetection``.
+        imgsz: resolución cuadrada configurada por el procesador del checkpoint.
+        conf: confianza mínima de una detección.
+        class_id: clase que representa la matrícula en el checkpoint.
+        device: ``"auto"``, ``"cpu"`` o un dispositivo PyTorch como ``"cuda"``.
     """
 
-    def __init__(self, onnx_path: str | Path | None = None, pt_path: str | Path | None = None,
-                 imgsz: int = 640, conf: float = 0.25, iou: float = 0.7):
-        self.imgsz, self.conf, self.iou = int(imgsz), float(conf), float(iou)
-        self.backend = "none"
-        self.name = "sin detector"
-        self._session = None
-        self._yolo = None
-        onnx_file = resolve_path(onnx_path) if onnx_path else None
-        pt_file = resolve_path(pt_path) if pt_path else None
+    def __init__(self, checkpoint: str | Path | None = None,
+                 model_id: str = DEFAULT_PLATE_CHECKPOINT, imgsz: int = 640,
+                 conf: float = 0.25, class_id: int = 0, device: str = "auto"):
+        import torch
+        from transformers import AutoImageProcessor, RTDetrV2ForObjectDetection
 
-        if onnx_file and onnx_file.exists():
-            try:
-                import onnxruntime as ort
+        self.imgsz = int(imgsz)
+        self.conf = float(conf)
+        self.class_id = int(class_id)
+        self._torch = torch
+        self.device = torch.device(
+            "cuda" if device == "auto" and torch.cuda.is_available()
+            else "cpu" if device == "auto" else device
+        )
 
-                self._session = ort.InferenceSession(str(onnx_file), providers=["CPUExecutionProvider"])
-                self._input_name = self._session.get_inputs()[0].name
-                shape = self._session.get_inputs()[0].shape
-                if isinstance(shape[-1], int):  # modelo exportado con tamaño fijo
-                    self.imgsz = int(shape[-1])
-                self.backend, self.name = "onnx", "YOLO11-s (ONNX)"
-            except Exception as exc:  # noqa: BLE001
-                logger.error("No se pudo cargar el ONNX %s: %s", onnx_file, exc)
-        if self.backend == "none" and pt_file and pt_file.exists():
-            try:
-                from ultralytics import YOLO  # type: ignore
+        local_dir = resolve_path(checkpoint) if checkpoint else None
+        if local_dir is not None and local_dir.is_dir() and (local_dir / "config.json").exists():
+            source = str(local_dir)
+        else:
+            source = model_id
+            if local_dir is not None and local_dir.exists():
+                raise ValueError(
+                    f"{local_dir} no es una carpeta Transformers. Los pesos YOLO/ONNX no son compatibles; "
+                    "ejecute el notebook 03 para generar un checkpoint RT-DETRv2."
+                )
 
-                self._yolo = YOLO(str(pt_file))
-                self.backend, self.name = "ultralytics", "YOLO11-s (PyTorch)"
-            except Exception as exc:  # noqa: BLE001
-                logger.error("No se pudo cargar %s con Ultralytics: %s", pt_file, exc)
+        self.source = source
+        self._processor = AutoImageProcessor.from_pretrained(source, trust_remote_code=False, use_fast=False)
+        self._model = RTDetrV2ForObjectDetection.from_pretrained(source, trust_remote_code=False)
+        self._model.to(self.device)
+        self._model.eval()
+        num_labels = int(getattr(self._model.config, "num_labels", 0))
+        if self.class_id < 0 or self.class_id >= num_labels:
+            raise ValueError(
+                f"class_id={self.class_id} no existe en {source}; el checkpoint tiene {num_labels} clases."
+            )
+        self.name = f"RT-DETRv2 R18 · Transformers · {source}"
+        logger.info("Detector cargado: %s (%s)", self.name, self.device)
+
     @property
     def is_model(self) -> bool:
-        """Indica si el detector entrenado se cargó correctamente."""
-        return self.backend in ("onnx", "ultralytics")
+        return self._model is not None
 
     def detect(self, image: np.ndarray, max_detections: int = 5) -> list[Detection]:
-        """Devuelve las cajas de placa ordenadas de mayor a menor confianza."""
-        if self.backend == "onnx":
-            detections = self._detect_onnx(image)
-        elif self.backend == "ultralytics":
-            detections = self._detect_ultralytics(image)
-        else:
-            raise RuntimeError("No se pudo cargar el detector YOLO11-s. Verifique models/ecuador/detector/ecuador_best.onnx.")
-        detections.sort(key=lambda d: d.confidence, reverse=True)
+        """Devuelve cajas de matrícula en orden descendente de confianza."""
+        if image is None or image.size == 0 or image.ndim != 3:
+            return []
+        height, width = image.shape[:2]
+        rgb = np.ascontiguousarray(image[..., :3], dtype=np.uint8)
+        inputs = self._processor(images=rgb, return_tensors="pt")
+        inputs = {key: value.to(self.device) for key, value in inputs.items()}
+        with self._torch.inference_mode():
+            outputs = self._model(**inputs)
+        target_sizes = self._torch.tensor([(height, width)], dtype=self._torch.int64)
+        result = self._processor.post_process_object_detection(
+            outputs, target_sizes=target_sizes, threshold=self.conf
+        )[0]
+        boxes = result["boxes"].detach().cpu().numpy()
+        scores = result["scores"].detach().cpu().numpy()
+        labels = result["labels"].detach().cpu().numpy()
+        detections = []
+        for box, score, label in zip(boxes, scores, labels):
+            if int(label) != self.class_id:
+                continue
+            x1, y1, x2, y2 = (float(v) for v in box)
+            detections.append(Detection(
+                (float(np.clip(x1, 0, width)), float(np.clip(y1, 0, height)),
+                 float(np.clip(x2, 0, width)), float(np.clip(y2, 0, height))),
+                float(score),
+            ))
+        detections.sort(key=lambda detection: detection.confidence, reverse=True)
         return detections[:max_detections]
 
-    # -- YOLO11 en ONNX Runtime -------------------------------------------------------------
-    def _detect_onnx(self, image: np.ndarray) -> list[Detection]:
-        canvas, scale, (pad_x, pad_y) = letterbox(image, self.imgsz)
-        tensor = canvas.astype(np.float32).transpose(2, 0, 1)[None] / 255.0
-        output = self._session.run(None, {self._input_name: tensor})[0]  # (1, 4 + clases, N)
-        preds = np.squeeze(output, 0)
-        if preds.shape[0] < preds.shape[1]:
-            preds = preds.T  # (N, 4 + clases)
-        scores = preds[:, 4:].max(axis=1)
-        mask = scores >= self.conf
-        if not mask.any():
-            return []
-        preds, scores = preds[mask], scores[mask]
-        cx, cy, w, h = preds[:, 0], preds[:, 1], preds[:, 2], preds[:, 3]
-        boxes = np.stack([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], axis=1)
-        keep = _nms(boxes, scores, self.iou)
-        height, width = image.shape[:2]
-        result = []
-        for i in keep:
-            x1, y1, x2, y2 = boxes[i]
-            x1, x2 = (np.array([x1, x2]) - pad_x) / scale
-            y1, y2 = (np.array([y1, y2]) - pad_y) / scale
-            result.append(Detection((float(np.clip(x1, 0, width)), float(np.clip(y1, 0, height)),
-                                     float(np.clip(x2, 0, width)), float(np.clip(y2, 0, height))),
-                                    float(scores[i])))
-        return result
-
-    # -- YOLO11 con Ultralytics -------------------------------------------------------------
-    def _detect_ultralytics(self, image: np.ndarray) -> list[Detection]:
-        results = self._yolo.predict(image[..., ::-1], imgsz=self.imgsz, conf=self.conf, iou=self.iou,
-                                     verbose=False)
-        boxes = results[0].boxes
-        return [Detection(tuple(float(v) for v in xyxy), float(c))
-                for xyxy, c in zip(boxes.xyxy.cpu().numpy(), boxes.conf.cpu().numpy())]
-
-
-
-# --------------------------------------------------------------------------------------------
-# OCR
-# --------------------------------------------------------------------------------------------
 
 class PlateReader:
-    """Lee el texto de un recorte de placa con fast-plate-ocr.
-
-    Args:
-        model_name: modelo del hub de fast-plate-ocr (por defecto ``cct-s-v2-global-model``).
-        device: ``"cpu"``, ``"cuda"`` o ``"auto"``.
-        onnx_path, plate_config_path: modelo afinado propio. Si ambos archivos existen se usan en lugar
-            del modelo del hub.
-    """
+    """Lee caracteres de un recorte de matrícula con fast-plate-ocr."""
 
     def __init__(self, model_name: str = "cct-s-v2-global-model", device: str = "cpu",
                  onnx_path: str | Path | None = None, plate_config_path: str | Path | None = None):
-        from fast_plate_ocr import LicensePlateRecognizer  # importación diferida: descarga el modelo
+        from fast_plate_ocr import LicensePlateRecognizer
 
         onnx_file = resolve_path(onnx_path) if onnx_path else None
         config_file = resolve_path(plate_config_path) if plate_config_path else None
         if onnx_file and config_file and onnx_file.exists() and config_file.exists():
-            # OCR afinado con placas ecuatorianas (notebooks/ecuador/ocr_finetuning.ipynb)
             self.model_name = f"{model_name} afinado ({onnx_file.name})"
-            self._model = LicensePlateRecognizer(onnx_model_path=onnx_file, plate_config_path=config_file,
-                                                 device=device)
+            self._model = LicensePlateRecognizer(onnx_model_path=onnx_file,
+                                                 plate_config_path=config_file, device=device)
         else:
             self.model_name = model_name
             self._model = LicensePlateRecognizer(model_name, device=device)
 
     def read(self, crop: np.ndarray) -> tuple[str, float, float]:
-        """Lee un recorte RGB.
-
-        Returns:
-            ``(texto, confianza, confianza_promedio)``. La confianza es la **menor** probabilidad entre los
-            caracteres leídos (sin el relleno), como ``plate_confidence`` en el notebook.
-        """
+        """Devuelve texto, mínima confianza por carácter y confianza promedio."""
         if crop is None or crop.size == 0:
             return "", 0.0, 0.0
         prediction = self._model.run(np.ascontiguousarray(crop), return_confidence=True)[0]
         text = clean_text(prediction.plate)
         probs = np.asarray(prediction.char_probs, dtype=np.float32).ravel()
         used = probs[:max(len(text), 1)]
-        # Confianza de la placa = la menor probabilidad entre sus caracteres (plate_confidence del notebook).
+        if not used.size:
+            return text, 0.0, 0.0
         return text, float(used.min()), float(used.mean())
 
 
-# --------------------------------------------------------------------------------------------
-# Pipeline completo
-# --------------------------------------------------------------------------------------------
-
 class ALPRPipeline:
-    """Detección + OCR + normalización para una imagen.
-
-    Se lee cada caja candidata (hasta ``max_candidates``) y se queda con la mejor lectura válida.
-    """
+    """Detección + OCR + normalización para una imagen."""
 
     def __init__(self, detector: PlateDetector, reader: PlateReader,
-                 patterns: Sequence[Sequence[int]] = DEFAULT_PATTERNS, margin: float = 0.06,
-                 max_candidates: int = 5):
+                 patterns: Sequence[Sequence[int]] = DEFAULT_PATTERNS,
+                 margin: float = 0.06, max_candidates: int = 5):
         self.detector, self.reader = detector, reader
-        self.patterns, self.margin, self.max_candidates = patterns, margin, max_candidates
+        self.patterns = patterns
+        self.margin = float(margin)
+        self.max_candidates = int(max_candidates)
 
     @classmethod
     def from_config(cls, config: dict[str, Any] | None = None) -> "ALPRPipeline":
-        """Crea el pipeline con ``config/countries/ecuador.yaml`` (umbral calibrado si está guardado)."""
+        """Construye el pipeline con el checkpoint Transformers configurado."""
         cfg = config or load_config()
         det_cfg, ocr_cfg = cfg["detector"], cfg["ocr"]
-        calibrated = load_json("results/metrics/umbrales.json") or {}
-        conf = float(calibrated.get("YOLO11", {}).get("conf_track", det_cfg.get("conf_minima", 0.25)))
-        detector = PlateDetector(det_cfg.get("pesos_onnx"), det_cfg.get("pesos_pt"),
-                                 imgsz=det_cfg.get("imgsz_inferencia", 640), conf=conf,
-                                 iou=det_cfg.get("iou_nms", 0.7))
-        reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"), ocr_cfg.get("dispositivo", "cpu"),
-                             ocr_cfg.get("onnx_afinado"), ocr_cfg.get("plate_config_afinado"))
-        patterns = [tuple(p) for p in cfg.get("placas", {}).get("patrones", DEFAULT_PATTERNS)]
+        calibrated = load_json("results/metrics/umbrales_rtdetr.json") or {}
+        calibrated_conf = calibrated.get("RT-DETRv2", {}).get("conf_track")
+        conf = float(calibrated_conf or det_cfg.get("conf_minima", 0.25))
+        detector = PlateDetector(
+            checkpoint=det_cfg.get("checkpoint"),
+            model_id=det_cfg.get("model_id", DEFAULT_PLATE_CHECKPOINT),
+            imgsz=det_cfg.get("imgsz_inferencia", 640),
+            conf=conf,
+            class_id=det_cfg.get("class_id", 0),
+            device=det_cfg.get("dispositivo", "auto"),
+        )
+        reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"),
+                             ocr_cfg.get("dispositivo", "cpu"),
+                             ocr_cfg.get("onnx_afinado"),
+                             ocr_cfg.get("plate_config_afinado"))
+        patterns = [tuple(pattern) for pattern in cfg.get("placas", {}).get("patrones", DEFAULT_PATTERNS)]
         return cls(detector, reader, patterns, det_cfg.get("margen_recorte", 0.06))
 
     def recognize(self, image: np.ndarray) -> Recognition:
-        """Reconoce la placa principal de ``image`` (RGB).
-
-        Returns:
-            Un ``Recognition``; ``found`` es ``False`` si no se detectó o no se pudo leer una placa válida.
-        """
+        """Reconoce la matrícula principal de ``image`` (RGB)."""
         timings: dict[str, float] = {}
         with timer() as t_det:
             detections = self.detector.detect(image, self.max_candidates)
         timings["deteccion"] = t_det["ms"]
         best: Recognition | None = None
         with timer() as t_ocr:
-            for det in detections:
-                crop = crop_with_margin(image, det.box, self.margin)
-                raw, conf, mean_conf = self.reader.read(crop)
-                plate = normalize_plate(raw, self.patterns)
-                candidate = Recognition(plate, raw, conf, mean_conf, det.confidence, det.box, crop,
-                                        self.detector.name)
-                # Prioridad: lectura válida > confianza OCR > confianza del detector.
+            for detection in detections:
+                crop = crop_with_margin(image, detection.box, self.margin)
+                raw, confidence, mean_confidence = self.reader.read(crop)
+                candidate = Recognition(
+                    normalize_plate(raw, self.patterns), raw, confidence, mean_confidence,
+                    detection.confidence, detection.box, crop, self.detector.name,
+                )
                 key = (candidate.found, candidate.ocr_confidence, candidate.det_confidence)
                 if best is None or key > (best.found, best.ocr_confidence, best.det_confidence):
                     best = candidate
-                if self.detector.is_model and candidate.found:
-                    break  # con el modelo entrenado la primera caja válida es la de mayor confianza
+                if candidate.found:
+                    break
         timings["ocr"] = t_ocr["ms"]
         timings["total"] = timings["deteccion"] + timings["ocr"]
         result = best or Recognition(None, detector=self.detector.name)
-        result.timings_ms, result.candidates = timings, len(detections)
-        logger.info("Reconocimiento: placa=%s raw=%s conf=%.3f det=%s %.0f ms", result.plate,
-                    result.plate_raw, result.ocr_confidence, self.detector.name, timings["total"])
+        result.timings_ms = timings
+        result.candidates = len(detections)
+        logger.info("Reconocimiento: placa=%s raw=%s conf=%.3f detector=%s %.0f ms",
+                    result.plate, result.plate_raw, result.ocr_confidence,
+                    self.detector.name, timings["total"])
         return result
