@@ -5,7 +5,9 @@ on:
   push:
     branches: [main]
     paths: ["api/**", "src/**", "frontend/**", "config/**", "data/**", "models/**", "results/metrics/**",
-            "data/samples/**", "notebooks/ecuador/sirap_backend.ipynb", "notebooks/usa/sirap_backend.ipynb", "requirements.txt", "Dockerfile", "deploy/huggingface/**",
+            "docs/**", "notebooks/**", "data/samples/**", "requirements.txt", "requirements.in",
+            "requirements-training.txt", "requirements-training.in", "THIRD_PARTY_NOTICES.md",
+            ".dockerignore", "Dockerfile", "deploy/huggingface/**",
             ".github/workflows/deploy-hf-space.yml"]
   workflow_dispatch:
 

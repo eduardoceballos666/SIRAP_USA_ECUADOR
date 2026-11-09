@@ -1,5 +1,3 @@
-# Perfil de modelos: Estados Unidos
+# Modelo Estados Unidos
 
-Mantén el detector independiente en `detector/rtdetr_r18/`. Entrénalo con placas estadounidenses anotadas en COCO y valídalo en un conjunto reservado antes de declararlo modelo USA. Mientras esa carpeta no contenga un checkpoint Transformers, el pipeline puede usar `merve/license-plates-rtdetrv2` como punto de partida general; sus métricas no son específicas de Estados Unidos.
-
-El OCR también requiere normalización y reglas propias de placas estadounidenses. Esta migración no da por completada esa validación.
+Mantén el detector independiente en `detector/rtdetrv2_s/`. Entrénalo con placas estadounidenses anotadas en COCO y evalúalo en un conjunto reservado antes de declararlo modelo USA. Los pesos de entrenamiento quedan en `transformers/` y el modelo de inferencia en `openvino/`; la app carga el segundo con OpenVINO Runtime. Si aún no existe, puede usarse el IR compartido `merve/license-plates-rtdetrv2` (Apache-2.0), cuyas métricas no son específicas de Estados Unidos.

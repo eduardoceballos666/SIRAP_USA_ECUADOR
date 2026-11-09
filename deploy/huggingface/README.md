@@ -7,12 +7,12 @@ sdk: docker
 app_port: 7860
 pinned: false
 license: apache-2.0
-short_description: Detector RT-DETRv2 R18 y OCR de placas
+short_description: RT-DETRv2-S con OpenVINO y OCR de placas
 ---
 
 # SIRAP_USA_ECUADOR_HF · Sistema de Detección y Reconocimiento Automático de Placas
 
-**Reconocimiento de placas y control de acceso (RT-DETRv2 R18 + OCR)**
+**Reconocimiento de placas y control de acceso (RT-DETRv2-S/OpenVINO + OCR)**
 
 **Versión del producto: SIRAP_USA_ECUADOR_HF 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
 
@@ -24,7 +24,7 @@ Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contrase
 
 ## Despliegue
 
-Este repositorio publica la aplicación en el Space [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/.github/workflows/deploy-hf-space.yml) despliega automáticamente los cambios de la aplicación en `main` que coinciden con las rutas configuradas. También puede iniciarse manualmente desde GitHub Actions.
+Este repositorio publica la aplicación en el Space [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El workflow [deploy-hf-space.yml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/.github/workflows/deploy-hf-space.yml) despliega automáticamente la aplicación, notebooks y documentación que cambien en `main` dentro de las rutas configuradas. También puede iniciarse manualmente desde GitHub Actions.
 
 El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el workflow y como valor predeterminado del script. No se necesita la variable de Actions `HF_SPACE`. Para desplegar, configura los secretos `HF_TOKEN` y `SIRAP_DATA_GITHUB_TOKEN`; `SIRAP_JWT_SECRET` y `SIRAP_DEMO_PASSWORD` son opcionales. Si el Space aún no existe, el script intenta crearlo con el token de Hugging Face.
 
@@ -49,13 +49,13 @@ El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano
 
 ## Detector y licencia
 
-La aplicación usa Transformers + RT-DETRv2 R18 con el checkpoint de matrículas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), cuya ficha indica **Apache-2.0**. Su modelo base es [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). El OCR `fast-plate-ocr` es independiente. Los resultados y umbrales históricos de YOLO no se reutilizan; las métricas RT-DETR por país están pendientes de entrenamiento y evaluación con datos reservados.
+La app ejecuta **RT-DETRv2-S (ResNet-18vd)** con OpenVINO Runtime nativo en Python. El Dockerfile descarga el checkpoint de matrículas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), cuya ficha indica **Apache-2.0**, y lo convierte a OpenVINO IR durante la construcción del Space. El checkpoint base es [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). El entrenamiento fino con Transformers/PyTorch debe ejecutarse antes del despliegue; los modelos por país se exportan a `models/<país>/detector/rtdetrv2_s/openvino/`. El OCR `fast-plate-ocr` es independiente y sigue usando ONNX Runtime. Los resultados y umbrales históricos de YOLO no se reutilizan; las métricas RT-DETR por país están pendientes de entrenamiento y evaluación con datos reservados.
 
 ## Umbral y revisión humana
 
 El umbral OCR configurado en [config/countries/ecuador.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/countries/ecuador.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
 
-El umbral de detección RT-DETR está marcado como provisional hasta calibrarlo sobre validación. La aplicación de demostración se ejecuta en CPU, sin GPU dedicada. Por eso, las mediciones de GPU del notebook no representan la latencia del Space.
+El umbral de detección RT-DETR está marcado como provisional hasta calibrarlo sobre validación. La aplicación de demostración ejecuta inferencia en CPU mediante OpenVINO. Las mediciones de entrenamiento o GPU de los notebooks no representan la latencia del Space.
 
 ## Enlaces
 

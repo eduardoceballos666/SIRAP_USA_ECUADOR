@@ -20,7 +20,7 @@ const cards = computed(() => {
   const d = m.value.detector_test || {}, o = m.value.ocr_savh || {}, e = m.value.e2e || {}
   return [
     { label: t('mAP@0.5 (test)'), value: num(d.map50), sub: `${d.imagenes ?? '—'} ${t('imágenes')} · ${d.placas ?? '—'} ${t('placas')}` },
-    { label: t('mAP@0.5:0.95'), value: num(d.map50_95), sub: t('Detector RT-DETRv2 R18') },
+    { label: t('mAP@0.5:0.95'), value: num(d.map50_95), sub: t('Detector RT-DETRv2-S') },
     { label: t('Precisión / Recall'), value: `${num(d.precision, 3)} / ${num(d.recall, 3)}`, sub: `F1 ${num(d.f1)}` },
     { label: t('Exactitud OCR (SAVH)'), value: pct(o.emr, 1), sub: `${o.n ?? '—'} ${t('placas de Guayaquil')} · CER ${pct(o.cer, 1)}` },
     { label: t('Tiempo por decisión'), value: e.tiempo_ms_promedio ? `${Math.round(e.tiempo_ms_promedio)} ms` : '—', sub: t('Detección + OCR (meta < 1 s)') },
@@ -149,7 +149,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     <h2 id="metrics-charts-heading" class="card-title">{{ $t("Gráficos de métricas y mediciones") }}</h2>
     <div class="grid gap-5 xl:grid-cols-2">
       <section class="card" :class="{ 'xl:col-span-2': !hasDetectorMetrics }">
-        <h3 class="font-bold">{{ $t("Evaluación del detector RT-DETRv2 R18") }}</h3>
+        <h3 class="font-bold">{{ $t("Evaluación del detector RT-DETRv2-S") }}</h3>
         <template v-if="hasDetectorMetrics">
           <p class="text-sm text-muted">{{ $t("Resultados del conjunto de prueba (") }}{{ m.detector_test?.imagenes ?? '—' }} {{ $t("imágenes,") }} {{ m.detector_test?.placas ?? '—' }} {{ $t("placas).") }}</p>
           <VChart :option="detectorChart" autoresize style="height: 270px" />
@@ -184,7 +184,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     <section class="card space-y-3 leading-relaxed">
       <h2 class="card-title">{{ $t("Cómo funciona") }}</h2>
       <ol class="list-decimal space-y-2 pl-5">
-        <li><b>{{ $t("Detección:") }}</b> {{ info?.detector || 'RT-DETRv2 R18' }} {{ $t("localiza la placa en la imagen.") }}</li>
+        <li><b>{{ $t("Detección:") }}</b> {{ info?.detector || 'RT-DETRv2-S / OpenVINO' }} {{ $t("localiza la placa en la imagen.") }}</li>
         <li><b>{{ $t("Lectura:") }}</b> {{ info?.ocr || 'fast-plate-ocr' }} {{ $t("lee los caracteres del recorte; la confianza es la probabilidad mínima por carácter.") }}</li>
         <li><b>{{ $t("Normalización:") }}</b> {{ $t("se corrigen confusiones típicas (O↔0, I↔1, S↔5…) y se valida el formato ecuatoriano") }} <code>{{ $t("XXX-0000") }}</code>{{ $t(".") }}</li>
         <li><b>{{ $t("Decisión:") }}</b> {{ $t("la placa se busca en la base: lista blanca →") }} <b class="text-ok-dark">{{ $t("Autorizado") }}</b>{{ $t(", lista restringida →") }} <b class="text-bad">{{ $t("Denegado") }}</b>{{ $t(", sin registro →") }} <b class="text-warn">{{ $t("No registrado") }}</b>{{ $t("; confianza baja →") }} <b class="text-warn">{{ $t("Verificación manual") }}</b>{{ $t(".") }}</li>
@@ -193,7 +193,7 @@ const opt = computed(() => m.value.optimizacion_resumen || {})
     </section>
     <section class="card space-y-3 leading-relaxed">
       <h2 class="card-title">{{ $t("Entrenamiento y validación") }}</h2>
-      <p v-if="tr.epochs_requested">{{ $t("RT-DETRv2 R18 ajustado con Transformers") }} {{ tr.epochs_requested }} {{ $t("épocas sobre") }}
+      <p v-if="tr.epochs_requested">{{ $t("RT-DETRv2-S ajustado con Transformers") }} {{ tr.epochs_requested }} {{ $t("épocas sobre") }}
         <i>{{ tr.dataset_dir || 'dataset COCO Detection' }}</i>{{ $t(".") }}</p>
       <p v-else>{{ $t("El checkpoint compartido de placas tiene licencia Apache-2.0. El ajuste fino y las métricas por país están pendientes.") }}</p>
       <p v-if="opt.comparacion_test">{{ $t("Optimización de hiperparámetros (Optuna, 24") }} <i>{{ $t("trials") }}</i>{{ $t("):") }} <code>{{ $t("lr0") }}</code> {{ $t("fue el factor dominante.\n        Con") }} <code>{{ $t("lr0") }}</code> {{ $t("≈") }} {{ opt.mejor_config?.lr0?.toExponential(1) }} {{ $t("el mAP@0.5:0.95 de") }} <i>{{ $t("test") }}</i> {{ $t("pasa de") }}

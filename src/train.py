@@ -1,4 +1,4 @@
-"""Ajuste fino de RT-DETRv2 R18 con Transformers para los perfiles Ecuador y USA.
+"""Ajuste fino de RT-DETRv2-S con Transformers para los perfiles Ecuador y USA.
 
 Entrena desde el checkpoint Apache-2.0 de matrículas ``merve/license-plates-rtdetrv2``.
 Los datasets se leen en COCO Detection; ``convert-yolo`` permite convertir un dataset
@@ -195,22 +195,24 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
                    output_dir: str | Path | None = None, run_dir: str | Path | None = None,
                    epochs: int = 30, batch_size: int = 8, learning_rate: float = 5e-5,
                    weight_decay: float = 1e-4, seed: int = 42, force: bool = False) -> Path:
-    """Ajusta RT-DETRv2 R18 con Transformers y guarda el mejor checkpoint Safetensors."""
+    """Ajusta RT-DETRv2-S y exporta el checkpoint del país a OpenVINO IR."""
     import torch
     from transformers import (AutoImageProcessor, EarlyStoppingCallback, RTDetrV2ForObjectDetection,
                               Trainer, TrainingArguments)
 
     if country not in {"ecuador", "usa"}:
         raise ValueError("country debe ser 'ecuador' o 'usa'.")
-    final_dir = resolve_path(output_dir or f"models/{country}/detector/rtdetr_r18")
-    train_dir = resolve_path(run_dir or f"results/runs/{country}/rtdetr_r18")
-    if final_dir.exists() and (final_dir / "config.json").exists() and not force:
-        logger.info("Ya existe %s; usa --force para volver a entrenar.", final_dir)
+    final_dir = resolve_path(output_dir or f"models/{country}/detector/rtdetrv2_s")
+    transformers_dir = final_dir / "transformers"
+    openvino_dir = final_dir / "openvino"
+    train_dir = resolve_path(run_dir or f"results/runs/{country}/rtdetrv2_s")
+    if (openvino_dir / "openvino_model.xml").exists() and not force:
+        logger.info("Ya existe el IR de %s en %s; usa --force para volver a entrenar.", country, openvino_dir)
         return final_dir
     if force and train_dir.exists():
         shutil.rmtree(train_dir)
     train_dir.mkdir(parents=True, exist_ok=True)
-    final_dir.mkdir(parents=True, exist_ok=True)
+    transformers_dir.mkdir(parents=True, exist_ok=True)
 
     torch.manual_seed(seed)
     processor = AutoImageProcessor.from_pretrained(model_id, trust_remote_code=False, use_fast=False)
@@ -253,11 +255,13 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
     )
     trainer.train()
-    trainer.save_model(str(final_dir))
-    processor.save_pretrained(str(final_dir))
+    trainer.save_model(str(transformers_dir))
+    processor.save_pretrained(str(transformers_dir))
     manifest = {
-        "architecture": "RT-DETRv2 R18",
-        "library": "Transformers",
+        "architecture": "RT-DETRv2-S",
+        "backbone": "ResNet-18vd",
+        "training_library": "Transformers + PyTorch",
+        "inference_runtime": "OpenVINO Runtime Python API",
         "base_checkpoint": model_id,
         "base_license": "Apache-2.0",
         "country": country,
@@ -270,22 +274,27 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         "weight_decay": weight_decay,
         "seed": seed,
         "best_model_checkpoint": trainer.state.best_model_checkpoint,
-        "final_checkpoint": str(final_dir),
+        "transformers_checkpoint": str(transformers_dir),
+        "openvino_model": str(openvino_dir / "openvino_model.xml"),
     }
-    (final_dir / "sirap_training.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (transformers_dir / "sirap_training.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    # La aplicación no importa PyTorch ni Transformers: recibe el modelo exportado.
+    from src.export_openvino import export_openvino_model
+    export_openvino_model(transformers_dir, openvino_dir, image_size=640)
+    (openvino_dir / "sirap_training.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     save_json(manifest, "results/metrics/entrenamiento_rtdetr.json")
-    logger.info("Checkpoint RT-DETRv2 guardado en %s", final_dir)
+    logger.info("RT-DETRv2-S ajustado y exportado a OpenVINO en %s", openvino_dir)
     return final_dir
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Entrena RT-DETRv2 R18 con Transformers para SIRAP")
+    parser = argparse.ArgumentParser(description="Entrena RT-DETRv2-S y exporta OpenVINO para SIRAP")
     parser.add_argument("--country", choices=("ecuador", "usa"), default="ecuador")
     parser.add_argument("--data-dir", default=None, help="Carpeta del dataset en formato COCO Detection")
     parser.add_argument("--data-yaml", default=None, help="data.yaml de un dataset YOLO local para convertir")
     parser.add_argument("--convert-yolo", action="store_true", help="Convierte --data-yaml a --output-dir en COCO")
     parser.add_argument("--roboflow", action="store_true", help="Descarga el dataset Roboflow en COCO Detection")
-    parser.add_argument("--output-dir", default=None, help="Checkpoint final; por defecto models/<country>/detector/rtdetr_r18")
+    parser.add_argument("--output-dir", default=None, help="Carpeta del modelo; por defecto models/<country>/detector/rtdetrv2_s")
     parser.add_argument("--run-dir", default=None, help="Carpeta de checkpoints temporales del Trainer")
     parser.add_argument("--model-id", default=DEFAULT_MODEL_ID)
     parser.add_argument("--epochs", type=int, default=30)

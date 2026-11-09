@@ -558,10 +558,10 @@ def page_about() -> None:
     with a, st.container(key="card_about"):
         st.markdown(ui.card_head("info", "Cómo funciona"), unsafe_allow_html=True)
         st.markdown(f"""
-1. **Detección** – RT-DETRv2 R18 con Transformers localiza la placa. El checkpoint compartido
+1. **Detección** – RT-DETRv2-S con OpenVINO Runtime localiza la placa desde un IR exportado. El checkpoint compartido
    [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2) está bajo Apache-2.0
    y deriva de [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). Si existe, la app
-   prioriza el checkpoint local de Ecuador generado por el notebook 03.
+   prioriza el IR local de Ecuador generado al entrenar con el notebook 03.
 2. **Lectura (OCR)** – `fast-plate-ocr` con el modelo `{CFG['ocr']['modelo']}` (≈5 MB, CPU) lee los caracteres
    y entrega una probabilidad por carácter; la **confianza OCR** es la menor de ellas (el carácter menos seguro).
 3. **Normalización** – la lectura se lleva al formato ecuatoriano `XXX-0000` y se corrigen confusiones

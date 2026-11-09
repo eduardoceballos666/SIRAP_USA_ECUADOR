@@ -26,7 +26,8 @@ runs/
 *.pt
 *.onnx
 *.safetensors
-models/*/detector/rtdetr_r18/
+models/*/detector/rtdetrv2_s/
+models/shared/detector/rtdetrv2_s/
 
 # --- Sistema ---
 .DS_Store

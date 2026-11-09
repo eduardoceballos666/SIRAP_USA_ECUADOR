@@ -4,13 +4,15 @@ La licencia [Apache License 2.0](LICENSE) cubre el código original de SIRAP_USA
 
 ## Detector y bibliotecas
 
-- **Checkpoint `merve/license-plates-rtdetrv2`:** RT-DETRv2 R18 ajustado para detectar matrículas, distribuido en Hugging Face bajo **Apache-2.0**. [Ficha del modelo](https://huggingface.co/merve/license-plates-rtdetrv2). Su tarjeta identifica como base a `PekingU/rtdetr_v2_r18vd`.
-- **Checkpoint base `PekingU/rtdetr_v2_r18vd`:** RT-DETRv2 R18 para Transformers, Apache-2.0. [Ficha del modelo](https://huggingface.co/PekingU/rtdetr_v2_r18vd).
-- **Transformers y PyTorch:** infraestructura de carga, ajuste fino e inferencia del detector. Conservan sus licencias de software respectivas; no se utiliza Ultralytics.
+- **Checkpoint `merve/license-plates-rtdetrv2`:** RT-DETRv2-S para detección de matrículas, publicado en Hugging Face bajo **Apache-2.0**. [Ficha del modelo](https://huggingface.co/merve/license-plates-rtdetrv2). El modelo se basa en `PekingU/rtdetr_v2_r18vd`.
+- **Checkpoint base `PekingU/rtdetr_v2_r18vd`:** RT-DETRv2 con backbone ResNet-18vd; Apache-2.0. [Ficha del modelo](https://huggingface.co/PekingU/rtdetr_v2_r18vd).
+- **OpenVINO Runtime:** carga y ejecuta el IR en la aplicación; Apache-2.0. [Licencia y distribución](https://github.com/openvinotoolkit/openvino/blob/master/LICENSE).
+- **Transformers y PyTorch:** usados para entrenamiento y exportación previos al despliegue, no para inferencia del detector en la app; conservan sus licencias respectivas.
+- **ONNX Runtime:** motor del componente OCR `fast-plate-ocr`; licencia MIT.
 - **fast-plate-ocr:** reconocimiento óptico de caracteres (OCR), MIT.
 - **OpenCV (`opencv-python-headless`):** lectura y conversión de imágenes/video. Apache-2.0 ([licencia](https://github.com/opencv/opencv/blob/4.12.0/LICENSE)).
 
-Los checkpoints finos que se produzcan a partir de esos pesos deben conservar la atribución y los avisos aplicables a su checkpoint de origen. Las métricas históricas YOLO no describen RT-DETR.
+Los checkpoints finos producidos a partir del modelo Apache-2.0 deben conservar la atribución y avisos aplicables a sus fuentes. Las métricas históricas YOLO no describen RT-DETRv2-S.
 
 ## Conjuntos de datos
 

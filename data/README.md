@@ -8,7 +8,7 @@
 
 ## Detección de placas
 
-La fuente de Roboflow `roboflow-universe-projects/license-plate-recognition-rxg4e`, versión 11, tiene 10.125 imágenes y una clase de matrícula. El entrenamiento activo solicita exportación **COCO Detection** y usa `Transformers + RT-DETRv2 R18`. El dataset enseña detección general de matrículas, no representa por sí solo a Ecuador ni a Estados Unidos. Las etiquetas YOLO heredadas solo se admiten como formato de entrada opcional para convertirlas a COCO; no se usa el detector Ultralytics.
+La fuente de Roboflow `roboflow-universe-projects/license-plate-recognition-rxg4e`, versión 11, tiene 10.125 imágenes y una clase de matrícula. El entrenamiento activo solicita exportación **COCO Detection** y ajusta RT-DETRv2-S con Transformers/PyTorch; la app usa el IR OpenVINO correspondiente. El dataset enseña detección general de matrículas, no representa por sí solo a Ecuador ni a Estados Unidos. Las etiquetas YOLO heredadas solo se admiten como formato de entrada opcional para convertirlas a COCO; no se usa el detector Ultralytics.
 
 ## SAVH Guayaquil
 

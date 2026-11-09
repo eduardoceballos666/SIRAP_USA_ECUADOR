@@ -1,3 +1,3 @@
-# Perfil de modelos: Ecuador
+# Modelo Ecuador
 
-El detector RT-DETRv2 R18 se guarda en `detector/rtdetr_r18/` al ajustarlo con datos ecuatorianos en formato COCO. Si la carpeta no contiene un checkpoint Transformers, la configuración usa temporalmente `merve/license-plates-rtdetrv2` (Apache-2.0), que no ha sido validado específicamente para Ecuador. El OCR configurado es `fast-plate-ocr` y no cambia con el detector.
+El detector RT-DETRv2-S de Ecuador se entrena con datos COCO específicos y se guarda bajo `detector/rtdetrv2_s/`: los pesos de entrenamiento en `transformers/` y el IR de producción en `openvino/`. La app carga el IR con OpenVINO Runtime. Si todavía no hay un IR ecuatoriano, el Space usa el modelo compartido de placas Apache-2.0, que no está validado específicamente para Ecuador. El OCR configurado es `fast-plate-ocr` y permanece independiente del detector.

@@ -1,3 +1,3 @@
-# Detector RT-DETR para Estados Unidos
+# Detector Estados Unidos
 
-Ruta de salida: `models/usa/detector/rtdetr_r18/`. Los notebooks ejecutan ajuste fino con Transformers desde el checkpoint Apache-2.0 de matrículas. No copies aquí pesos ecuatorianos; valida este perfil con datos de EE. UU. antes de usarlo en producción.
+Ruta de salida: `models/usa/detector/rtdetrv2_s/`. Los notebooks ajustan RT-DETRv2-S con Transformers/PyTorch y exportan un IR OpenVINO; la app ejecuta el XML/BIN con OpenVINO Runtime nativo en Python. No copies aquí los pesos ecuatorianos. Valida el perfil con datos representativos de EE. UU. antes de usarlo en producción.

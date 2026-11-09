@@ -14,14 +14,16 @@ app:
   formatos_imagen: ["jpg", "jpeg", "png", "webp"]
 
 detector:
-  arquitectura: "RT-DETRv2 R18"
-  # Checkpoint de matrículas compatible con Transformers, Apache-2.0. Un modelo local
-  # ajustado para Ecuador, si existe, tiene prioridad sobre este checkpoint compartido.
+  arquitectura: "RT-DETRv2-S"
+  # RT-DETRv2-S (ResNet-18vd), checkpoint de matrículas Apache-2.0 convertido a OpenVINO IR.
+  # El IR ajustado para Ecuador, si existe, tiene prioridad sobre el compartido.
   model_id: "merve/license-plates-rtdetrv2"
   base_model_id: "PekingU/rtdetr_v2_r18vd"
-  checkpoint: "models/ecuador/detector/rtdetr_r18"
+  checkpoint: "models/ecuador/detector/rtdetrv2_s/openvino"
+  fallback_checkpoint: "models/shared/detector/rtdetrv2_s/openvino"
   class_id: 0
-  dispositivo: "auto"
+  runtime: "OpenVINO Runtime"
+  dispositivo: "CPU"
   imgsz_entrenamiento: 640
   imgsz_inferencia: 640
   conf_minima: 0.25            # provisional; calibrar con el split de validación tras el ajuste fino

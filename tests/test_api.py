@@ -159,7 +159,7 @@ def test_dashboard_y_modelo(client):
     assert d2["kpis"]["ingresos"] <= d["kpis"]["ingresos"]
     assert client.delete("/api/admin/demo", headers=h).json()["borradas"] > 0
     info = client.get("/api/model/info", headers=h).json()
-    assert info["detector"].startswith("RT-DETRv2 R18")
+    assert info["detector"].startswith("RT-DETRv2-S")
     # No se muestran como resultados RT-DETR las métricas históricas de YOLO.
     assert info["metricas"]["detector_test"] is None
 

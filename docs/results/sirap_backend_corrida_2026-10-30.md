@@ -1,6 +1,6 @@
 # Resultados de `sirap_backend.ipynb`
 
-> **Informe histórico de YOLO11.** Estas cifras corresponden a la corrida de 2026 y no describen ni validan el checkpoint RT-DETRv2 R18 vigente.
+> **Informe histórico de YOLO11.** Estas cifras corresponden a la corrida de 2026 y no describen ni validan el detector RT-DETRv2-S/OpenVINO vigente.
 
 Este informe organiza por tema las métricas de la corrida guardada y las evaluaciones posteriores. Se distinguen los resultados originales de las reevaluaciones con referencias corregidas o nuevas imágenes. Las métricas de detector, OCR, video y garita tienen alcances diferentes y no deben combinarse como una sola medida de exactitud.
 
