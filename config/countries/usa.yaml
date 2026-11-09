@@ -3,12 +3,14 @@ country:
   name: "United States"
 
 detector:
-  architecture: "RT-DETRv2 R18"
+  architecture: "RT-DETRv2-S"
   model_id: "merve/license-plates-rtdetrv2"
   base_model_id: "PekingU/rtdetr_v2_r18vd"
-  checkpoint: "models/usa/detector/rtdetr_r18"
+  checkpoint: "models/usa/detector/rtdetrv2_s/openvino"
+  fallback_checkpoint: "models/shared/detector/rtdetrv2_s/openvino"
   class_id: 0
-  device: "auto"
+  runtime: "OpenVINO Runtime"
+  device: "CPU"
   training_size: 640
   inference_size: 640
   confidence: 0.25

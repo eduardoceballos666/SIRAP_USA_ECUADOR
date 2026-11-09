@@ -1,5 +1,5 @@
-# Detector RT-DETR para Ecuador
+# Detector Ecuador
 
-Ruta de salida del entrenamiento Transformers: `models/ecuador/detector/rtdetr_r18/`. Los notebooks y `python -m src.train --country ecuador --data-dir <COCO>` generan el checkpoint y su manifest. Antes de adoptar los pesos, evalúalos en un conjunto ecuatoriano reservado y registra las métricas `detector_rtdetr_ecuador_test.json`.
+`python -m src.train --country ecuador --data-dir <COCO>` entrena RT-DETRv2-S con Transformers/PyTorch y exporta OpenVINO IR. La carpeta `rtdetrv2_s/` contiene `transformers/` (checkpoint Safetensors y procesador) y `openvino/` (XML/BIN, manifest de preprocesamiento y manifest de entrenamiento). La app utiliza únicamente el IR.
 
-Si aún no hay checkpoint local, SIRAP carga el checkpoint compartido `merve/license-plates-rtdetrv2` (Apache-2.0); su uso provisional no debe describirse como un modelo entrenado o validado en Ecuador.
+Antes de adoptar estos pesos, evalúalos en un conjunto ecuatoriano reservado y registra las métricas en `detector_rtdetr_ecuador_test.json`. El checkpoint público Apache-2.0 sirve como fallback general, no como resultado validado para Ecuador.

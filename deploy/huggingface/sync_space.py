@@ -22,12 +22,14 @@ from huggingface_hub import HfApi
 
 ROOT = Path(__file__).resolve().parents[2]
 INCLUDE = [
-    "Dockerfile", ".dockerignore", "requirements.txt", "LICENSE", "NOTICE",
+    "Dockerfile", ".dockerignore", "requirements.txt", "requirements-training.txt",
+    "requirements-training.in", "requirements.in", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md",
     "api", "src", "config", "sql", "frontend", "data/samples", "results/metrics",
-    "notebooks/ecuador/sirap_backend.ipynb", "notebooks/usa/sirap_backend.ipynb",
-    "models/README.md",
+    "docs", "notebooks", "models/README.md",
+    "models/ecuador/detector/rtdetrv2_s/openvino",
+    "models/usa/detector/rtdetrv2_s/openvino",
 ]
-IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc")
+IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc", ".ipynb_checkpoints")
 
 
 def main() -> None:

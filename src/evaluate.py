@@ -56,9 +56,9 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
     if not category_ids:
         raise ValueError(f"El JSON COCO no define categorías: {dataset.annotation_path}")
     category_id = category_ids[0]
-    checkpoint_path = checkpoint or f"models/{country}/detector/rtdetr_r18"
+    checkpoint_path = checkpoint or f"models/{country}/detector/rtdetrv2_s/openvino"
     detector = PlateDetector(checkpoint=checkpoint_path, model_id=model_id,
-                             conf=threshold, class_id=0, device="auto")
+                             conf=threshold, class_id=0, device="CPU")
     predictions = []
     for record in dataset.images:
         image_path = dataset._image_path(record["file_name"])
@@ -74,8 +74,8 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
 
     result: dict[str, Any] = {
         "country": country,
-        "detector": "RT-DETRv2 R18",
-        "library": "Transformers",
+        "detector": "RT-DETRv2-S",
+        "inference_runtime": "OpenVINO Runtime",
         "checkpoint": detector.source,
         "split": split,
         "images": len(dataset),
@@ -116,7 +116,7 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
         })
     output_path = result_path or f"results/metrics/detector_rtdetr_{country}_{split}.json"
     save_json(result, output_path)
-    logger.info("Detector RT-DETRv2 (%s): %s", split, result)
+    logger.info("Detector RT-DETRv2-S/OpenVINO (%s): %s", split, result)
     return result
 
 

@@ -1,0 +1,9 @@
+# Dependencias solo para entrenamiento y exportación antes del despliegue.
+# Instalar sobre requirements.in o con el entorno CUDA/CPU de Colab.
+-r requirements.in
+torch>=2.11,<3
+transformers>=5.4,<6
+accelerate>=1.2,<2
+pycocotools>=2.0.8
+optuna>=4,<5
+roboflow==1.7.1

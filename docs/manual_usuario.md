@@ -45,7 +45,7 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 El código original de SIRAP_USA_ECUADOR se distribuye bajo **Apache License, versión 2.0 (Apache-2.0)**. El texto completo está en [LICENSE](../LICENSE) y el aviso de autoría en [NOTICE](../NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Este cambio aplica a la versión actual del código original.
 
-El detector configurado es RT-DETRv2 R18 con Transformers. El checkpoint `merve/license-plates-rtdetrv2` se publica bajo Apache-2.0. Los componentes y datasets de terceros conservan sus respectivas licencias; consulte `THIRD_PARTY_NOTICES.md`.
+El detector configurado es RT-DETRv2-S (ResNet-18vd) y se ejecuta con OpenVINO Runtime nativo en Python. El checkpoint de origen `merve/license-plates-rtdetrv2` declara Apache-2.0. Los componentes y datasets de terceros conservan sus respectivas licencias; consulte `THIRD_PARTY_NOTICES.md`.
 
 **Recursos del proyecto**
 
@@ -59,11 +59,13 @@ El detector configurado es RT-DETRv2 R18 con Transformers. El checkpoint `merve/
 
 SIRAP utiliza componentes de terceros para la detección y lectura de placas, el procesamiento de imágenes y datos, la API y la interfaz web. Sus marcas, derechos y licencias pertenecen a sus respectivos titulares.
 
-> **• Transformers + RT-DETRv2 R18:** detección de placas. El entrenamiento usa PyTorch y el checkpoint de placas Apache-2.0.
+> **• RT-DETRv2-S + OpenVINO Runtime:** detección de placas. El checkpoint de placas declara Apache-2.0; la app carga el IR OpenVINO.
 >
-> **• PyTorch:** framework de aprendizaje profundo utilizado en inferencia del detector y entrenamiento.
+> **• Transformers y PyTorch:** usados para el ajuste fino antes del despliegue y la exportación a OpenVINO IR.
 >
-> **• ONNX Runtime:** motor utilizado por el componente OCR `fast-plate-ocr`; el detector se carga directamente con Transformers y PyTorch.
+> **• ONNX Runtime:** motor utilizado por el componente OCR `fast-plate-ocr`; la detección usa OpenVINO Runtime.
+>
+> **• OpenVINO:** runtime y herramientas de conversión del detector; licencia Apache 2.0.
 >
 > **• fast-plate-ocr:** reconocimiento de los caracteres de las placas.
 >
@@ -228,7 +230,7 @@ Este documento describe cada pantalla de SIRAP, indica qué hace cada control y 
 
 # 1. Presentación y funcionamiento
 
-SIRAP es una aplicación web que ayuda a identificar placas vehiculares en imágenes o fotogramas de video, consultar permisos de acceso y dejar constancia de la decisión tomada por el operador. Utiliza detección de placas RT-DETRv2 R18 mediante Transformers y reconocimiento óptico de caracteres (OCR). El checkpoint compartido tiene licencia Apache-2.0; su rendimiento en cada país requiere evaluación independiente. Las métricas YOLO históricas no describen este detector.
+SIRAP es una aplicación web que ayuda a identificar placas vehiculares en imágenes o fotogramas de video, consultar permisos de acceso y dejar constancia de la decisión tomada por el operador. Utiliza RT-DETRv2-S con OpenVINO Runtime para la detección y un componente independiente de reconocimiento óptico de caracteres (OCR). El checkpoint compartido declara Apache-2.0; su rendimiento en cada país requiere evaluación independiente. Las métricas YOLO históricas no describen este detector.
 
 ## Proceso de trabajo
 
@@ -893,7 +895,8 @@ Mantenga cerrada la barrera y siga el procedimiento de contingencia autorizado. 
 | TÉRMINO           | EXPLICACIÓN SENCILLA                                                           |
 |-------------------|--------------------------------------------------------------------------------|
 | OCR               | Tecnología que reconoce letras y números dentro de la imagen de una placa.     |
-| RT-DETRv2 R18 | Detector basado en Transformers que ubica la región de la placa. |
+| RT-DETRv2-S | Detector ResNet-18vd que ubica la región de la placa; la app ejecuta su IR con OpenVINO Runtime. |
+| OpenVINO IR | Modelo exportado en archivos XML y BIN, preparado antes de iniciar la app. |
 | Lista blanca      | Relación de placas con autorización vigente.                                   |
 | Lista restringida | Relación de placas cuyo acceso debe denegarse mientras esté vigente.           |
 | Placa leída       | Texto propuesto inicialmente por el sistema.                                   |

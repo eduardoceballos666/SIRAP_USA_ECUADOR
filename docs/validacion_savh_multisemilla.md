@@ -6,10 +6,10 @@ Las corridas multisemilla de YOLO11 que existían antes de la migración son his
 
 ## Protocolo recomendado
 
-1. Fijar versiones de código, Transformers, PyTorch, dataset COCO y checkpoint base Apache-2.0.
+1. Fijar versiones de código, Transformers/PyTorch de entrenamiento, OpenVINO Runtime de inferencia, dataset COCO y checkpoint base Apache-2.0.
 2. Definir antes de entrenar las configuraciones base y candidata; usar semillas emparejadas (por ejemplo, 0, 1, 2).
 3. Seleccionar hiperparámetros exclusivamente con train/validación.
-4. Guardar un checkpoint y manifest independientes por semilla.
+4. Guardar el checkpoint Transformers y su IR OpenVINO con manifest independientes por semilla.
 5. Evaluar una sola vez en test reservado, salvo que el protocolo aprobado indique otra cosa.
 6. Informar mAP50:95, mAP50, precisión, recall, tamaño de muestra, tiempo/hardware y las diferencias pareadas; no confundir una media descriptiva con significación estadística.
 7. Publicar nuevas métricas con sufijo `rtdetr`, junto con el protocolo y límites del dataset.

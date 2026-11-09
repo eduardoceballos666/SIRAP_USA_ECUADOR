@@ -1,4 +1,4 @@
-"""Compara dos configuraciones de RT-DETRv2 R18 con semillas emparejadas.
+"""Compara dos configuraciones de RT-DETRv2-S con semillas emparejadas.
 
 La selección de hiperparámetros debe realizarse con train/validación; el split de
 prueba se reserva para la evaluación final y no se utiliza en este helper.
@@ -35,7 +35,7 @@ def summary_for(rows: list[dict[str, Any]], seeds: list[int]) -> dict[str, Any]:
             })
     deltas = [pair["delta_map50_95"] for pair in pairs]
     return {
-        "detector": "RT-DETRv2 R18",
+        "detector": "RT-DETRv2-S",
         "estado": "completo" if len(pairs) == len(seeds) else "parcial",
         "semillas_planeadas": seeds,
         "split_evaluacion": "val",
@@ -49,7 +49,7 @@ def summary_for(rows: list[dict[str, Any]], seeds: list[int]) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validación multisemilla RT-DETRv2 R18")
+    parser = argparse.ArgumentParser(description="Validación multisemilla RT-DETRv2-S")
     parser.add_argument("--data-dir", type=Path, required=True, help="Dataset COCO con train/ y valid/")
     parser.add_argument("--configs", type=Path, required=True,
                         help="JSON con configuraciones base y candidata; cada una admite epochs, batch_size, learning_rate y weight_decay")

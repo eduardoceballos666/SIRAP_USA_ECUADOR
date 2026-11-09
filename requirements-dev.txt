@@ -6,7 +6,7 @@
 accelerate==1.15.0 \
     --hash=sha256:5654f8c5eaa0d4fa68b33e287a97765da6849bf6d51dcac874e73fbbddfb6134 \
     --hash=sha256:97eacca0b73e45cb867dbf8c5d5d4dc32219544300e0c8992c7334dc2ef33cec
-    # via -r requirements-dev.in
+    # via -r requirements-training.in
 alembic==1.20.1 \
     --hash=sha256:83490def1f723413db5096591f7609ac52544805be93849170088ed04f5a2e0b \
     --hash=sha256:9970712cfb81ea26c8658d378aaa5b8f6ff9146e5bb111d70497c164016cf598
@@ -1632,6 +1632,7 @@ numpy==2.2.6 \
     #   onnxruntime
     #   opencv-python
     #   opencv-python-headless
+    #   openvino
     #   optuna
     #   pandas
     #   pycocotools
@@ -1691,10 +1692,40 @@ opentelemetry-api==1.45.1 \
     --hash=sha256:aa38ed19bcc084ba42782a73255b3582283eced7ad6dddbd6695189e69adfb75 \
     --hash=sha256:b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb
     # via fastapi
+openvino==2026.4.1 \
+    --hash=sha256:24c73d3c61a8b71c09bf512a294d37ff8ea6e4b0c65c1b136bb842bbbd6c9c31 \
+    --hash=sha256:2d22b1da03f7caf74df30e9f6417d0ab2f637e4a38e08e1dcd294d2c37407aaf \
+    --hash=sha256:3631dd889dccf3d5087775948590a6609a662f90c24a9cf85bb4dfa0cdd7fd2f \
+    --hash=sha256:37c270c99d6de23439965e97cb5106389d3c8985f3b8bb90909a6ea0270db3f2 \
+    --hash=sha256:45ad6947f404049cb54807638ad35a67c66c0c90d1e89ee6cc45f92021cb6c45 \
+    --hash=sha256:47dcccbab40a23aed1dc4af7c43a9c813cc61f684d66498e1627d407d5f2770b \
+    --hash=sha256:4e04316abff1b99e29b8cbd38deaef9bde4739eba216d982d4b3981e456ecd87 \
+    --hash=sha256:60496e3153122913c8a2fa69d86b3a77ccc4e2469db87d76eb8acb49a5d22d63 \
+    --hash=sha256:645e8788370b1037cc21d19078f2f235478292e23938b00ab4fe0d2614a5f7d0 \
+    --hash=sha256:6b4375c17ddcac83a5180349e2e2bb811185c261066e2a920659892d58ef0e3b \
+    --hash=sha256:6c5672d6cc0fba4e22fd8d1352ffd7e395f6135da741e002bfad7a0344c183f2 \
+    --hash=sha256:6c6ad38aefc3b0a7d1dbc7189c2be92bb876853f4681e1b1b9fbe1a382d5876f \
+    --hash=sha256:726ac547b8474a5e7b145bc1ae5a8bb6fbcbb60b79bd9a611c67eec2c74b7a5f \
+    --hash=sha256:82efccb2f9f1bdc7e5a1996e05a3b719ebff9232dd54b44150d6d2e983a86b7d \
+    --hash=sha256:96d5ecb8cca4d61a3eee754c9e477702509cf782eb45596c653a00ddb2176d96 \
+    --hash=sha256:a9b637846c579d7b81b17b6585e0c7b1947574e8d13cf83d7307ce50cd2c352e \
+    --hash=sha256:b70a01f6961bf8fe4b647b14fb122be4d30ece02292a9831f9241a64be089676 \
+    --hash=sha256:bea1eb3733c34ef331adc945da0ccda5937865031139073663be84c517ffda22 \
+    --hash=sha256:bfddae6d6d3ad240157b946f180c33d0ddfaaae7487995d929a4e6b4bc12b283 \
+    --hash=sha256:c383422d3e7e457441ec88911da0b16ed5132f55b8c9fb21411749d3eff90a60 \
+    --hash=sha256:c9fed6c278b3f0314a53b4366fe8811bd784f24a60335b318dff1e3ae3bbb5c0 \
+    --hash=sha256:d3740853691ae4a9003bc3417a4625d848e2cc3251af4b815c59199b38be252a \
+    --hash=sha256:f57d1cc75c77c18b2be8ab628d8e0a8e01f4be44f521823b6fba7ede31d708d3 \
+    --hash=sha256:fc45339ff7d539de76e6d7b04135c120504c797cfc8c2a0dde3d2d616b30c758
+    # via -r requirements.in
+openvino-telemetry==2025.2.0 \
+    --hash=sha256:8bf8127218e51e99547bf38b8fb85a8b31c9bf96e6f3a82eb0b3b6a34155977c \
+    --hash=sha256:bcb667e83a44f202ecf4cfa49281715c6d7e21499daec04ff853b7f964833599
+    # via openvino
 optuna==4.9.0 \
     --hash=sha256:b322e5cbdf1655fb84c37646c4a7a1f391de1b47806bbe222e015825d0a82b87 \
     --hash=sha256:f52f3be6148654850c92a5860d398fd88ec6b2c84ab68d9c3d07dcff02e7afee
-    # via -r requirements-dev.in
+    # via -r requirements-training.in
 overrides==7.7.0 \
     --hash=sha256:55158fa3d93b98cc75299b1e67078ad9003ca27945c76162c1c0766d6f91820a \
     --hash=sha256:c7ed9d062f78b8e4c1a7b70bd8796b35ead4d9f510227ef9c5dc7626c60d7e49
@@ -2084,7 +2115,7 @@ pycocotools==2.0.11 \
     --hash=sha256:f7eb43b79448476b094240450420b7425d06e297880144b8ea6f01e9b4340e43 \
     --hash=sha256:fd72b9734e6084b217c1fc3945bfd4ec05bdc75a44e4f0c461a91442bb804973 \
     --hash=sha256:ffe806ce535f5996445188f9a35643791dc54beabc61bd81e2b03367356d604f
-    # via -r requirements-dev.in
+    # via -r requirements-training.in
 pycparser==3.12 \
     --hash=sha256:a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e \
     --hash=sha256:f03387877eab82ce01bbdfd0ba7252ee55a90b1c708d5129e2ce915475cf1db6
@@ -2732,7 +2763,7 @@ rich==15.0.0 \
 roboflow==1.7.1 \
     --hash=sha256:886edbc9660104ffec8b79a1b3fdeca0d4a51cdad9db2b0db597e5a456fae741 \
     --hash=sha256:ba31e2103968285b83406eaaf1bf4a043a63cedc716723f48671e3fe86b76256
-    # via -r requirements-dev.in
+    # via -r requirements-training.in
 rpds-py==2026.9.1 \
     --hash=sha256:00ba2d8c7dd4ee537978ddf4b3fbd712bef2d8751603f7f3146b3f4287768e25 \
     --hash=sha256:01445c8d194aa032a08e944f16567672da1c62dbdbefd8b6d0693032e290cf68 \
@@ -3135,7 +3166,7 @@ torch==2.15.0+cpu \
     --hash=sha256:f089c94912c955269a20e5fee6b6a371209b610849c9ece26e908a748d87a723 \
     --hash=sha256:fe17318e964a6eb4b1380fd6dcd5405264af3e54b10bce7abcce5fa701a3f049
     # via
-    #   -r requirements.in
+    #   -r requirements-training.in
     #   accelerate
 tornado==6.6 \
     --hash=sha256:01abf15429d64f04ccfafc238b191cc2c177108b7a331f4461707ad77198c8c2 \
@@ -3223,7 +3254,7 @@ traitlets==5.16.1 \
 transformers==5.22.2 \
     --hash=sha256:55f57e5cbd7c0b500b7a706daa0ecd76567b56ca139e6e02ef0bba0437e3a763 \
     --hash=sha256:829c2820aff91730b8ec45a4b8ff4be07f586a140b68a9073998b36fa35297dc
-    # via -r requirements.in
+    # via -r requirements-training.in
 truststore==0.10.5 \
     --hash=sha256:30d36967ccaded5cbb38d602c433f53600036c79d502f4533a49b60a03bbefcd \
     --hash=sha256:9aaaedaefaf06d8b206278cf8b5012bc897f485a874503501e12d776df78951c

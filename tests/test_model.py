@@ -52,7 +52,7 @@ def test_metrics():
 def test_detector_rejects_legacy_onnx_checkpoint(tmp_path):
     legacy = tmp_path / "old_detector.onnx"
     legacy.write_bytes(b"legacy checkpoint")
-    with pytest.raises(ValueError, match="no es una carpeta Transformers"):
+    with pytest.raises(ValueError, match="no es un modelo OpenVINO IR"):
         PlateDetector(legacy, model_id="merve/license-plates-rtdetrv2")
 
 
@@ -67,7 +67,7 @@ def test_pipeline_combines_detection_and_ocr():
 
     class DetectorStub:
         is_model = True
-        name = "RT-DETRv2 R18 (stub)"
+        name = "RT-DETRv2-S/OpenVINO (stub)"
 
         def detect(self, image, max_detections=5):
             return [Detection((10, 10, 90, 40), 0.98)]
@@ -93,7 +93,7 @@ def test_pipeline_without_detection_requires_manual_review(seeded_db):
 
     class DetectorStub:
         is_model = True
-        name = "RT-DETRv2 R18 (stub)"
+        name = "RT-DETRv2-S/OpenVINO (stub)"
 
         def detect(self, image, max_detections=5):
             return []

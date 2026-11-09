@@ -312,7 +312,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
         row = {
             "event_id": str(uuid.uuid4()),
             "fecha_hora": now_local().isoformat(sep=" ", timespec="seconds"),
-            "modelo_detector": "RT-DETRv2 R18" if body.det_confidence is not None else "",
+            "modelo_detector": "RT-DETRv2-S/OpenVINO" if body.det_confidence is not None else "",
             "camara": "",
             "garita": body.garita,
             "operador": user["nombre"],

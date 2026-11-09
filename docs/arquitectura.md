@@ -1,12 +1,12 @@
-# Arquitectura SIRAP · RT-DETR + Transformers
+# Arquitectura SIRAP · RT-DETRv2-S + OpenVINO
 
 ## Flujo de la aplicación
 
 ```mermaid
 flowchart LR
-    IMG[Imagen o cuadro de video] --> DET[Transformers · RT-DETRv2 R18]
+    IMG[Imagen o cuadro de video] --> DET[OpenVINO Runtime · RT-DETRv2-S]
     DET --> CROP[Recorte de matrícula]
-    CROP --> OCR[fast-plate-ocr]
+    CROP --> OCR[fast-plate-ocr · ONNX Runtime]
     OCR --> DEC[Normalización y regla de acceso]
     DEC --> API[FastAPI · autenticación y roles]
     API <--> CSV[CSV privado]
@@ -18,15 +18,19 @@ El servicio valida la imagen, detecta la placa, obtiene un recorte y ejecuta OCR
 
 ## Detector vigente
 
-La implementación está en `src/model.py`. Usa `RTDetrV2ForObjectDetection` y `AutoImageProcessor` de Transformers. El checkpoint público predeterminado es [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), entrenado para la clase `license_plate` y publicado bajo Apache-2.0. Su modelo base es [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd), RT-DETRv2 con backbone ResNet-18.
+El detector es **RT-DETRv2-S (backbone ResNet-18vd)**. Parte del checkpoint de matrículas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), basado en [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd), ambos publicados bajo Apache-2.0. El checkpoint compartido es una inicialización general para placas; no está validado específicamente para Ecuador o EE. UU.
 
-El entrenamiento mantiene rutas separadas: `models/ecuador/detector/rtdetr_r18/` y `models/usa/detector/rtdetr_r18/`. La API desplegada inicializa el perfil Ecuador desde `config/countries/ecuador.yaml`; la ruta USA sirve al entrenamiento independiente y no implica que su OCR/reglas ya estén integrados en esa instancia. El checkpoint compartido es una base general, no validada en Ecuador o EE. UU.
+La aplicación en `src/model.py` carga `openvino_model.xml` y `openvino_model.bin` con `openvino.Core().compile_model(...)`. El detector no importa Transformers ni PyTorch durante inferencia. El preprocesamiento se guía por `sirap_openvino.json`; la clase `pixel_mask`, las cajas y las puntuaciones se decodifican en Python. El OCR `fast-plate-ocr` permanece separado y utiliza ONNX Runtime.
 
-El entrenamiento reside en `src/train.py`: lee COCO Detection, actualiza el número de clases para `license_plate` y usa `Trainer`. Guarda pesos Safetensors y el manifest `sirap_training.json`. No depende de Ultralytics ni carga pesos `.pt`/ONNX YOLO. El convertidor opcional transforma etiquetas YOLO anteriores a COCO; solo es una herramienta de formato.
+## Entrenamiento y exportación
+
+El entrenamiento se realiza antes del despliegue con PyTorch y Transformers, desde los notebooks por país o `src/train.py`, usando datos COCO Detection. Después de guardar los pesos Safetensors, `src/export_openvino.py` convierte el checkpoint ajustado a OpenVINO IR. Se guardan ambos resultados bajo `models/<país>/detector/rtdetrv2_s/`: `transformers/` para entrenamiento y `openvino/` para la aplicación.
+
+El Dockerfile convierte el checkpoint Apache-2.0 compartido durante la etapa de construcción y copia el IR al runtime final. La imagen de ejecución instala OpenVINO y OCR, pero no incluye PyTorch ni Transformers. El Space prefiere el IR ajustado del país si se publica o monta; en caso contrario usa el IR compartido. Los pesos generados de Ecuador y EE. UU. no se incluyen automáticamente en Git.
 
 ## OCR y decisión
 
-`fast-plate-ocr` permanece independiente del detector. `ALPRPipeline` recorta las cajas, obtiene texto y confianza por carácter, normaliza la placa y devuelve métricas de tiempo. Las reglas del OCR y el almacenamiento están en `config/countries/`. Los umbrales detectores existentes son provisionales hasta calibrarse para cada checkpoint sobre validación; los umbrales YOLO no se transfieren.
+`fast-plate-ocr` permanece independiente del detector. `ALPRPipeline` recorta las cajas, obtiene texto y confianza por carácter, normaliza la placa y devuelve métricas de tiempo. Las reglas del OCR y el almacenamiento están en `config/countries/`. Los umbrales detectores son provisionales hasta calibrarse para cada IR sobre validación; los umbrales YOLO no se transfieren.
 
 ## Capas de software
 
@@ -34,9 +38,10 @@ El entrenamiento reside en `src/train.py`: lee COCO Detection, actualiza el núm
 |---|---|---|
 | Presentación | Vue 3, Vite, Pinia | Reconocimiento, historial, dashboard, administración, idiomas |
 | API | FastAPI, JWT, Pydantic | Autenticación, permisos, solicitudes e informes |
-| Modelo | Transformers, PyTorch, RT-DETRv2; fast-plate-ocr | Detección y OCR |
+| Inferencia de detección | OpenVINO Runtime Python API, RT-DETRv2-S IR | Localización de matrículas en CPU |
+| OCR | fast-plate-ocr, ONNX Runtime | Lectura de caracteres |
 | Datos | CSV, repositorio privado GitHub | Persistencia de vehículos, autorizaciones y operaciones |
-| Entrenamiento | `src/train.py`, notebooks | Ajuste fino y evaluación reproducible por país |
-| Despliegue | Docker, Hugging Face Spaces | API y web en CPU; modelo se obtiene del Hub al iniciar |
+| Entrenamiento/exportación | `src/train.py`, `src/export_openvino.py`, notebooks | Ajuste fino y conversión previa al despliegue |
+| Despliegue | Docker, Hugging Face Spaces | Construye el IR compartido y ejecuta la API en CPU |
 
-El Space `SIRAP_USA_ECUADOR_HF` sincroniza desde este repositorio mediante GitHub Actions. La licencia del código del proyecto no sustituye la licencia del checkpoint ni las licencias de los datasets.
+El Space `SIRAP_USA_ECUADOR_HF` sincroniza desde este repositorio mediante GitHub Actions. La licencia del código del proyecto no sustituye la licencia del checkpoint ni las licencias de los datasets; consulte [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).

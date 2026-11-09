@@ -1,9 +1,5 @@
 # Desarrollo, entrenamiento, notebooks y pruebas (incluye dependencias de producción).
--r requirements.in
-roboflow==1.7.1
-accelerate>=1.2,<2
-pycocotools>=2.0.8
-optuna>=4.0,<5
+-r requirements-training.in
 trackers==2.6.1
 supervision==0.30.9
 matplotlib>=3.8

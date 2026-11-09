@@ -65,7 +65,7 @@ const en = {
   'Desarrolladores': 'Developers',
   'Precisión / Recall': 'Precision / Recall',
   'Gráficos de métricas y mediciones': 'Metrics and measurement charts',
-  'Evaluación del detector RT-DETRv2 R18': 'RT-DETRv2 R18 detector evaluation',
+  'Evaluación del detector RT-DETRv2-S': 'RT-DETRv2-S detector evaluation',
   'Resultados del conjunto de prueba (': 'Test set results (',
   'imágenes,': 'images,',
   'placas).': 'plates).',
@@ -100,11 +100,11 @@ const en = {
   'Registro:': 'Logging:',
   'el operador confirma; cada operación queda en el historial con usuario, garita y hora. La barrera está simulada.': 'the operator confirms; each operation is logged with user, checkpoint, and time. The gate is simulated.',
   'Entrenamiento y validación': 'Training and validation',
-  'RT-DETRv2 R18 ajustado con Transformers': 'RT-DETRv2 R18 fine-tuned with Transformers',
+  'RT-DETRv2-S ajustado con Transformers': 'RT-DETRv2-S fine-tuned with Transformers',
   'épocas sobre': 'epochs on',
   'El checkpoint compartido de placas tiene licencia Apache-2.0. El ajuste fino y las métricas por país están pendientes.': 'The shared plate checkpoint is licensed under Apache-2.0. Country-specific fine-tuning and metrics are pending.',
-  'Detector RT-DETRv2 R18': 'RT-DETRv2 R18 detector',
-  'Evaluación del detector RT-DETRv2 R18': 'RT-DETRv2 R18 detector evaluation',
+  'Detector RT-DETRv2-S': 'RT-DETRv2-S detector',
+  'Evaluación del detector RT-DETRv2-S': 'RT-DETRv2-S detector evaluation',
   'El checkpoint compartido RT-DETRv2 se ajustó con un dataset general de matrículas; no equivale a un modelo validado para Ecuador o Estados Unidos. Los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas reales de': 'The shared RT-DETRv2 checkpoint was fine-tuned on a general license-plate dataset; it is not a model validated for Ecuador or the United States. Historical YOLO results are not reused. OCR was validated on real plates from',
   'épocas (imgsz': 'epochs (imgsz',
   ', batch': ', batch',
@@ -329,7 +329,7 @@ const en = {
   'imágenes': 'images',
   'placas': 'plates',
   'placas de Guayaquil': 'plates from Guayaquil',
-  'Detector RT-DETRv2 R18': 'RT-DETRv2 R18 detector',
+  'Detector RT-DETRv2-S': 'RT-DETRv2-S detector',
   'Exactitud OCR (SAVH)': 'OCR accuracy (SAVH)',
   'Tiempo por decisión': 'Decision time',
   'Detección + OCR (meta < 1 s)': 'Detection + OCR (target < 1 s)',
@@ -659,6 +659,9 @@ const en = {
 
 const pt = {
   "Optimización RT-DETR (validación)": "Otimização RT-DETR (validação)",
+  "Detector RT-DETRv2-S": "Detector RT-DETRv2-S",
+  "Evaluación del detector RT-DETRv2-S": "Avaliação do detector RT-DETRv2-S",
+  "RT-DETRv2-S ajustado con Transformers": "RT-DETRv2-S ajustado com Transformers",
   "Comparación de configuraciones RT-DETR usando el split de validación.": "Comparação de configurações RT-DETR usando a divisão de validação.",
   "Aún no hay métricas RT-DETR de prueba. Ajusta y evalúa el modelo con un conjunto reservado para este país.": "Ainda não há métricas RT-DETR de teste. Ajuste e avalie o modelo em um conjunto reservado para este país.",
   "Provisional; calibrar en validación": "Provisório; calibrar na validação",
@@ -765,6 +768,9 @@ const pt = {
 
 const fr = {
   "Optimización RT-DETR (validación)": "Optimisation RT-DETR (validation)",
+  "Detector RT-DETRv2-S": "Détecteur RT-DETRv2-S",
+  "Evaluación del detector RT-DETRv2-S": "Évaluation du détecteur RT-DETRv2-S",
+  "RT-DETRv2-S ajustado con Transformers": "RT-DETRv2-S ajusté avec Transformers",
   "Comparación de configuraciones RT-DETR usando el split de validación.": "Comparaison des configurations RT-DETR sur l’ensemble de validation.",
   "Aún no hay métricas RT-DETR de prueba. Ajusta y evalúa el modelo con un conjunto reservado para este país.": "Les métriques de test RT-DETR ne sont pas encore disponibles. Ajustez et évaluez le modèle sur un jeu réservé à ce pays.",
   "Provisional; calibrar en validación": "Provisoire ; calibrer sur la validation",
@@ -870,6 +876,9 @@ const fr = {
 
 const de = {
   "Optimización RT-DETR (validación)": "RT-DETR-Optimierung (Validierung)",
+  "Detector RT-DETRv2-S": "RT-DETRv2-S-Detektor",
+  "Evaluación del detector RT-DETRv2-S": "Bewertung des RT-DETRv2-S-Detektors",
+  "RT-DETRv2-S ajustado con Transformers": "Mit Transformers feinabgestimmtes RT-DETRv2-S",
   "Comparación de configuraciones RT-DETR usando el split de validación.": "Vergleich der RT-DETR-Konfigurationen anhand des Validierungsdatensatzes.",
   "Aún no hay métricas RT-DETR de prueba. Ajusta y evalúa el modelo con un conjunto reservado para este país.": "RT-DETR-Testmetriken liegen noch nicht vor. Trainieren und bewerten Sie das Modell mit einem zurückgehaltenen Datensatz für dieses Land.",
   "Provisional; calibrar en validación": "Vorläufig; anhand der Validierung kalibrieren",

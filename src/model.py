@@ -1,9 +1,4 @@
-"""Modelos de SIRAP: RT-DETRv2 R18 con Transformers, OCR y pipeline ALPR.
-
-El detector predeterminado es el checkpoint público
-``merve/license-plates-rtdetrv2`` (Apache-2.0), ajustado para detectar matrículas.
-Cuando existe un checkpoint local del país, tiene prioridad sobre el checkpoint público.
-"""
+"""SIRAP inference: RT-DETRv2-S with native OpenVINO Runtime, plus OCR."""
 
 from __future__ import annotations
 
@@ -12,17 +7,22 @@ from pathlib import Path
 from typing import Any, Sequence
 
 import numpy as np
+from PIL import Image
 
 from src.data_processing import DEFAULT_PATTERNS, clean_text, crop_with_margin, normalize_plate
 from src.utils import get_logger, load_config, load_json, resolve_path, timer
 
 logger = get_logger("sirap.model")
 DEFAULT_PLATE_CHECKPOINT = "merve/license-plates-rtdetrv2"
+DEFAULT_OPENVINO_CHECKPOINT = "models/shared/detector/rtdetrv2_s/openvino"
+DEFAULT_IMAGE_SIZE = 640
+IMAGE_MEAN = np.asarray([0.485, 0.456, 0.406], dtype=np.float32)
+IMAGE_STD = np.asarray([0.229, 0.224, 0.225], dtype=np.float32)
 
 
 @dataclass
 class Detection:
-    """Una caja de matrícula detectada; coordenadas xyxy en píxeles de la imagen original."""
+    """Una caja de matrícula detectada; coordenadas xyxy en píxeles."""
 
     box: tuple[float, float, float, float]
     confidence: float
@@ -66,91 +66,152 @@ class Recognition:
         }
 
 
-class PlateDetector:
-    """Carga y ejecuta RT-DETRv2 mediante Transformers y PyTorch.
+def _openvino_xml(checkpoint: str | Path | None) -> Path | None:
+    if not checkpoint:
+        return None
+    candidate = resolve_path(checkpoint)
+    if candidate.is_file():
+        if candidate.suffix.lower() == ".xml":
+            return candidate
+        raise ValueError(
+            f"{candidate} no es un modelo OpenVINO IR. Se requiere el archivo XML y su BIN asociado; "
+            "los pesos Transformers, ONNX y YOLO no se cargan directamente en el detector."
+        )
+    if candidate.is_dir():
+        for xml_path in (candidate / "openvino_model.xml", candidate / "model.xml",
+                         candidate / "openvino" / "openvino_model.xml",
+                         candidate / "openvino" / "model.xml"):
+            if xml_path.is_file():
+                return xml_path
+        if any(candidate.glob("*.onnx")) or any(candidate.glob("*.safetensors")):
+            raise ValueError(
+                f"{candidate} contiene pesos fuente, pero no un IR OpenVINO. Ejecute "
+                "python -m src.export_openvino para convertir el checkpoint antes de iniciar la app."
+            )
+    return None
 
-    Args:
-        checkpoint: carpeta local creada por ``src.train``. Si no existe, se usa
-            ``model_id`` desde el Hub de Hugging Face.
-        model_id: checkpoint compatible con ``RTDetrV2ForObjectDetection``.
-        imgsz: resolución cuadrada configurada por el procesador del checkpoint.
-        conf: confianza mínima de una detección.
-        class_id: clase que representa la matrícula en el checkpoint.
-        device: ``"auto"``, ``"cpu"`` o un dispositivo PyTorch como ``"cuda"``.
+
+class PlateDetector:
+    """Carga un IR RT-DETRv2-S y ejecuta inferencia con openvino.Core.
+
+    El checkpoint fino del país tiene prioridad. Si no existe, se utiliza el IR
+    compartido creado durante la construcción del Space. El entrenamiento y la
+    conversión ocurren antes del despliegue; esta clase no importa Transformers
+    ni PyTorch.
     """
 
     def __init__(self, checkpoint: str | Path | None = None,
-                 model_id: str = DEFAULT_PLATE_CHECKPOINT, imgsz: int = 640,
-                 conf: float = 0.25, class_id: int = 0, device: str = "auto"):
-        import torch
-        from transformers import AutoImageProcessor, RTDetrV2ForObjectDetection
+                 model_id: str = DEFAULT_PLATE_CHECKPOINT, imgsz: int = DEFAULT_IMAGE_SIZE,
+                 conf: float = 0.25, class_id: int = 0, device: str = "CPU",
+                 fallback_checkpoint: str | Path | None = DEFAULT_OPENVINO_CHECKPOINT):
+        import openvino as ov
 
         self.imgsz = int(imgsz)
         self.conf = float(conf)
         self.class_id = int(class_id)
-        self._torch = torch
-        self.device = torch.device(
-            "cuda" if device == "auto" and torch.cuda.is_available()
-            else "cpu" if device == "auto" else device
-        )
+        self.device = "CPU" if device.lower() == "auto" else device.upper()
+        self.core = ov.Core()
 
-        local_dir = resolve_path(checkpoint) if checkpoint else None
-        if local_dir is not None and local_dir.is_dir() and (local_dir / "config.json").exists():
-            source = str(local_dir)
-        else:
-            source = model_id
-            if local_dir is not None and local_dir.exists():
-                raise ValueError(
-                    f"{local_dir} no es una carpeta Transformers. Los pesos YOLO/ONNX no son compatibles; "
-                    "ejecute el notebook 03 para generar un checkpoint RT-DETRv2."
-                )
-
-        self.source = source
-        self._processor = AutoImageProcessor.from_pretrained(source, trust_remote_code=False, use_fast=False)
-        self._model = RTDetrV2ForObjectDetection.from_pretrained(source, trust_remote_code=False)
-        self._model.to(self.device)
-        self._model.eval()
-        num_labels = int(getattr(self._model.config, "num_labels", 0))
-        if self.class_id < 0 or self.class_id >= num_labels:
-            raise ValueError(
-                f"class_id={self.class_id} no existe en {source}; el checkpoint tiene {num_labels} clases."
+        requested_xml = _openvino_xml(checkpoint)
+        shared_xml = _openvino_xml(fallback_checkpoint)
+        self.model_path = requested_xml or shared_xml
+        if self.model_path is None:
+            raise FileNotFoundError(
+                "No se encontró un IR OpenVINO de RT-DETRv2-S. Convierta el checkpoint Apache-2.0 "
+                f"{model_id!r} y guárdelo en {fallback_checkpoint!s}."
             )
-        self.name = f"RT-DETRv2 R18 · Transformers · {source}"
+        if not self.model_path.with_suffix(".bin").is_file():
+            raise FileNotFoundError(f"Falta el archivo de pesos OpenVINO asociado: {self.model_path.with_suffix('.bin')}")
+
+        self.compiled_model = self.core.compile_model(str(self.model_path), self.device)
+        self.manifest = {}
+        manifest_path = self.model_path.parent / "sirap_openvino.json"
+        if manifest_path.is_file():
+            try:
+                import json
+                self.manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, ValueError) as exc:
+                raise ValueError(f"Manifest OpenVINO inválido: {manifest_path}") from exc
+        if len(self.compiled_model.inputs) != 2:
+            raise ValueError(
+                "El IR RT-DETRv2-S debe aceptar pixel_values y pixel_mask. "
+                f"Se encontraron {len(self.compiled_model.inputs)} entradas."
+            )
+        if len(self.compiled_model.outputs) < 2:
+            raise ValueError("El IR RT-DETRv2-S debe devolver logits y pred_boxes.")
+        self.name = f"RT-DETRv2-S · OpenVINO Runtime · {self.model_path.parent}"
+        self.source = str(self.model_path)
         logger.info("Detector cargado: %s (%s)", self.name, self.device)
 
     @property
     def is_model(self) -> bool:
-        return self._model is not None
+        return True
+
+    def _preprocess(self, image: np.ndarray) -> tuple[np.ndarray, np.ndarray, tuple[int, int]]:
+        height, width = image.shape[:2]
+        max_height = min(self.imgsz, int(self.manifest.get("resize_max_height", self.imgsz)))
+        max_width = min(self.imgsz, int(self.manifest.get("resize_max_width", self.imgsz)))
+        scale = min(max_height / height, max_width / width)
+        resized_h = max(1, min(max_height, int(round(height * scale))))
+        resized_w = max(1, min(max_width, int(round(width * scale))))
+        rgb = np.ascontiguousarray(image[..., :3], dtype=np.uint8)
+        resample = self.manifest.get("resample", 2)
+        try:
+            resampling = Image.Resampling(int(resample))
+        except (TypeError, ValueError):
+            resampling = Image.Resampling.BILINEAR
+        resized = Image.fromarray(rgb).resize((resized_w, resized_h), resampling)
+        pixels = np.array(resized, dtype=np.float32, copy=True)
+        if self.manifest.get("do_rescale", True):
+            pixels *= float(self.manifest.get("rescale_factor", 1.0 / 255.0))
+        if self.manifest.get("do_normalize", False):
+            mean = np.asarray(self.manifest.get("image_mean", IMAGE_MEAN), dtype=np.float32)
+            std = np.asarray(self.manifest.get("image_std", IMAGE_STD), dtype=np.float32)
+            pixels = (pixels - mean) / std
+
+        # RTDetrImageProcessor pads after rescaling/normalization and masks padded pixels.
+        pad_value = float(self.manifest.get("pad_value_after_normalization", 0.0))
+        canvas = np.full((3, self.imgsz, self.imgsz), pad_value, dtype=np.float32)
+        canvas[:, :resized_h, :resized_w] = pixels.transpose(2, 0, 1)
+        pixel_mask = np.zeros((1, self.imgsz, self.imgsz), dtype=np.int64)
+        pixel_mask[:, :resized_h, :resized_w] = 1
+        return canvas[None, ...], pixel_mask, (height, width)
 
     def detect(self, image: np.ndarray, max_detections: int = 5) -> list[Detection]:
-        """Devuelve cajas de matrícula en orden descendente de confianza."""
+        """Devuelve cajas de placa en orden de confianza descendente."""
         if image is None or image.size == 0 or image.ndim != 3:
             return []
-        height, width = image.shape[:2]
-        rgb = np.ascontiguousarray(image[..., :3], dtype=np.uint8)
-        inputs = self._processor(images=rgb, return_tensors="pt")
-        inputs = {key: value.to(self.device) for key, value in inputs.items()}
-        with self._torch.inference_mode():
-            outputs = self._model(**inputs)
-        target_sizes = self._torch.tensor([(height, width)], dtype=self._torch.int64)
-        result = self._processor.post_process_object_detection(
-            outputs, target_sizes=target_sizes, threshold=self.conf
-        )[0]
-        boxes = result["boxes"].detach().cpu().numpy()
-        scores = result["scores"].detach().cpu().numpy()
-        labels = result["labels"].detach().cpu().numpy()
-        detections = []
-        for box, score, label in zip(boxes, scores, labels):
-            if int(label) != self.class_id:
+        pixel_values, pixel_mask, (height, width) = self._preprocess(image)
+        raw = self.compiled_model([pixel_values, pixel_mask])
+        logits = np.asarray(raw[self.compiled_model.output(0)], dtype=np.float32)[0]
+        boxes = np.asarray(raw[self.compiled_model.output(1)], dtype=np.float32)[0]
+        if logits.ndim != 2 or boxes.ndim != 2 or boxes.shape[-1] != 4:
+            raise ValueError(f"Salidas OpenVINO inesperadas: logits={logits.shape}, boxes={boxes.shape}.")
+
+        scores = 1.0 / (1.0 + np.exp(-np.clip(logits, -80.0, 80.0)))
+        flat_scores = scores.reshape(-1)
+        count = min(flat_scores.size, max(1, int(max_detections)))
+        indices = np.argpartition(flat_scores, -count)[-count:]
+        indices = indices[np.argsort(flat_scores[indices])[::-1]]
+        num_classes = scores.shape[-1]
+        detections: list[Detection] = []
+        for flat_index in indices:
+            query_index, label = divmod(int(flat_index), num_classes)
+            score = float(flat_scores[flat_index])
+            if label != self.class_id or score < self.conf:
                 continue
-            x1, y1, x2, y2 = (float(v) for v in box)
+            cx, cy, box_w, box_h = (float(value) for value in boxes[query_index])
+            x1 = (cx - box_w / 2) * width
+            y1 = (cy - box_h / 2) * height
+            x2 = (cx + box_w / 2) * width
+            y2 = (cy + box_h / 2) * height
             detections.append(Detection(
                 (float(np.clip(x1, 0, width)), float(np.clip(y1, 0, height)),
                  float(np.clip(x2, 0, width)), float(np.clip(y2, 0, height))),
-                float(score),
+                score,
             ))
         detections.sort(key=lambda detection: detection.confidence, reverse=True)
-        return detections[:max_detections]
+        return detections
 
 
 class PlateReader:
@@ -184,7 +245,7 @@ class PlateReader:
 
 
 class ALPRPipeline:
-    """Detección + OCR + normalización para una imagen."""
+    """Detección OpenVINO + OCR + normalización para una imagen."""
 
     def __init__(self, detector: PlateDetector, reader: PlateReader,
                  patterns: Sequence[Sequence[int]] = DEFAULT_PATTERNS,
@@ -196,19 +257,20 @@ class ALPRPipeline:
 
     @classmethod
     def from_config(cls, config: dict[str, Any] | None = None) -> "ALPRPipeline":
-        """Construye el pipeline con el checkpoint Transformers configurado."""
+        """Construye el pipeline con el IR OpenVINO del país o el compartido."""
         cfg = config or load_config()
         det_cfg, ocr_cfg = cfg["detector"], cfg["ocr"]
         calibrated = load_json("results/metrics/umbrales_rtdetr.json") or {}
-        calibrated_conf = calibrated.get("RT-DETRv2", {}).get("conf_track")
+        calibrated_conf = calibrated.get("RT-DETRv2-S", {}).get("conf_track")
         conf = float(calibrated_conf or det_cfg.get("conf_minima", 0.25))
         detector = PlateDetector(
             checkpoint=det_cfg.get("checkpoint"),
             model_id=det_cfg.get("model_id", DEFAULT_PLATE_CHECKPOINT),
-            imgsz=det_cfg.get("imgsz_inferencia", 640),
+            imgsz=det_cfg.get("imgsz_inferencia", DEFAULT_IMAGE_SIZE),
             conf=conf,
             class_id=det_cfg.get("class_id", 0),
-            device=det_cfg.get("dispositivo", "auto"),
+            device=det_cfg.get("dispositivo", "CPU"),
+            fallback_checkpoint=det_cfg.get("fallback_checkpoint", DEFAULT_OPENVINO_CHECKPOINT),
         )
         reader = PlateReader(ocr_cfg.get("modelo", "cct-s-v2-global-model"),
                              ocr_cfg.get("dispositivo", "cpu"),

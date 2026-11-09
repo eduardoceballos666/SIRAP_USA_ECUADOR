@@ -9,8 +9,19 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# 2) API + modelos
-FROM python:3.11-slim
+# 2) Convertir el checkpoint Apache-2.0 a OpenVINO IR antes del runtime.
+FROM python:3.11-slim AS detector-export
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 HF_HOME=/root/.cache/huggingface
+WORKDIR /build
+COPY requirements-training.txt ./
+RUN pip install --require-hashes -r requirements-training.txt
+COPY src/__init__.py src/export_openvino.py ./src/
+RUN python -m src.export_openvino \
+    --model-id merve/license-plates-rtdetrv2 \
+    --output-dir /build/models/shared/detector/rtdetrv2_s/openvino
+
+# 3) Runtime de la API: OpenVINO + OCR, sin Torch ni Transformers.
+FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
@@ -31,11 +42,11 @@ RUN PLAYWRIGHT_BROWSERS_PATH=/ms-playwright python -m playwright install --with-
     && rm -rf /var/lib/apt/lists/*
 USER user
 # Descarga el OCR (≈5 MB) durante la construcción para que el primer reconocimiento sea inmediato.
-RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-v2-global-model')" \
-    && python -c "from transformers import AutoImageProcessor, RTDetrV2ForObjectDetection; m='merve/license-plates-rtdetrv2'; AutoImageProcessor.from_pretrained(m); RTDetrV2ForObjectDetection.from_pretrained(m)"
+RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-v2-global-model')"
 
 COPY --chown=user . .
 COPY --chown=user --from=frontend /app/frontend/dist frontend/dist
+COPY --chown=user --from=detector-export /build/models/shared/detector/rtdetrv2_s/openvino models/shared/detector/rtdetrv2_s/openvino
 RUN mkdir -p data/processed
 
 EXPOSE 7860

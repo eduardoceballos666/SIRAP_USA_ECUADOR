@@ -4,7 +4,7 @@
 
 SIRAP lee placas de vehículos, las asocia con personas y empresas y decide si una barrera se abre. Una placa no es
 solo un número: **identifica indirectamente a una persona** y, acumulada en un historial, revela sus horarios y
-movimientos. Este documento analiza los riesgos del sistema y lo que se hizo para mitigarlos. Las cifras de detector y equidad descritas en las secciones heredadas corresponden a la versión anterior con YOLO11; no son métricas del RT-DETRv2 R18 actual. El checkpoint RT-DETR compartido no está validado por país y aún requiere evaluación representativa.
+movimientos. Este documento analiza los riesgos del sistema y lo que se hizo para mitigarlos. Las cifras de detector y equidad descritas en las secciones heredadas corresponden a la versión anterior con YOLO11; no son métricas de RT-DETRv2-S. El checkpoint compartido de placas no está validado por país y aún requiere evaluación representativa.
 
 ---
 

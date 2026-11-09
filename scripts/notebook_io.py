@@ -58,7 +58,7 @@ def repository_paths(repo_root: str | Path) -> dict[str, Path]:
         "models": root / "models" / "ecuador",
         "detector": root / "models" / "ecuador" / "detector",
         "ocr_models": root / "models" / "ecuador" / "ocr",
-        "detector_checkpoint": root / "models" / "ecuador" / "detector" / "rtdetr_r18",
+        "detector_checkpoint": root / "models" / "ecuador" / "detector" / "rtdetrv2_s",
         "ocr_onnx": root / "models" / "ecuador" / "ocr" / "ecuador_ocr.onnx",
         "workspace": Path("/content/SIRAP_workspace"),
     }
@@ -78,7 +78,8 @@ def _github_token() -> str | None:
     return os.environ.get("GITHUB_TOKEN")
 
 
-def publish_artifacts(repo_root: str | Path, paths: list[str], message: str) -> list[str]:
+def publish_artifacts(repo_root: str | Path, paths: list[str], message: str,
+                      force_ignored: bool = False) -> list[str]:
     """Commit and push only changed files under the requested repository paths."""
     root = Path(repo_root).resolve()
     token = _github_token()
@@ -101,7 +102,8 @@ def publish_artifacts(repo_root: str | Path, paths: list[str], message: str) -> 
         print("No hay rutas de salida existentes para publicar.")
         return []
 
-    subprocess.run(git + ["add", "--", *allowed], check=True)
+    add_args = ["add"] + (["-f"] if force_ignored else []) + ["--", *allowed]
+    subprocess.run(git + add_args, check=True)
     changed = subprocess.run(
         git + ["diff", "--cached", "--name-only"],
         check=True, capture_output=True, text=True,
@@ -144,3 +146,23 @@ def publish_artifacts(repo_root: str | Path, paths: list[str], message: str) -> 
         subprocess.run(git + ["push", "origin", "HEAD:main"], check=True, env=env)
     print("Publicados en GitHub:", *changed, sep="\n- ")
     return changed
+
+
+def publish_detector_ir(repo_root: str | Path, country: str) -> list[str]:
+    """Publica solo el IR por país; el Space recibe el commit desde GitHub Actions."""
+    if country not in {"ecuador", "usa"}:
+        raise ValueError("country debe ser 'ecuador' o 'usa'.")
+    relative = Path("models") / country / "detector" / "rtdetrv2_s" / "openvino"
+    root = Path(repo_root).resolve()
+    model_dir = root / relative
+    required = ("openvino_model.xml", "openvino_model.bin", "sirap_openvino.json", "sirap_training.json")
+    missing = [name for name in required if not (model_dir / name).is_file()]
+    if missing:
+        raise FileNotFoundError(f"El IR {country} está incompleto; faltan: {', '.join(missing)}")
+    too_large = [(name, (model_dir / name).stat().st_size) for name in required
+                 if (model_dir / name).stat().st_size >= 90 * 1024 * 1024]
+    if too_large:
+        details = ", ".join(f"{name} ({size / 1024 / 1024:.1f} MiB)" for name, size in too_large)
+        raise RuntimeError(f"Los archivos superan el límite de publicación segura en GitHub: {details}")
+    return publish_artifacts(root, [str(relative)],
+                             f"Publicar RT-DETRv2-S OpenVINO para {country}", force_ignored=True)
