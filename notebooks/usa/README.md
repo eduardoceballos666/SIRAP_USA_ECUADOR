@@ -28,6 +28,12 @@ Use a Colab GPU for training. The final recipe allows up to 50 epochs, early-sto
 
 Train and select the checkpoint and calibrate the operational threshold using validation only. Record the selected checkpoint and validation evidence, then freeze the model. The notebook blocks the held-out detector evaluation unless the test has at least 400 images, the checkpoint and threshold records match, and no prior final report exists.
 
+## Optional remote-camera workflow
+
+Section 16 of the consolidated notebook can create a token-protected camera bridge for a PC that can reach the camera, then connect through Cloudflare Tunnel. Add CAMARA_URL and CAMARA_TOKEN to Colab Secrets; use CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET when Cloudflare Access service tokens are configured. The live session is disabled by default and does not make access decisions.
+
+Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cloudflare Access for a stable remote test. For routine production use, run inference on-site and send only the required recognition events through an authenticated API. Temporary CSV, JSON, and optional video outputs are written under /content/SIRAP_workspace/live_camera/ and should not be committed to the public repository.
+
 ## Results
 
 No training or evaluation metrics are embedded yet. When run, the notebook saves split audits, trial and three-seed validation results, the selected training manifest, threshold calibration, robustness and latency diagnostics, OCR results, end-to-end results, and the final detector report under `results/metrics/` or the generated dataset folder. The final detector report is `rtdetr_usa_independent_test.json`; evaluate it once after model selection is complete.
