@@ -159,13 +159,16 @@ def test_dashboard_y_modelo(client):
     assert d2["kpis"]["ingresos"] <= d["kpis"]["ingresos"]
     assert client.delete("/api/admin/demo", headers=h).json()["borradas"] > 0
     info = client.get("/api/model/info", headers=h).json()
-    assert info["metricas"]["detector_test"]
+    assert info["detector"].startswith("RT-DETRv2 R18")
+    # No se muestran como resultados RT-DETR las métricas históricas de YOLO.
+    assert info["metricas"]["detector_test"] is None
 
 
 def test_info_del_modelo_incluye_umbrales_y_optimizacion(client):
     info = client.get("/api/model/info", headers=_token(client)).json()
     assert 0 < info["umbral_ocr"] <= 1 and 0 < info["umbral_detector"] < 1
-    assert info["metricas"]["optimizacion_resumen"]["mejor_config"]["lr0"] > 0
+    # El nuevo estudio RT-DETR sigue pendiente de correr; el resumen YOLO no se reutiliza.
+    assert info["metricas"]["optimizacion_resumen"] is None
 
 
 def test_carga_de_archivo_env(tmp_path, monkeypatch):
