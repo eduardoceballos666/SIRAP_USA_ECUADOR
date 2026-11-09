@@ -1,6 +1,6 @@
 # Avisos de componentes y recursos de terceros
 
-La licencia MIT de [LICENSE](LICENSE) cubre el código original de SIRAP. No sustituye las licencias ni las condiciones aplicables a modelos, pesos, bibliotecas o conjuntos de datos de terceros.
+La Apache License, versión 2.0, de [LICENSE](LICENSE) cubre el código original de SIRAP_USA_ECUADOR en la versión actual. El aviso de autoría está en [NOTICE](NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Este cambio no sustituye ni modifica las licencias o condiciones de modelos, pesos, bibliotecas y conjuntos de datos de terceros.
 
 ## Modelos y bibliotecas
 
