@@ -14,7 +14,7 @@
 ![Vue](https://img.shields.io/badge/Frontend-Vue%203-42b883?logo=vuedotjs&logoColor=white)
 ![Detector](https://img.shields.io/badge/Detector-YOLO11--s-0b2a6b)
 ![OCR](https://img.shields.io/badge/OCR-fast--plate--ocr-2156e8)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![License](https://img.shields.io/badge/License-Apache--2.0-blue)
 
 **Interfaz disponible en inglés, español, portugués brasileño, francés y alemán. El inglés es el idioma inicial.**  
 **The interface is available in English, Spanish, Brazilian Portuguese, French, and German. English is the default language.**
@@ -341,7 +341,7 @@ Dirección y asesoría académica: Gladys María Villegas Rugel.
 
 ### Licencia y atribuciones
 
-El código de SIRAP se distribuye bajo [MIT](LICENSE). Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. El dataset de Roboflow utiliza CC BY 4.0. Los demás componentes y recursos conservan sus licencias y condiciones originales; consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+El código original de SIRAP_USA_ECUADOR se distribuye bajo [Apache License 2.0](LICENSE), con el aviso de autoría en [NOTICE](NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Los pesos entrenados con Ultralytics y los demás componentes, modelos y datos de terceros conservan sus respectivas licencias y condiciones; consulte [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ### Agradecimientos y recursos
 
@@ -674,7 +674,7 @@ Academic direction and advising: Gladys María Villegas Rugel.
 
 ### License and attributions
 
-SIRAP code is distributed under [MIT](LICENSE). Weights trained with Ultralytics are subject to AGPL-3.0. The Roboflow dataset uses CC BY 4.0. Other components and assets retain their original licenses and terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Original SIRAP_USA_ECUADOR code is distributed under [Apache License 2.0](LICENSE), with authorship recorded in [NOTICE](NOTICE). Previously published versions under MIT remain subject to that license. Ultralytics-trained weights and other third-party components, models, and datasets retain their respective licenses and terms; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ### Acknowledgments and resources
 
