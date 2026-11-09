@@ -6,7 +6,7 @@ colorTo: blue
 sdk: docker
 app_port: 7860
 pinned: false
-license: mit
+license: apache-2.0
 short_description: Reconocimiento de placas y control de acceso (YOLO11 + OCR)
 ---
 
@@ -68,3 +68,11 @@ SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español e inglés. La configuració
 ## English
 
 This folder contains the Hugging Face Space deployment guide and synchronization script. Deployment uses the shared application code and the Ecuador configuration by default. The U.S. lookup provider is not active until J.D. Power authorizes an API integration or grants written permission for automation.
+
+## Licencia
+
+El código original de SIRAP_USA_ECUADOR se distribuye bajo **Apache License 2.0**. Consulta el texto en [LICENSE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/LICENSE) y el aviso de autoría en [NOTICE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Los modelos, pesos, bibliotecas y datos de terceros mantienen sus licencias y condiciones; consulta [THIRD_PARTY_NOTICES.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/THIRD_PARTY_NOTICES.md).
+
+## License
+
+Original SIRAP_USA_ECUADOR code is distributed under **Apache License 2.0**. See [LICENSE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/LICENSE) and [NOTICE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/NOTICE). Previously published versions under MIT remain subject to that license. Third-party models, weights, libraries, and datasets retain their respective licenses and terms.
