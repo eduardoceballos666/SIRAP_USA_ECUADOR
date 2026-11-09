@@ -2,7 +2,7 @@
 
 The USA workflow is consolidated in one notebook: [sirap_backend_usa.ipynb](sirap_backend_usa.ipynb). It replaces the former staged USA notebooks, whose versions remain available in Git history.
 
-The notebook is written in English and explains each executable section. It covers USA profile inspection, Roboflow download, COCO conversion, grouped data splitting, label review, hyperparameter search, three-seed fine-tuning, OpenVINO inference, threshold calibration, robustness and CPU latency checks, OCR evaluation, end-to-end scene evaluation, one-time detector testing, and optional publishing.
+The notebook is written in English and explains each executable section. It covers USA profile inspection, Roboflow download, COCO conversion, grouped data splitting, label review, hyperparameter search, three-seed fine-tuning, OpenVINO inference, threshold calibration, robustness and CPU latency checks, OCR evaluation, end-to-end scene evaluation, one-time detector testing, optional publishing, Cloudflare remote-camera testing, and a generated on-site edge inference runner.
 
 ## Model and runtime
 
@@ -32,7 +32,7 @@ Train and select the checkpoint and calibrate the operational threshold using va
 
 Section 16 of the consolidated notebook can create a token-protected camera bridge for a PC that can reach the camera, then connect through Cloudflare Tunnel. Add CAMARA_URL and CAMARA_TOKEN to Colab Secrets; use CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET when Cloudflare Access service tokens are configured. The live session is disabled by default and does not make access decisions.
 
-Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cloudflare Access for a stable remote test. For routine production use, run inference on-site and send only the required recognition events through an authenticated API. Temporary CSV, JSON, and optional video outputs are written under /content/SIRAP_workspace/live_camera/ and should not be committed to the public repository.
+Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cloudflare Access for a stable remote test. Section 16.5 generates a local runner that processes frames beside the camera and saves only confirmed OCR text and confidence metadata under the camera user's home folder. The current API has no dedicated machine-to-machine USA event route, so its optional uploader is disabled; do not send automated edge events to /api/operations. Implement a USA-aware event endpoint that checks authorization before enabling upload. The Colab test-mode CSV, JSON, and optional video remain in /content/SIRAP_workspace/live_camera/ and should not be committed.
 
 ## Results
 
