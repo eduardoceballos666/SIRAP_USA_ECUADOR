@@ -33,7 +33,7 @@ python -m src.train --country ecuador --data-dir /ruta/dataset-coco --epochs 30
 python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco --split test
 ```
 
-Configura `ROBOFLOW_API_KEY` como secreto del entorno si usas `--roboflow`; no pegues llaves en notebooks ni las guardes en Git. La exportación COCO es preferida. Existe una función opcional para convertir anotaciones heredadas a COCO; no instala ni usa Ultralytics.
+Configura `ROBOFLOW_API_KEY` como secreto del entorno si usas `--roboflow`; no pegues llaves en notebooks ni las guardes en Git. El descargador usa `plateblur/european-usa-license-plates` v1 y exporta COCO Segmentation; el entrenamiento toma sus cajas y unifica las tres etiquetas en una clase de placa. La ficha del proyecto muestra un test pequeño, así que para reportar métricas finales reserva un test independiente mayor. Existe una función opcional para convertir anotaciones heredadas a COCO; no instala ni usa Ultralytics.
 
 En Colab con GPU, usa la celda de instalación del notebook y conserva el PyTorch con CUDA que ofrece Colab. `requirements.txt` contiene el runtime de la app (incluido OpenVINO); `requirements-training.txt` separa las dependencias de ajuste y exportación; `requirements-dev.txt` añade herramientas de desarrollo y pruebas.
 
