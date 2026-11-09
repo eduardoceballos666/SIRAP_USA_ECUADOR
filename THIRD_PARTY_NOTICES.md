@@ -16,7 +16,7 @@ Los checkpoints finos producidos a partir del modelo Apache-2.0 deben conservar 
 
 ## Conjuntos de datos
 
-- **License Plate Recognition — Roboflow Universe:** detección de matrículas; el entrenamiento descarga exportación COCO. Atribución CC BY 4.0 según la [ficha del dataset](https://universe.roboflow.com/roboflow-universe-projects/license-plate-recognition-rxg4e).
+- **European + USA License plates — Roboflow Universe, por PlateBlur:** versión 1, Instance Segmentation; el notebook descarga COCO Segmentation y usa las cajas para detección. Mantenga la atribución CC BY 4.0 indicada en la [ficha del dataset](https://universe.roboflow.com/plateblur/european-usa-license-plates).
 - **SAVH Guayaquil ANPR Plate Images Dataset — Zenodo:** evaluación OCR ecuatoriana. El registro consultado no muestra licencia para el archivo específico; revise sus condiciones antes de redistribuirlo.
 
 Para el inventario de otras dependencias consulte [agradecimientos y referencias](README.md#agradecimientos-y-referencias).
