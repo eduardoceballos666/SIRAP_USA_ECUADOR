@@ -2,7 +2,7 @@
 
 ## Datos de detección
 
-El entrenamiento usa exportación COCO Detection del proyecto de Roboflow `license-plate-recognition-rxg4e` (versión 11): imágenes de matrículas con una categoría. La exportación COCO es el formato activo. El convertidor incluido acepta temporalmente anotaciones YOLO normalizadas de datasets existentes; no usa Ultralytics ni ejecuta inferencia.
+El notebook de preparación USA descarga la versión 1 de [European + USA License plates](https://universe.roboflow.com/plateblur/european-usa-license-plates), proyecto de segmentación con tres etiquetas de placas. La exportación es COCO Segmentation; el entrenamiento RT-DETR toma las cajas `bbox`, ignora las máscaras y unifica las etiquetas en una clase `license_plate`. La versión publicada tiene solo 106 imágenes en test, por lo que el resultado final necesita un test independiente mayor. El convertidor de anotaciones heredadas no usa Ultralytics ni ejecuta inferencia.
 
 Este dataset contiene vehículos y escenas de distintas fuentes. No es una muestra representativa certificada de Ecuador ni de Estados Unidos. Cada perfil debe reunir datos etiquetados y separados por origen/vehículo, documentar cobertura, y reservar un test sin fuga de imágenes.
 
