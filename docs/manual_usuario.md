@@ -43,7 +43,7 @@ Guía práctica de operación, consulta y administración en computadora y dispo
 
 **© 2026 Eduardo Alejandro Ceballos Jijón y Christian Xavier Valle Maridueña.** Todos los derechos reservados sobre los elementos de SIRAP cuyos derechos pertenezcan a sus titulares.
 
-El código de SIRAP se distribuye bajo la Licencia MIT, que permite usar, copiar, modificar, distribuir, sublicenciar y vender el software, siempre que se conserven el aviso de copyright y el texto de la licencia en las copias o partes sustanciales. [<u>Open Source Initiative: Licencia MIT</u>](https://opensource.org/license/mit)
+El código original de SIRAP_USA_ECUADOR se distribuye bajo **Apache License, versión 2.0 (Apache-2.0)**. El texto completo está en [LICENSE](../LICENSE) y el aviso de autoría en [NOTICE](../NOTICE). Las versiones publicadas anteriormente bajo MIT conservan los términos de esa licencia. Este cambio aplica a la versión actual del código original.
 
 Los pesos entrenados con Ultralytics están sujetos a AGPL-3.0. Los componentes de terceros conservan sus respectivas licencias.
 
