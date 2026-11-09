@@ -1,11 +1,10 @@
-# datasets/usa
+# Datasets de Estados Unidos
 
-> Purpose: United States plate images, labels, and OCR benchmark inputs.
+Este directorio separa los datos para OCR de los datos requeridos para detección.
 
-## Español
+- seg_and_ocr/: recortes de matrículas USA y groundtruth.csv para evaluación OCR.
+- detection_coco/: preparación de escenas completas y cajas COCO para ajustar RT-DETRv2-S.
 
-The current U.S. collection is for separate training and evaluation. Plate text should be paired with the state when used for vehicle lookup.
+Para entrenar detección, sigue la [guía del dataset COCO](detection_coco/README.md). Los recortes de seg_and_ocr no reemplazan las escenas completas anotadas.
 
-## English
-
-La colección actual de EE. UU. se reserva para entrenamiento y evaluación separados. Para consultar un vehículo, el texto de la placa debe acompañarse del estado.
+El conjunto de escenas y sus cajas debe contener splits independientes train, valid y test; conserva juntas las imágenes de la misma secuencia, cámara o vehículo.
