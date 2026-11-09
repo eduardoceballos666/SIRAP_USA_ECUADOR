@@ -52,10 +52,20 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
         raise ValueError("country debe ser 'ecuador' o 'usa'.")
     dataset = CocoPlateDataset(data_dir, split, image_processor=None)
     coco_gt = COCO(str(dataset.annotation_path))
-    category_ids = [int(category["id"]) for category in coco_gt.dataset.get("categories", [])]
-    if not category_ids:
+    categories = coco_gt.dataset.get("categories", [])
+    if not categories:
         raise ValueError(f"El JSON COCO no define categorías: {dataset.annotation_path}")
-    category_id = category_ids[0]
+    category_id = int(categories[0]["id"])
+    source_category_count = len(categories)
+    # SIRAP entrena un detector de una clase; unifica etiquetas equivalentes de placas.
+    for annotation in coco_gt.dataset.get("annotations", []):
+        annotation["category_id"] = category_id
+    coco_gt.dataset["categories"] = [{
+        "id": category_id,
+        "name": "license_plate",
+        "supercategory": "license_plate",
+    }]
+    coco_gt.createIndex()
     checkpoint_path = checkpoint or f"models/{country}/detector/rtdetrv2_s/openvino"
     detector = PlateDetector(checkpoint=checkpoint_path, model_id=model_id,
                              conf=threshold, class_id=0, device="CPU")
@@ -77,6 +87,8 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
         "detector": "RT-DETRv2-S",
         "inference_runtime": "OpenVINO Runtime",
         "checkpoint": detector.source,
+        "source_categories": source_category_count,
+        "evaluated_classes": ["license_plate"],
         "split": split,
         "images": len(dataset),
         "imagenes": len(dataset),
