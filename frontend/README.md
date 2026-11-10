@@ -22,7 +22,7 @@ npm run build      # genera dist/, que FastAPI sirve en http://localhost:8000
 
 ## Idiomas de la interfaz
 
-El frontend ofrece inglés, español, portugués brasileño, francés y alemán. El inglés es el idioma inicial; una selección guardada por la persona usuaria se conserva en `localStorage` (`sirap_language`). El selector **Language / Idioma** aparece en el inicio de sesión y en el menú compartido. El tema claro se usa de forma predeterminada en móviles y escritorio, y una preferencia de tema guardada se mantiene. Las cadenas disponibles se mantienen en `src/i18n.js`; las vistas deben usar `$t()` para que el texto respete el idioma seleccionado. Las cadenas sin traducción específica se muestran en inglés.
+El frontend ofrece inglés, español, portugués brasileño, francés, alemán e italiano. El inglés es el idioma inicial; una selección guardada por la persona usuaria se conserva en `localStorage` (`sirap_language`). El selector **Language / Idioma** aparece en el inicio de sesión y en el menú compartido. El tema claro se usa de forma predeterminada en móviles y escritorio, y una preferencia de tema guardada se mantiene. Las cadenas disponibles se mantienen en `src/i18n.js`; las vistas deben usar `$t()` para que el texto respete el idioma seleccionado. Las cadenas sin traducción específica se muestran en inglés.
 
 ## Umbral operativo OCR
 
