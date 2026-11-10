@@ -1,0 +1,21 @@
+{
+  "architecture": "RT-DETRv2-S",
+  "backbone": "ResNet-18vd",
+  "training_library": "Transformers + PyTorch",
+  "inference_runtime": "OpenVINO Runtime Python API",
+  "base_checkpoint": "merve/license-plates-rtdetrv2",
+  "base_license": "Apache-2.0",
+  "country": "usa",
+  "dataset_dir": "/content/SIRAP_workspace/datasets/usa/independent_cache/european-usa-license-plates-independent-coco",
+  "train_images": 64,
+  "validation_images": 11,
+  "epochs_requested": 50,
+  "early_stopping_patience": 8,
+  "batch_size": 8,
+  "learning_rate": 6.761345733425311e-05,
+  "weight_decay": 2.7965644101906912e-05,
+  "seed": 0,
+  "best_model_checkpoint": "/content/rtdetrv2_usa_runs/seed_0/trainer/checkpoint-144",
+  "transformers_checkpoint": "/content/rtdetrv2_usa_runs/seed_0/transformers",
+  "openvino_model": "/content/rtdetrv2_usa_runs/seed_0/openvino/openvino_model.xml"
+}
