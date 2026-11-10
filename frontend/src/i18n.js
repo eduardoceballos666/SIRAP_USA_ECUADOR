@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 
 const LANGUAGE_KEY = 'sirap_language'
-const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de']
+const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de', 'it']
 const savedLanguage = (() => {
   try {
     const value = localStorage.getItem(LANGUAGE_KEY)
@@ -12,7 +12,7 @@ const savedLanguage = (() => {
 })()
 
 export const language = ref(savedLanguage)
-export const localeTag = computed(() => ({ en: 'en-US', es: 'es-EC', pt: 'pt-BR', fr: 'fr-FR', de: 'de-DE' })[language.value] || 'en-US')
+export const localeTag = computed(() => ({ en: 'en-US', es: 'es-EC', pt: 'pt-BR', fr: 'fr-FR', de: 'de-DE', it: 'it-IT' })[language.value] || 'en-US')
 
 const en = {
   'Idioma': 'Language',
@@ -982,9 +982,124 @@ const de = {
   "Rechazo": "Ablehnung", "Apertura automática": "Automatische Öffnung", "Apertura manual": "Manuelle Öffnung", "Solo registro": "Nur protokollieren"
 }
 
+const it = {
+  ...en,
+  "Optimización RT-DETR (validación)": "Ottimizzazione RT-DETR (validazione)",
+  "Detector RT-DETRv2-S": "Rilevatore RT-DETRv2-S",
+  "Evaluación del detector RT-DETRv2-S": "Valutazione del rilevatore RT-DETRv2-S",
+  "RT-DETRv2-S ajustado con Transformers": "RT-DETRv2-S ottimizzato con Transformers",
+  "Comparación de configuraciones RT-DETR usando el split de validación.": "Confronto delle configurazioni RT-DETR usando il set di validazione.",
+  "Aún no hay métricas RT-DETR de prueba. Ajusta y evalúa el modelo con un conjunto reservado para este país.": "Non sono ancora disponibili metriche RT-DETR sul test. Addestra e valuta il modello con un set di prova riservato per questo Paese.",
+  "Provisional; calibrar en validación": "Provvisorio; calibrare sul set di validazione",
+  "Idioma": "Lingua",
+  "Módulos": "Moduli",
+  "Historial": "Cronologia",
+  "Licencia del software": "Licenza software",
+  "El código original de SIRAP_USA_ECUADOR se distribuye bajo Apache License 2.0. Los modelos y recursos de terceros mantienen sus propias licencias.": "Il codice originale di SIRAP_USA_ECUADOR è distribuito con Apache License 2.0. I modelli e le risorse di terze parti mantengono le rispettive licenze.",
+  "Código fuente": "Codice sorgente",
+  "Licencia Apache-2.0": "Licenza Apache-2.0",
+  "Cerrar sesión": "Esci",
+  "Cambiar a tema claro": "Passa al tema chiaro",
+  "Sistema de Detección y Reconocimiento Automático de Placas": "Sistema automatico di rilevamento e riconoscimento delle targhe",
+  "Subir archivo": "Carica file",
+  "Cámara URL": "Telecamera URL",
+  "Iniciar sesión": "Accedi",
+  "Usuarios de demostración:": "Utenti demo:",
+  "y": "e",
+  "ACCESO DENEGADO": "ACCESSO NEGATO",
+  "PROCESANDO…": "ELABORAZIONE…",
+  "Precisión / Recall": "Precisione / Recall",
+  "Lectura:": "Lettura:",
+  "Autorizado": "Autorizzato",
+  "Limitaciones y advertencias": "Limitazioni e avvertenze",
+  "Crear o actualizar vehículo": "Crea o aggiorna veicolo",
+  "CAMION": "CAMION",
+  "Vehículos": "Veicoli",
+  "Datos demo": "Dati demo",
+  "Últimos 7 días": "Ultimi 7 giorni",
+  "Incluir operaciones de demostración": "Includi operazioni demo",
+  "Operaciones por hora": "Operazioni per ora",
+  "Alertas recientes": "Avvisi recenti",
+  "Resultado": "Esito",
+  "Todas": "Tutte",
+  "operaciones": "operazioni",
+  "Conf. OCR": "Conf. OCR",
+  "Motivo": "Motivo",
+  "Punto de control": "Punto di controllo",
+  "Lectura del vehículo": "Lettura del veicolo",
+  "Analizar fotograma": "Analizza fotogramma",
+  "Conectar": "Connetti",
+  "Cámara e imagen": "Telecamera e immagine",
+  "Ver en pantalla completa": "Visualizza a schermo intero",
+  "Primero elija o capture una imagen.": "Seleziona o acquisisci prima un'immagine.",
+  "SIN AUTORIZACIÓN": "NON AUTORIZZATO",
+  "Procese una imagen o verifique una placa antes de registrar.": "Elabora un'immagine o verifica una targa prima di registrarla.",
+  "Marca": "Marca",
+  "Limpiar lectura": "Cancella lettura",
+  "Registrar y abrir barrera": "Registra e apri la sbarra",
+  "Lectura reciente": "Lettura recente",
+  "Guardar cambios": "Salva modifiche",
+  "Control de acceso": "Controllo accessi",
+  "Elegir imagen o video": "Scegli immagine o video",
+  "Subir imagen o video": "Carica immagine o video",
+  "Pequeñas": "Piccole",
+  "Tiempo por decisión": "Tempo per decisione",
+  "Lectura exacta (EMR)": "Lettura esatta (EMR)",
+  "Vencida": "Scaduta",
+  "Ingrese una placa para buscarla en la lista.": "Inserisci una targa per cercarla nell'elenco.",
+  "Complete todos los campos obligatorios antes de guardar el vehículo.": "Compila tutti i campi obbligatori prima di salvare il veicolo.",
+  "Complete todos los campos obligatorios antes de asignar.": "Compila tutti i campi obbligatori prima di assegnare.",
+  "La placa no está registrada. Puede completar los campos para agregar el vehículo.": "La targa non è registrata. Puoi compilare i campi per aggiungere il veicolo.",
+  "Seleccione un usuario de la tabla para restablecer su contraseña.": "Seleziona un utente dalla tabella per reimpostare la password.",
+  "La nueva contraseña debe tener al menos 8 caracteres.": "La nuova password deve contenere almeno 8 caratteri.",
+  "Editar usuario": "Modifica utente",
+  "Lecturas recientes": "Letture recenti",
+  "Corregir o escribir placa": "Correggi o inserisci la targa",
+  "Verificar": "Verifica",
+  "Ver detalle completo": "Visualizza tutti i dettagli",
+  "Esta placa no está registrada.": "Questa targa non è registrata.",
+  "Lectura registrada en el historial.": "Lettura registrata nella cronologia.",
+  "Apertura manual (Contingencia)": "Apertura manuale (emergenza)",
+  "Entendido": "Ho capito",
+  "Nombre del propietario": "Nome del proprietario",
+  "Confirmo que comparé la placa con el vehículo y que sus datos son correctos.": "Confermo di aver confrontato la targa con il veicolo e che i dati sono corretti.",
+  "Guardar camión": "Salva camion",
+  "Lecturas de esta sesión": "Letture di questa sessione",
+  "Registro": "Registro",
+  "Motivo (mín. 10 caracteres)": "Motivo (min. 10 caratteri)",
+  "Análisis OCR": "Analisi OCR",
+  "Ingresos": "Accessi",
+  "No se leyó placa; continúa el análisis": "Targa non letta; l'analisi continua",
+  "Confianza OCR actual": "Confidenza OCR attuale",
+  "No se pudo leer la placa.": "Impossibile leggere la targa.",
+  "Confirme visualmente la placa antes de registrar o autorizar.": "Verifica visivamente la targa prima di registrarla o autorizzarla.",
+  "Ejemplo no encontrado.": "Esempio non trovato.",
+  "Sin imagen": "Nessuna immagine",
+  "Procesando detección automática": "Rilevamento automatico in corso",
+  "Lista blanca (autorizado)": "Lista autorizzati",
+  "Vigente hasta *": "Valido fino a *",
+  "Agregar garita": "Aggiungi varco",
+  "Restablecer contraseña": "Reimposta password",
+  "Autorizar seleccionados": "Autorizza selezionati",
+  "Activar usuario": "Attiva utente",
+  "Editar": "Modifica",
+  "Nueva contraseña (mín. 8)": "Nuova password (min. 8)",
+  "Seleccionar todas las garitas": "Seleziona tutti i varchi",
+  "Seleccionar camión": "Seleziona camion",
+  "Reconocimiento automático y control de acceso": "Riconoscimento automatico e controllo degli accessi",
+  "Dashboard de operaciones": "Dashboard operativa",
+  "Rechazo": "Rifiuto",
+  "✓ Lectura registrada en el historial.": "✓ Lettura registrata nella cronologia.",
+  "Subir Archivo": "Carica file",
+  "Camara local": "Telecamera locale",
+  "Camara URL": "Telecamera URL",
+  "Cámara local": "Telecamera locale",
+  "Cámara Local": "Telecamera locale",
+}
+
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
 const enToEs = Object.fromEntries(Object.entries(en).map(([spanish, english]) => [english, spanish]))
-export const messages = { es, en, pt, fr, de }
+export const messages = { es, en, pt, fr, de, it }
 
 export function setLanguage(value) {
   language.value = supportedLanguages.includes(value) ? value : 'en'
