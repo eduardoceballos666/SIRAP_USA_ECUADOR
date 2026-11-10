@@ -1,0 +1,9 @@
+{
+  "n": 751,
+  "jurisdiction_code_coverage": 0.2436750998668442,
+  "jurisdiction_code_accuracy_all_labeled_crops": 0.237017310252996,
+  "jurisdiction_code_accuracy_when_read": 0.9726775956284153,
+  "registration_serial_exact_match_rate": 0.8695073235685752,
+  "combined_jurisdiction_and_serial_exact_match_rate": 0.21571238348868177,
+  "state_long_name_word_accuracy": "Not measured: ground truth contains state abbreviations, not the printed state-name text."
+}
