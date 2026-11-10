@@ -18,7 +18,7 @@ short_description: RT-DETRv2-S con OpenVINO y OCR de placas
 
 ## Acceso e idioma
 
-Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El idioma inicial es inglés. Puedes seleccionar Español, English, Português, Français o Deutsch en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. La preferencia se conserva en ese navegador.
+Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El idioma inicial es inglés. Puedes seleccionar Español, English, Português, Français, Deutsch o Italiano en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. La preferencia se conserva en ese navegador.
 
 Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
@@ -66,7 +66,7 @@ El umbral de detección RT-DETR está marcado como provisional hasta calibrarlo 
 - **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
 - **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
-SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, francés y alemán. La configuración del Space y su despliegue se administran desde este repositorio.
+SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, francés, alemán e italiano. La configuración del Space y su despliegue se administran desde este repositorio.
 
 
 ## English
