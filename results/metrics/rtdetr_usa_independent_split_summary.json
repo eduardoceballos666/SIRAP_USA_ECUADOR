@@ -1,0 +1,58 @@
+{
+  "source_dataset": "European + USA License plates",
+  "roboflow_version": 1,
+  "seed": 42,
+  "minimum_test_images": 400,
+  "additional_test_group_fraction": 0.15,
+  "validation_group_fraction": 0.15,
+  "test_design": "one representative per group from original valid+test, plus one representative per randomly reserved train source group",
+  "grouping_level": "manual vehicle/session ids where supplied, otherwise source filename family; exact SHA-256 duplicates are merged",
+  "manual_source_keys_grouped": 0,
+  "source_images": {
+    "train": 12773,
+    "valid": 376,
+    "test": 105
+  },
+  "train_groups_removed_for_original_valid_test_overlap": 8,
+  "additional_train_groups_reserved_for_test": 628,
+  "validation_groups_reserved_from_remaining_train": 534,
+  "exact_duplicate_train_images_removed": 339,
+  "ambiguous_exact_duplicate_hashes_excluded": 179,
+  "ambiguous_exact_duplicate_records_excluded": 381,
+  "unique_sha256_audited": 10519,
+  "splits": {
+    "train": {
+      "images": 8876,
+      "groups": 3025,
+      "plates": 9475,
+      "empty_images": 968,
+      "source_category_annotations": {
+        "Plate": 949,
+        "Plate B": 2076,
+        "license-plate": 6450
+      }
+    },
+    "valid": {
+      "images": 534,
+      "groups": 534,
+      "plates": 581,
+      "empty_images": 57,
+      "source_category_annotations": {
+        "Plate": 63,
+        "Plate B": 120,
+        "license-plate": 398
+      }
+    },
+    "test": {
+      "images": 1109,
+      "groups": 1109,
+      "plates": 947,
+      "empty_images": 283,
+      "source_category_annotations": {
+        "Plate": 174,
+        "Plate B": 315,
+        "license-plate": 458
+      }
+    }
+  }
+}
