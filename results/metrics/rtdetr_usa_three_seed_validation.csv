@@ -1,0 +1,4 @@
+seed,run_dir,map50_95,map50,recall,precision
+0,/content/rtdetrv2_usa_runs/seed_0,2.012396361587378e-05,0.00010061981807936892,0.09090909090909091,0.00010061981807936892
+1,/content/rtdetrv2_usa_runs/seed_1,0.0,0.0,0.0,0.0
+2,/content/rtdetrv2_usa_runs/seed_2,0.0,0.0,0.0,0.0
