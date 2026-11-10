@@ -1,0 +1,29 @@
+{
+  "country": "usa",
+  "detector": "RT-DETRv2-S",
+  "inference_runtime": "OpenVINO Runtime",
+  "checkpoint": "/content/rtdetrv2_usa_runs/optuna/trial_2/openvino/openvino_model.xml",
+  "source_categories": 1,
+  "evaluated_classes": [
+    "license_plate"
+  ],
+  "split": "val",
+  "images": 11,
+  "imagenes": 11,
+  "plates": 11,
+  "placas": 11,
+  "predictions": 3300,
+  "threshold_for_ap": 0.001,
+  "map50_95": 0.0,
+  "map50": 0.0,
+  "map75": 0.0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "map50_95_small": -1.0,
+  "map50_95_medium": 0.0,
+  "map50_95_large": 0.0,
+  "map50_95_pequenas": -1.0,
+  "map50_95_medianas": 0.0,
+  "map50_95_grandes": 0.0
+}

@@ -1,0 +1,15 @@
+{
+  "country": "usa",
+  "model_id": "merve/license-plates-rtdetrv2",
+  "objective": "map50_95_validation",
+  "best_value": 5.941284618000076e-05,
+  "best_params": {
+    "learning_rate": 6.761345733425311e-05,
+    "weight_decay": 2.7965644101906912e-05,
+    "batch_size": 8
+  },
+  "trial_count": 8,
+  "maximum_epochs_per_trial": 12,
+  "detector": "RT-DETRv2-S",
+  "inference_runtime": "OpenVINO Runtime"
+}
