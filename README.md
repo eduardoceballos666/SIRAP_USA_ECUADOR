@@ -50,7 +50,7 @@ El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extrem
 
 ## Aplicación web
 
-La app integra Reconocimiento y Acceso, Historial, Dashboard y Administración con perfiles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés y alemán. El Space utiliza el perfil Ecuador por defecto. El notebook USA incluye evaluaciones separadas de detección y OCR; la integración de ese perfil en decisiones de acceso requiere reglas específicas del país.
+La app integra Reconocimiento y Acceso, Historial, Dashboard y Administración con perfiles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés, alemán e italiano. El Space utiliza el perfil Ecuador por defecto. El notebook USA incluye evaluaciones separadas de detección y OCR; la integración de ese perfil en decisiones de acceso requiere reglas específicas del país.
 
 Los registros de operación persisten en el repositorio privado configurado mediante secretos de Hugging Face; no subas datos operativos a este repo. Los cambios de `main` se sincronizan al Space mediante [GitHub Actions](.github/workflows/deploy-hf-space.yml).
 
