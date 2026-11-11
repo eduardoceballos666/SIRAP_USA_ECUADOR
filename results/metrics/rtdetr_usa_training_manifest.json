@@ -12,10 +12,10 @@
   "epochs_requested": 50,
   "early_stopping_patience": 8,
   "batch_size": 8,
-  "learning_rate": 6.761345733425311e-05,
-  "weight_decay": 2.7965644101906912e-05,
-  "seed": 0,
-  "best_model_checkpoint": "/content/rtdetrv2_usa_runs/seed_0/trainer/checkpoint-144",
-  "transformers_checkpoint": "/content/rtdetrv2_usa_runs/seed_0/transformers",
-  "openvino_model": "/content/rtdetrv2_usa_runs/seed_0/openvino/openvino_model.xml"
+  "learning_rate": 5.0835566102929924e-05,
+  "weight_decay": 1.4199712891736156e-05,
+  "seed": 1,
+  "best_model_checkpoint": "/content/rtdetrv2_usa_runs/seed_1/trainer/checkpoint-88",
+  "transformers_checkpoint": "/content/rtdetrv2_usa_runs/seed_1/transformers",
+  "openvino_model": "/content/rtdetrv2_usa_runs/seed_1/openvino/openvino_model.xml"
 }

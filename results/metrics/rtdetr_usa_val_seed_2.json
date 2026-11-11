@@ -12,7 +12,7 @@
   "imagenes": 11,
   "plates": 11,
   "placas": 11,
-  "predictions": 3285,
+  "predictions": 3299,
   "threshold_for_ap": 0.001,
   "map50_95": 0.0,
   "map50": 0.0,
