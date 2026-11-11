@@ -1,0 +1,85 @@
+{
+  "country": "usa",
+  "detector": "RT-DETRv2-S",
+  "inference_runtime": "OpenVINO Runtime",
+  "checkpoint": "/content/drive/MyDrive/SIRAP_USA_ECUADOR/models/usa/detector/rtdetrv2_s/openvino/openvino_model.xml",
+  "source_categories": 1,
+  "evaluated_classes": [
+    "license_plate"
+  ],
+  "split": "test",
+  "images": 200,
+  "imagenes": 200,
+  "plates": 200,
+  "placas": 200,
+  "predictions": 59972,
+  "threshold_for_ap": 0.001,
+  "map50_95": 5.958768807251221e-06,
+  "map50": 5.420828740393707e-05,
+  "map75": 0.0,
+  "precision": 5.420828740393707e-05,
+  "recall": 0.01,
+  "f1": 0.0001078320358090254,
+  "map50_95_small": 0.0,
+  "map50_95_medium": 7.32999477192159e-07,
+  "map50_95_large": 0.012894904549954447,
+  "map50_95_pequenas": 0.0,
+  "map50_95_medianas": 7.32999477192159e-07,
+  "map50_95_grandes": 0.012894904549954447,
+  "test_protocol": {
+    "source_dataset": "Manually annotated USA scenes",
+    "seed": 42,
+    "test_design": "one representative per group from original valid+test, plus one representative per randomly reserved train source group",
+    "test_images": 200,
+    "test_groups": 200,
+    "test_plates": 200,
+    "grouping_level": "manual vehicle/session ids where supplied, otherwise source filename family; exact SHA-256 duplicates are merged",
+    "model_selection_record": "Seed 0 (mAP50-95: 2.01e-05, Recall: 0.091) evaluated on validation set",
+    "threshold_for_ap": 0.001,
+    "operational_threshold": 0.05
+  },
+  "operational_threshold_detection_metrics": {
+    "split": "test",
+    "image_count": 200,
+    "iou_threshold": 0.5,
+    "operating_confidence_threshold": 0.05,
+    "matching_method": "greedy one-to-one IoU matching",
+    "counts": {
+      "true_positives": 1,
+      "false_positives": 281,
+      "false_negatives": 199
+    },
+    "precision": {
+      "point_estimate": 0.0035460992907801418,
+      "wilson_score_95": {
+        "method": "Wilson score",
+        "confidence_level": 0.95,
+        "lower": 0.0006262481030310397,
+        "upper": 0.01980976158147879
+      },
+      "image_cluster_bootstrap_percentile_95": {
+        "method": "paired percentile bootstrap",
+        "confidence_level": 0.95,
+        "n_resamples": 5000,
+        "lower": 0.0,
+        "upper": 0.011364716557207036
+      }
+    },
+    "recall": {
+      "point_estimate": 0.005,
+      "wilson_score_95": {
+        "method": "Wilson score",
+        "confidence_level": 0.95,
+        "lower": 0.0008831687156009762,
+        "upper": 0.027773704397892923
+      },
+      "image_cluster_bootstrap_percentile_95": {
+        "method": "paired percentile bootstrap",
+        "confidence_level": 0.95,
+        "n_resamples": 5000,
+        "lower": 0.0,
+        "upper": 0.015
+      }
+    }
+  }
+}
