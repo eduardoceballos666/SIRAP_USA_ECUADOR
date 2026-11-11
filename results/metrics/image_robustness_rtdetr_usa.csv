@@ -1,7 +1,7 @@
 condition,tp,fp,fn,precision,recall,f1
-original,0,23,11,0.0,0.0,0.0
-low_light,0,29,11,0.0,0.0,0.0
-high_light,0,41,11,0.0,0.0,0.0
-blur,0,34,11,0.0,0.0,0.0
-half_resolution,0,30,11,0.0,0.0,0.0
-jpeg_compression,0,25,11,0.0,0.0,0.0
+original,0,29,11,0.0,0.0,0.0
+low_light,0,22,11,0.0,0.0,0.0
+high_light,0,35,11,0.0,0.0,0.0
+blur,0,21,11,0.0,0.0,0.0
+half_resolution,0,17,11,0.0,0.0,0.0
+jpeg_compression,0,29,11,0.0,0.0,0.0
