@@ -14,6 +14,14 @@ The notebook is written in English and explains each executable section. It cove
 
 The checkpoint's published metrics describe its original evaluation data. They are not SIRAP USA results. Dataset terms are separate from the checkpoint license.
 
+## Current validation status (13 November 2026)
+
+The selected candidate is seed 1, chosen by grouped Roboflow validation at mAP50-95 = 0.8321. The current manual full-scene validation has 71 images: 41 with plates and 30 PKLot negatives. At the best observed confidence threshold (0.60), it produced 40 true positives, 3 false positives, and 1 false negative (precision 0.9302; recall 0.9756). This misses the 0.99 target, so the calibration report stores a null threshold and `usable_for_inference: false`. Do not use the checkpoint for live or access decisions.
+
+The 30 PKLot scenes remain validation-only. PKLot is CC BY 4.0 and its official page requests citation; its images come from elevated fixed parking cameras in Brazil, and its dataset card says plates are not distinguishable. They are a limited background check, not evidence of USA gate-camera performance. Before retraining, add separately reviewed, group-disjoint negatives from the target camera to training and validation.
+
+The repository already has `results/metrics/rtdetr_usa_independent_test.json`, but its model-selection record identifies a different seed-0 candidate. Treat it as a legacy artifact, not the final test for the selected seed-1 checkpoint. The selected checkpoint's independent test remains unrun. All training, evaluation, live-camera, metric-publishing, and Space-publishing switches are off by default.
+
 ## Dataset and credentials
 
 The default source is Roboflow's **European + USA License plates**, workspace `plateblur`, project `european-usa-license-plates`, version 1, exported as COCO Segmentation. The notebook reads its boxes and maps the three plate labels to one detector class. Add `ROBOFLOW_API_KEY` to Colab Secrets; do not put the key in the notebook or Git.
@@ -36,4 +44,4 @@ Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cl
 
 ## Results
 
-No training or evaluation metrics are embedded yet. When run, the notebook saves split audits, trial and three-seed validation results, the selected training manifest, threshold calibration, robustness and latency diagnostics, OCR results, end-to-end results, and the final detector report under `results/metrics/` or the generated dataset folder. The final detector report is `rtdetr_usa_independent_test.json`; evaluate it once after model selection is complete.
+Notebook outputs are not embedded in this README. Structured result files are stored under `results/metrics/`. The threshold-calibration JSON currently blocks inference because the 0.99 precision target was not met. The existing independent-test JSON is a legacy report for a different seed-0 candidate; do not report it as the selected seed-1 checkpoint's test result.
