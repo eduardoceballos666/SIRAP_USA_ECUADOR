@@ -20,6 +20,8 @@ The selected candidate is seed 1, chosen by grouped Roboflow validation at mAP50
 
 The 30 PKLot scenes remain validation-only. PKLot is CC BY 4.0 and its official page requests citation; its images come from elevated fixed parking cameras in Brazil, and its dataset card says plates are not distinguishable. They are a limited background check, not evidence of USA gate-camera performance. Before retraining, add separately reviewed, group-disjoint negatives from the target camera to training and validation.
 
+Open Images V7 is a possible supplementary source: its metadata includes original URLs and per-image license fields, and its image-level annotations include verified presence/absence labels for supported classes. The class list includes vehicle registration plate. Google lists the images as CC BY 2.0 but explicitly says it does not warrant each image's license, so verify every original source and keep its attribution before using any image. No Open Images samples have been imported yet. MIO-TCD is closer in camera style and includes US/Canadian traffic scenes, but its official CC BY-NC-SA 4.0 terms require noncommercial use and share-alike; do not use it for SIRAP without confirming that those terms fit the intended use.
+
 The repository already has `results/metrics/rtdetr_usa_independent_test.json`, but its model-selection record identifies a different seed-0 candidate. Treat it as a legacy artifact, not the final test for the selected seed-1 checkpoint. The selected checkpoint's independent test remains unrun. All training, evaluation, live-camera, metric-publishing, and Space-publishing switches are off by default.
 
 ## Dataset and credentials
@@ -45,3 +47,10 @@ Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cl
 ## Results
 
 Notebook outputs are not embedded in this README. Structured result files are stored under `results/metrics/`. The threshold-calibration JSON currently blocks inference because the 0.99 precision target was not met. The existing independent-test JSON is a legacy report for a different seed-0 candidate; do not report it as the selected seed-1 checkpoint's test result.
+
+## Candidate negative-image sources
+
+- [Open Images V7](https://storage.googleapis.com/openimages/web/factsfigures_v7.html) may provide verified plate-absent scenes; use only records with an image-level verified negative label for vehicle registration plate, inspect them manually, and verify each original image license and attribution at the source URL. [Download metadata](https://storage.googleapis.com/openimages/web/download_v7.html).
+- [MIO-TCD](https://tcd.miovision.com/challenge/dataset.html) includes fixed-camera US/Canadian traffic scenes, but its CC BY-NC-SA 4.0 license is not suitable for commercial use without a separate rights review.
+
+Neither source replaces negatives recorded at the target access camera. Keep any external-source negatives separate by source group and split them before training or calibration.
