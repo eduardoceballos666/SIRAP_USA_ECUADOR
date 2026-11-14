@@ -60,23 +60,71 @@ the existing manifest and reviewed pack. The converter's default still requires
 all three partitions. Its explicit train/valid mode skips test rows before
 opening their images, enabling this preparation without consuming the test.
 
-## Pending execution and independent data
+## Completed three-seed recovery run
 
-The companion recovery notebook uses three seeds, a 50-epoch cap and patience
-8, starting from the retained seed-1 Transformers weights. It keeps the old
-checkpoint and calibration intact and saves candidates to a new private Drive
-run folder. TrainingArguments compatibility handles the previously observed
-removal of warmup_ratio/save_safetensors without silently dropping other
-settings. No GPU training has run for this recovery revision.
+The companion notebook completed run `20261114T210050Z` on an A100 using code
+revision `1cc1db8db8324b6cfaefb17ab2391c4bfd8e06df`. Each seed starts from the
+retained seed-1 Transformers weights, with a 50-epoch cap, patience 8, batch
+size 8 and learning rate 0.00005. Early stopping completed normally:
 
-Colab currently requires Google sign-in. The available manual test has 42
-positive scenes and no negatives. March 18 has prior review exposure; March 19
-is validation; March 23 is training. A new, previously unexamined recording/day
-is needed for target-camera final-test negatives. Do not relabel the reviewed
-train/validation scenes as test. The main notebook's separate holdout-size and
-calibration guards must also be satisfied before a final detector evaluation.
+| Seed | Epochs completed | Best checkpoint epoch | Validation mAP50-95 |
+|---|---:|---:|---:|
+| 0 | 15 | 7 | 0.7460077444 |
+| 1 | 15 | 7 | 0.7574922934 |
+| 2 | 17 | 9 | 0.7670810749 |
+
+Within each seed the trainer restores the checkpoint with the lowest
+validation loss. Across seeds, the exported OpenVINO candidates are selected
+by validation mAP50-95. Seed 2 was selected. All three Transformers and
+OpenVINO candidates, trainer states, hashes and metrics are saved in a separate
+private Drive run folder. The retained original checkpoint and operational
+calibration were not replaced.
+
+At confidence 0.70 and matching IoU 0.50, the selected raw detector produced
+41 TP, 0 FP and 0 FN across all 79 validation scenes, without using the
+camera-overlay filter. None of the eight target-camera negatives or 30 PKLot
+negatives had a detection at this threshold. Thresholds 0.70, 0.75, 0.80 and
+0.85 produced the same counts; 0.90 missed two plates. The earliest best-F1
+grid point, 0.70, is recorded as a validation candidate only.
+
+The retained baseline was evaluated on the identical 79 scenes, same corrected
+geometry and Colab CPU. Its mAP50-95 was 0.5757094402; at confidence 0.70 it
+had 40 TP, 9 FP and 1 FN. The new model's 0.7670810749 is directly comparable
+to that value. The older 0.8321 result used a different, 534-image grouped
+Roboflow validation and must not be used as a before/after comparison.
+
+The aggregate results are in
+[`usa_camera_recovery_validation_20261114.json`](../results/metrics/usa_camera_recovery_validation_20261114.json).
+Per-image predictions, source names and detailed model records remain private.
+The extended-validation cell reproduces the baseline comparison and private
+evidence. All training and evaluation switches are off by default.
+
+## Limits and independent data still required
+
+The seed and threshold were both selected on validation. The 41/41 observed
+precision and recall yield descriptive 95% Wilson intervals of
+91.43%-100% and Clopper-Pearson intervals of 91.40%-100%. They do not establish
+a 99% population precision guarantee. The validation split has 42 source
+groups; its eight target-camera negatives all come from one recording/day,
+and PKLot negatives are retained as one source group. Related scenes further
+limit binomial inference.
+
+The available manual test has 42 positive scenes and no negatives. March 18
+has prior review exposure; March 19 is validation; March 23 is training. A new,
+previously unexamined recording/day is needed for target-camera final-test
+negatives. Do not relabel the reviewed train/validation scenes as test. The
+main notebook's separate holdout-size and calibration guards must also be
+satisfied before a final detector evaluation.
+
+The recovery report keeps `operational_threshold: null`,
+`usable_for_access_decisions: false` and `final_test_evaluated: false`.
+Independent detector, OCR and end-to-end decision evaluations remain pending;
+no Space deployment or automatic authorization was enabled.
 
 Fourteen focused regression cases passed for landscape/portrait/square box
 mapping, padding clipping, opt-in overlay behavior, argument compatibility,
-train/valid-only conversion and recording-day separation. This validates the
-code changes and data preparation, not new trained-model performance.
+train/valid-only conversion and recording-day separation. GitHub CI run
+43641023619 also passed all 113 Python cases and the Vue tests/build after API
+contract tests were isolated from external IR weights. Those API fixtures
+validate the HTTP contract, not detector quality; the real OpenVINO evaluation
+above provides model evidence.
