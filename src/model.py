@@ -182,6 +182,14 @@ class PlateDetector:
         if image is None or image.size == 0 or image.ndim != 3:
             return []
         pixel_values, pixel_mask, (height, width) = self._preprocess(image)
+        # pred_boxes are normalized to the padded input canvas. Undo padding
+        # before mapping back to the camera frame; using height/width directly
+        # compresses the boxes along the padded axis on non-square images.
+        resized_height = int(np.count_nonzero(pixel_mask[0].any(axis=1)))
+        resized_width = int(np.count_nonzero(pixel_mask[0].any(axis=0)))
+        canvas_height, canvas_width = pixel_values.shape[-2:]
+        box_scale_x = canvas_width * width / resized_width
+        box_scale_y = canvas_height * height / resized_height
         raw = self.compiled_model([pixel_values, pixel_mask])
         logits = np.asarray(raw[self.compiled_model.output(0)], dtype=np.float32)[0]
         boxes = np.asarray(raw[self.compiled_model.output(1)], dtype=np.float32)[0]
@@ -201,13 +209,16 @@ class PlateDetector:
             if label != self.class_id or score < self.conf:
                 continue
             cx, cy, box_w, box_h = (float(value) for value in boxes[query_index])
-            x1 = (cx - box_w / 2) * width
-            y1 = (cy - box_h / 2) * height
-            x2 = (cx + box_w / 2) * width
-            y2 = (cy + box_h / 2) * height
+            x1 = (cx - box_w / 2) * box_scale_x
+            y1 = (cy - box_h / 2) * box_scale_y
+            x2 = (cx + box_w / 2) * box_scale_x
+            y2 = (cy + box_h / 2) * box_scale_y
+            x1, x2 = float(np.clip(x1, 0, width)), float(np.clip(x2, 0, width))
+            y1, y2 = float(np.clip(y1, 0, height)), float(np.clip(y2, 0, height))
+            if x2 <= x1 or y2 <= y1:
+                continue
             detections.append(Detection(
-                (float(np.clip(x1, 0, width)), float(np.clip(y1, 0, height)),
-                 float(np.clip(x2, 0, width)), float(np.clip(y2, 0, height))),
+                (x1, y1, x2, y2),
                 score,
             ))
         detections.sort(key=lambda detection: detection.confidence, reverse=True)
@@ -308,3 +319,4 @@ class ALPRPipeline:
                     result.plate, result.plate_raw, result.ocr_confidence,
                     self.detector.name, timings["total"])
         return result
+

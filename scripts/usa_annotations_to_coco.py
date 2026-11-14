@@ -66,8 +66,16 @@ def convert_annotations(
     output_dir: str | Path,
     *,
     verify_hashes: bool = True,
+    splits: tuple[str, ...] = SPLITS,
 ) -> dict[str, dict[str, int]]:
-    """Validate labels, copy images, and write train/valid/test COCO JSON files."""
+    """Validate labels and write selected COCO splits (all three by default).
+
+    ``splits=('train', 'valid')`` prepares a retraining dataset without reading
+    held-out test images. Rows for unrequested splits are ignored before any
+    image access; a test partition is never invented from training examples.
+    """
+    if not splits or len(set(splits)) != len(splits) or set(splits) - set(SPLITS):
+        raise ValueError('splits must contain distinct train, valid or test values.')
     image_root = Path(images_dir).expanduser().resolve()
     csv_path = Path(annotations_csv).expanduser().resolve()
     output_root = Path(output_dir).expanduser().resolve()
@@ -78,7 +86,7 @@ def convert_annotations(
 
     records: dict[str, dict[str, Any]] = {}
     group_splits: dict[str, str] = {}
-    split_files: dict[str, set[str]] = {split: set() for split in SPLITS}
+    split_files: dict[str, set[str]] = {split: set() for split in splits}
 
     with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -88,6 +96,10 @@ def convert_annotations(
             raise ValueError(f"Faltan columnas en el CSV: {', '.join(sorted(missing))}")
 
         for line_number, row in enumerate(reader, start=2):
+            requested_split = str(row.get('split', '') or '').strip().lower()
+            requested_split = 'valid' if requested_split == 'val' else requested_split
+            if requested_split in SPLITS and requested_split not in splits:
+                continue
             image_rel = _safe_relative_path(str(row.get("image_file", "")))
             image_key = image_rel.as_posix()
             split = str(row.get("split", "") or "").strip().lower()
@@ -160,7 +172,7 @@ def convert_annotations(
 
     if not records:
         raise ValueError("El CSV no contiene filas de anotación.")
-    missing_splits = [split for split in SPLITS if not split_files[split]]
+    missing_splits = [split for split in splits if not split_files[split]]
     if missing_splits:
         raise ValueError(
             "Cada partición debe tener imágenes. Faltan: " + ", ".join(missing_splits)
@@ -187,7 +199,7 @@ def convert_annotations(
             hash_splits[digest] = (image_key, record["split"])
 
     summary: dict[str, dict[str, int]] = {}
-    for split in SPLITS:
+    for split in splits:
         image_keys = sorted(split_files[split])
         images, annotations = [], []
         split_root = output_root / split
@@ -282,3 +294,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

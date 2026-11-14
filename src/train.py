@@ -16,7 +16,9 @@ Ejemplos::
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
+import math
 import shutil
 from collections import defaultdict
 from pathlib import Path
@@ -194,6 +196,23 @@ def convert_yolo_to_coco(data_yaml: str | Path, output_dir: str | Path) -> Path:
     return output_root
 
 
+def compatible_training_arguments(args_type: Any, values: dict[str, Any], *,
+                                  train_examples: int) -> dict[str, Any]:
+    """Handle the two removed Transformers options without dropping other settings."""
+    values = dict(values)
+    supported = inspect.signature(args_type).parameters
+    if 'warmup_ratio' not in supported and 'warmup_ratio' in values:
+        ratio = float(values.pop('warmup_ratio'))
+        if 'warmup_steps' not in supported:
+            raise TypeError('TrainingArguments supports neither warmup_ratio nor warmup_steps.')
+        batch = int(values['per_device_train_batch_size'])
+        steps = math.ceil(train_examples / batch) * float(values['num_train_epochs'])
+        values['warmup_steps'] = math.ceil(steps * ratio)
+    if 'save_safetensors' not in supported:
+        values.pop('save_safetensors', None)
+    return values
+
+
 def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str = DEFAULT_MODEL_ID,
                    output_dir: str | Path | None = None, run_dir: str | Path | None = None,
                    epochs: int | None = None, batch_size: int = 8, learning_rate: float = 5e-5,
@@ -239,7 +258,7 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
     model.config.id2label = {0: "license_plate"}
     model.config.label2id = {"license_plate": 0}
 
-    args = TrainingArguments(
+    argument_values = dict(
         output_dir=str(train_dir),
         num_train_epochs=epochs,
         learning_rate=learning_rate,
@@ -262,6 +281,9 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         logging_steps=25,
         save_safetensors=True,
     )
+    args = TrainingArguments(**compatible_training_arguments(
+        TrainingArguments, argument_values, train_examples=len(train_data),
+    ))
     trainer = Trainer(
         model=model,
         args=args,
@@ -343,3 +365,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

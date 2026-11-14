@@ -2,6 +2,8 @@
 
 The USA workflow is consolidated in one notebook: [sirap_backend_usa.ipynb](sirap_backend_usa.ipynb). It replaces the former staged USA notebooks, whose versions remain available in Git history.
 
+For the reviewed camera-negative recovery run, use the bounded companion [sirap_negative_recovery.ipynb](sirap_negative_recovery.ipynb). It restores the private train/validation package, starts domain adaptation from the retained seed-1 weights, preserves three new candidates separately, and writes a private validation calibration. See the [geometry and data recovery record](../../docs/usa_camera_recovery_20261114.md). GPU execution is still pending Google/Colab access; no new trained model or final-test result is claimed.
+
 The notebook is written in English and explains each executable section. It covers USA profile inspection, Roboflow download, COCO conversion, grouped data splitting, label review, hyperparameter search, three-seed fine-tuning, OpenVINO inference, threshold calibration, robustness and CPU latency checks, OCR evaluation, end-to-end scene evaluation, one-time detector testing, optional publishing, Cloudflare remote-camera testing, and a generated on-site edge inference runner.
 
 ## Model and runtime
