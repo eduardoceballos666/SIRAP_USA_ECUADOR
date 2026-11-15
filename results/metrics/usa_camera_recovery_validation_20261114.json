@@ -1,0 +1,142 @@
+{
+  "country": "usa",
+  "status": "validation_only_not_operational",
+  "run_id": "20261114T210050Z",
+  "training_code_revision": "1cc1db8db8324b6cfaefb17ab2391c4bfd8e06df",
+  "model": "RT-DETRv2-S",
+  "runtime_versions": {
+    "openvino": "2026.4.1",
+    "torch": "2.14.1+cu130",
+    "transformers": "5.22.1",
+    "numpy": "2.4.6"
+  },
+  "dataset": {
+    "train_images": 249,
+    "train_positive": 192,
+    "train_negative": 57,
+    "valid_images": 79,
+    "valid_positive": 41,
+    "valid_negative": 38,
+    "valid_groups": 42,
+    "test_evaluated": false
+  },
+  "candidates": [
+    {
+      "seed": 0,
+      "epochs_completed": 15.0,
+      "steps_completed": 480,
+      "map50_95": 0.7460077443960114,
+      "ir_bin_sha256": "af9f3568c52f09b14cd739b812bbe1cc5549a96bfea4d31333bf2453c7a85159",
+      "ir_xml_sha256": "250c06386ee56437f54c563b4f501011dd655fb329932d5b99c58d274f81241b"
+    },
+    {
+      "seed": 1,
+      "epochs_completed": 15.0,
+      "steps_completed": 480,
+      "map50_95": 0.7574922933681936,
+      "ir_bin_sha256": "fbe88c8a01847ab5f94a3e9ebac75df5fea309984a12fc7f750e79aa2a317b04",
+      "ir_xml_sha256": "d3ceec7187fcbb5cca3cc0c2196557b4eaa18629c70a30cca1b9f1962e993f70"
+    },
+    {
+      "seed": 2,
+      "epochs_completed": 17.0,
+      "steps_completed": 544,
+      "map50_95": 0.7670810748763093,
+      "ir_bin_sha256": "85d6492a0fcc1661514fc81676afe65ecb379cc97885e13eaf87f2d5a49bd0af",
+      "ir_xml_sha256": "8eaaad4be89f1d4ac9ff3838d57ea20b66d40f1af3751078f7f628433343ba6c"
+    }
+  ],
+  "selection": {
+    "seed": 2,
+    "criterion": "highest validation mAP50-95",
+    "map50_95": 0.7670810748763093,
+    "confidence_threshold_validation_only": 0.7,
+    "minimum_matching_iou": 0.5,
+    "counts": {
+      "tp": 41,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "overlay_filter_required": false,
+    "eligible_thresholds": [
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ]
+  },
+  "baseline_same_79_scenes": {
+    "map50_95": 0.5757094401696322,
+    "at_060": {
+      "tp": 40,
+      "fp": 10,
+      "fn": 1,
+      "precision": 0.8,
+      "recall": 0.975609756097561,
+      "f1": 0.8791208791208791
+    },
+    "at_070": {
+      "tp": 40,
+      "fp": 9,
+      "fn": 1,
+      "precision": 0.8163265306122449,
+      "recall": 0.975609756097561,
+      "f1": 0.888888888888889
+    }
+  },
+  "negative_scene_checks": {
+    "target_camera": {
+      "images": 8,
+      "false_positive_images": 0,
+      "groups": 1
+    },
+    "pklot": {
+      "images": 30,
+      "false_positive_images": 0,
+      "groups": 1
+    }
+  },
+  "confidence_intervals": {
+    "precision": {
+      "successes": 41,
+      "total": 41,
+      "wilson_95": [
+        0.9143324298155681,
+        0.9999999999999999
+      ],
+      "clopper_pearson_95": [
+        0.9139561637059715,
+        1.0
+      ],
+      "assumption": "Binomial, descriptive only: related scenes and validation selection limit inference."
+    },
+    "recall": {
+      "successes": 41,
+      "total": 41,
+      "wilson_95": [
+        0.9143324298155681,
+        0.9999999999999999
+      ],
+      "clopper_pearson_95": [
+        0.9139561637059715,
+        1.0
+      ],
+      "assumption": "Binomial, descriptive only: related scenes and validation selection limit inference."
+    }
+  },
+  "operational_threshold": null,
+  "usable_for_access_decisions": false,
+  "final_test_evaluated": false,
+  "limitations": [
+    "Seed and threshold selected on validation; intervals are descriptive only.",
+    "Eight target-camera negatives are from one recording/day; thirty PKLot negatives are one source group.",
+    "Manual reserved test has 42 positives and no negatives; no new unseen target-camera recording is available.",
+    "Independent detector evaluation, OCR and end-to-end decision validation remain pending."
+  ],
+  "postprocessing_version": "openvino_padded_boxes_v2",
+  "dataset_archive_sha256": "1bb119fd54e5be08ca69e83851c20d47489d2ef3c65b105adb1208843d537ee4"
+}

@@ -66,6 +66,7 @@ def export_openvino_model(model_source: str | Path, output_dir: str | Path,
         "input_shape": [1, 3, image_size, image_size],
         "input_names": ["pixel_values", "pixel_mask"],
         "output_names": ["logits", "pred_boxes"],
+        "bbox_coordinate_space": "padded_input",
         "num_labels": int(getattr(model.config, "num_labels", 1)),
         "id2label": {str(key): value for key, value in model.config.id2label.items()},
         "do_resize": bool(getattr(processor, "do_resize", True)),
@@ -100,3 +101,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

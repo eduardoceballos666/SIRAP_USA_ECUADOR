@@ -1,0 +1,190 @@
+{
+  "evaluated_at_utc": "2026-11-15T06:01:19.490935+00:00",
+  "experiment": "USA independent-recording joint diagnostic, UCSD 2005-04-06",
+  "status": "diagnostic_completed_not_qualified_for_automatic_access",
+  "independent_recording_diagnostic_evaluated": true,
+  "recording_consumed_for_evaluation": true,
+  "final_test_protocol_complete": false,
+  "final_test_evaluated": false,
+  "final_test_evaluated_meaning": "Qualified final protocol incomplete; the April recording diagnostic itself HAS run and must not be reused as unseen data.",
+  "usable_for_access_decisions": false,
+  "operational_threshold": null,
+  "model": {
+    "architecture": "RT-DETRv2-S",
+    "seed": 2,
+    "runtime": "OpenVINO Runtime CPU",
+    "bin_sha256": "85d6492a0fcc1661514fc81676afe65ecb379cc97885e13eaf87f2d5a49bd0af",
+    "implementation_revision": "09d145525a8db06eb84c0750deadb81cb60bd6cd",
+    "weight_training_revision": "1cc1db8db8324b6cfaefb17ab2391c4bfd8e06df"
+  },
+  "frozen_protocol_sha256": "64c14e16d0d98edd3d7d7a5a862498ab3ba4e909b8d12acdad0bcc771a062f90",
+  "frozen_reference_sha256": "dbd4b60329b758f2ca836bab86cc7abb911be5f0a533367de40dbdd54b046532",
+  "policy": {
+    "detector_confidence": 0.7,
+    "matching_iou": 0.5,
+    "map_collection_confidence": 0.001,
+    "max_detections": 300,
+    "ocr_minimum_character_probability": 0.94,
+    "crop_margin": 0.06,
+    "require_jurisdiction": true,
+    "confirmation_frames": 2,
+    "confirmation_window_seconds": 7.5,
+    "deploy": false,
+    "reason": "Existing OCR minimum .94; detector confidence selected on validation only. No tuning on this recording."
+  },
+  "reference": {
+    "frame_count": 400,
+    "resolved_detection_frames": 319,
+    "uncertain_detection_frames": 81,
+    "resolved_positive_frames": 200,
+    "resolved_negative_frames": 119,
+    "resolved_reference_boxes": 256,
+    "known_reference_boxes_all_frames": 317,
+    "serial_reference_instances": 47,
+    "serial_reference_identities": 32,
+    "jurisdiction_reference_instances": 5
+  },
+  "detector": {
+    "frames_processed": 400,
+    "resolved_frames": 319,
+    "unresolved_frames": 81,
+    "positive_frames": 200,
+    "negative_frames": 119,
+    "tp": 141,
+    "fp": 5,
+    "fn": 115,
+    "precision": 0.9657534246575342,
+    "recall": 0.55078125,
+    "precision_wilson_95_descriptive": [
+      0.9223410974481712,
+      0.9852848765003517
+    ],
+    "recall_wilson_95_descriptive": [
+      0.4895457648520954,
+      0.6105152497296519
+    ],
+    "negative_frames_with_false_detections": 3,
+    "false_boxes_on_negative_frames": 3,
+    "negative_false_scene_rate": 0.025210084033613446,
+    "negative_false_scene_wilson_95_descriptive": [
+      0.008610231289265309,
+      0.07150489364635793
+    ],
+    "consecutive_block_bootstrap": {
+      "block_size_consecutive_sampled_frames": 20,
+      "blocks": 20,
+      "resamples": 5000,
+      "intervals_95": {
+        "precision": [
+          0.9187487296747967,
+          1.0
+        ],
+        "recall": [
+          0.5040603138589526,
+          0.6060658853341779
+        ]
+      },
+      "scope": "within this recording only; does not estimate between-day/camera uncertainty"
+    },
+    "map50_95_provisional_resolved": 0.47478586020615765,
+    "map50_provisional_resolved": 0.8006072463117169,
+    "map75_provisional_resolved": 0.5050358764549265,
+    "map_max_detections_per_image": 100
+  },
+  "ocr": {
+    "model": "cct-s-v2-global-model",
+    "onnx_sha256": "384bbbd2cea3ef54761d3df70822ef3a349ee1a112aeafddbe0e3ba06bc6e47b",
+    "runtime_providers": [
+      "CPUExecutionProvider"
+    ],
+    "reference_crop_instances": 47,
+    "reference_serial_identities": 32,
+    "serial_exact": 24,
+    "serial_exact_rate": 0.5106382978723404,
+    "serial_exact_wilson_95_descriptive": [
+      0.3724245374822684,
+      0.6472444496631784
+    ],
+    "reference_characters": 327,
+    "character_edits": 46,
+    "character_error_rate": 0.14067278287461774,
+    "crop_instances_above_confidence": 15,
+    "correct_crop_instances_above_confidence": 14,
+    "accepted_crop_precision": 0.9333333333333333,
+    "serial_identities_with_at_least_one_correct_reference_crop": 19,
+    "operational_detected_crops_processed": 181,
+    "jurisdiction_predictions_nonempty": 0,
+    "jurisdiction_reference_instances": 5,
+    "jurisdiction_reference_identities": 3,
+    "jurisdiction_correct_reference_crops": 0,
+    "jurisdiction_reference_scope": "Provisional visual California labels, five frames and three identities; no multi-state coverage."
+  },
+  "scene_serial_diagnostic": {
+    "known_serial_instances": 47,
+    "matched_detections_at_frozen_threshold": 36,
+    "exact_serial_from_detected_crops": 24,
+    "exact_serial_from_detected_crops_rate": 0.5106382978723404,
+    "exact_serial_above_confidence": 17,
+    "exact_serial_above_confidence_rate": 0.3617021276595745,
+    "limitation": "Known-serial subset only; same joint recording as detector test, not a separate E2E holdout."
+  },
+  "decisions": {
+    "detected_frame_records": 181,
+    "accepted_identity_frames": 0,
+    "manual_review_records": 181,
+    "no_detection_frames": 226,
+    "simulated_allow_candidate_frames": 0,
+    "simulated_deny_candidate_frames": 0,
+    "confirmed_automatic_events": 0,
+    "qualification_accuracy": null,
+    "qualification_accuracy_reason": "No accepted jurisdiction-plus-serial frames; abstention cannot demonstrate correct automatic access decisions.",
+    "predeclared_temporal_reference_cases": 2,
+    "predeclared_allow_cases": 1,
+    "predeclared_deny_cases": 1,
+    "predeclared_cases_remaining_manual": 2,
+    "false_automatic_grants_observed": 0,
+    "false_automatic_grants_interpretation": "Zero grants of any kind occurred. This is not evidence of a safe or useful automatic policy."
+  },
+  "error_review": {
+    "unmatched_boxes_at_iou_050": 5,
+    "clear_non_plate_objects": 4,
+    "localization_mismatch_on_real_plate": 1,
+    "non_plate_types": [
+      "NISSAN tailgate lettering",
+      "cyclist helmet",
+      "BMW dealer insert in two frames"
+    ],
+    "frozen_reference_retained_after_error_review": true
+  },
+  "gate_failure_reasons": [
+    "Observed detector precision 0.96575 is below target 0.99.",
+    "Resolved-scene recall is 0.55078 at the validation-selected threshold.",
+    "81 of 400 frames lack fully resolved reference; only 319 count toward primary detection metrics.",
+    "Reference annotations need independent human audit; only one recording day/camera is represented.",
+    "OCR serial accuracy is 24/47; no usable jurisdiction prediction in 181 detected crops.",
+    "No confirmed automatic decisions; end-to-end approval is not demonstrated.",
+    "Joint diagnostic data and prior OCR-crop exposure do not meet a fully separate final protocol."
+  ],
+  "next_actions": [
+    "Audit and complete the 81 uncertain frames, serials and jurisdictions without tuning the model on these outcomes.",
+    "Improve detector and jurisdiction/OCR using development recordings and representative training negatives, excluding this consumed recording.",
+    "Reserve a different untouched recording date for the next model qualification, covering real authorized and unauthorized cases."
+  ],
+  "limitations": [
+    "Independent recording day, same camera; repeated frames/vehicles are correlated.",
+    "No exact encoded-frame overlap with supplied 249 training and 79 validation images; base-model/pretraining exposure and vehicle identities not fully audited.",
+    "Some author crop sequences may have appeared in earlier OCR diagnostics; OCR training provenance is not established.",
+    "AI-assisted reference is provisional and has not received independent human audit.",
+    "Unresolved scenes are excluded as whole frames from primary detection metrics, never treated as negatives.",
+    "Only two provisional visual California identities support jurisdiction/decision checks; not a multi-state qualification.",
+    "This is a joint diagnostic recording; it does not satisfy separate independent detector and E2E test sets."
+  ],
+  "protocol_note": "The frozen protocol narrative says two jurisdiction identities; the actual frozen labels contain three, including one single-frame label. Five state instances and the two predeclared temporal decision cases are unchanged.",
+  "network_control": {
+    "resumed_ocr_frames_network_denied": 325,
+    "previous_frozen_partial_frames_reused": 75,
+    "kernel_filter_verified_before_runtime_import": true,
+    "ort_telemetry_disabled_on_resume": true,
+    "note": "Automatic review blocked continuation of the initial run for a possible external Microsoft connection; resumed with all network sockets denied. No claim about the initial connection payload is made."
+  }
+}

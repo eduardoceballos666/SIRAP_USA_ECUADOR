@@ -29,10 +29,27 @@ def client():
 
     No dependen de los CSV privados ni de cuentas creadas por el despliegue.
     """
-    from api.deps import get_store
+    from api.deps import get_pipeline, get_store
     from api.security import set_password
     from src.storage import CsvStore
     from conftest import seed_test_vehicles
+    from src.model import ALPRPipeline
+
+    class ContractDetector:
+        """The API contract suite does not measure detector accuracy."""
+        name = "RT-DETRv2-S (API contract fixture)"
+        is_model = True
+
+        def detect(self, image, max_detections=5):
+            return []
+
+    class UnusedReader:
+        model_name = "OCR (API contract fixture)"
+
+        def read(self, crop):
+            raise AssertionError("OCR must not run when the fixture has no detection.")
+
+    contract_pipeline = ALPRPipeline(ContractDetector(), UnusedReader())
 
     db = CsvStore(data_dir=os.environ["SIRAP_DATA_DIR"])
     for usuario, nombre, rol in (
@@ -45,11 +62,18 @@ def client():
     db.add_garita("Garita 3", "Ubicación ficticia")
     seed_test_vehicles(db)
     get_store.cache_clear()
+    get_pipeline.cache_clear()
     try:
-        with TestClient(app) as c:
-            yield c
+        # Patch the constructor, so direct router calls and the lifespan's
+        # cached loader use the same explicitly synthetic contract fixture.
+        # This keeps CI independent of model files stored outside GitHub.
+        with pytest.MonkeyPatch.context() as patcher:
+            patcher.setattr(ALPRPipeline, "from_config", classmethod(lambda cls, config=None: contract_pipeline))
+            with TestClient(app) as c:
+                yield c
     finally:
         get_store.cache_clear()
+        get_pipeline.cache_clear()
 
 
 def _token(client, usuario="admin", password="sirap2026"):
@@ -97,7 +121,8 @@ def test_reconocer_imagen_de_ejemplo(client):
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["recognition"]["image_width"] > 0
-    assert body["decision"]["resultado"] in ("AUTORIZADO", "DENEGADO", "NO_REGISTRADO", "VERIFICACION_MANUAL")
+    assert body["recognition"]["box"] is None
+    assert body["decision"]["resultado"] == "VERIFICACION_MANUAL"
 
 
 def test_reconocer_rechaza_archivo_invalido(client):
@@ -185,3 +210,4 @@ def test_carga_de_archivo_env(tmp_path, monkeypatch):
     assert os.environ["SIRAP_PRUEBA_B"] == "ya definida"      # no pisa variables existentes
     assert "SIRAP_PRUEBA_VACIA" not in os.environ
     monkeypatch.delenv("SIRAP_PRUEBA_A")
+
