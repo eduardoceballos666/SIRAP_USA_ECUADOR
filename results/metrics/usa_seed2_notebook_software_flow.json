@@ -1,0 +1,18 @@
+{
+  "scope": "synthetic software checks of the actual USA HTTP handlers",
+  "passed": true,
+  "model_accuracy_measured": false,
+  "operational_registry_used": false,
+  "physical_barrier_used": false,
+  "rules": [
+    "state+serial identity",
+    "0.70 detector / 0.94 OCR",
+    "distinct frame IDs and RGB hashes",
+    "7.5-second confirmation",
+    "unknown state / low confidence stay manual",
+    "current allowlist and revocation",
+    "single-use owner/gate-bound evidence",
+    "persist operation before barrier",
+    "storage/actuator failure and replay prevention"
+  ]
+}
