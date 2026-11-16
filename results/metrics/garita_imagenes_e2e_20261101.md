@@ -21,7 +21,9 @@ El EMR de esta corrida queda por debajo de la meta del proyecto de 80%. Debe ana
 
 ## Registro distinto en la salida guardada del notebook
 
-La salida guardada de la celda 7.3 de `notebooks/ecuador/sirap_backend.ipynb` corresponde a otra ejecución: 21 imágenes, detección 19/21, EMR 9/21 (42,9 %), formato válido 16/21, latencia media 1,400674 s por imagen, p95 1,905149 s y detección media 1,33666 s. El notebook no conserva una fecha ni un identificador que permita ordenarla con certeza respecto de la corrida de este informe. Se mantienen como mediciones distintas y no se combinan.
+La salida guardada de la celda 7.3 del notebook histórico de backend corresponde a otra ejecución: 21 imágenes, detección 19/21, EMR 9/21 (42,9 %), formato válido 16/21, latencia media 1,400674 s por imagen, p95 1,905149 s y detección media 1,33666 s. El notebook histórico no conserva una fecha ni un identificador que permita ordenarla con certeza respecto de la corrida de este informe. Se mantienen como mediciones distintas y no se combinan.
+
+El notebook activo es [sirap_backend_ecuador.ipynb](../../notebooks/ecuador/sirap_backend_ecuador.ipynb). Las métricas históricas YOLO11 de este informe no son resultados del flujo RT-DETRv2-S actual; las revisiones anteriores permanecen en el historial de Git.
 
 La reejecución más reciente de video 6.9/7.2 obtuvo EMR 18/30 (60 %), recall de placas únicas 16/17 (94,12 %) y 2/30 falsas autorizaciones observadas entre lecturas clasificables. Veintiuna lecturas no tienen referencia y dos pasadas dudosas siguen excluidas; la tasa integral no es estimable. La corrida guardada anterior (17/24; 0/24) está descrita por separado en el [informe de video](video_e2e_intervalos_final.md).
 

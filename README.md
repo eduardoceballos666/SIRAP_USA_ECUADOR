@@ -22,7 +22,7 @@ El OCR `fast-plate-ocr`, las reglas de acceso, la API y la interfaz se mantienen
 
 ## Entrenamiento y evaluación
 
-El entrenamiento y evaluación activos están en `src/train.py` y `src/evaluate.py`; usan **COCO Detection** y `transformers.Trainer`. El entrenamiento guarda el checkpoint Safetensors y exporta un IR; la evaluación utiliza OpenVINO Runtime, igual que la app. Ecuador conserva notebooks por etapa; todo el flujo USA está consolidado en [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb). Consulta el [índice de notebooks](notebooks/README.md).
+El entrenamiento y evaluación activos están en `src/train.py` y `src/evaluate.py`; usan **COCO Detection** y `transformers.Trainer`. El entrenamiento guarda el checkpoint Safetensors y exporta un IR; la evaluación utiliza OpenVINO Runtime, igual que la app. El flujo Ecuador está consolidado en [sirap_backend_ecuador.ipynb](notebooks/ecuador/sirap_backend_ecuador.ipynb) y el flujo USA en [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb). Consulta el [índice de notebooks](notebooks/README.md).
 
 ```bash
 # Instalar el entorno local de entrenamiento/desarrollo CPU
@@ -45,7 +45,7 @@ Las corridas multisemilla y la búsqueda Optuna consumen GPU y están apagadas p
 
 | Perfil | Notebook activo | Flujo |
 |---|---|---|
-| Ecuador | [Backend RT-DETR + OCR](notebooks/ecuador/sirap_backend.ipynb) | Flujo de Ecuador por etapas |
+| Ecuador | [sirap_backend_ecuador.ipynb](notebooks/ecuador/sirap_backend_ecuador.ipynb) | Flujo unificado 0–9: COCO, SAVH, entrenamiento, OCR, OpenVINO, video, cámara, latencia y publicación opcional |
 | Estados Unidos | [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb) | Notebook unificado: COCO, entrenamiento, validación, OCR y OpenVINO |
 
 El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extremo. Las pruebas del notebook no crean autorizaciones en la aplicación. La integración de ambos países está descrita en [flujo de aplicación](docs/usa_app_integration.md). Los notebooks USA por etapas fueron consolidados y sus versiones previas permanecen en el historial de Git.
