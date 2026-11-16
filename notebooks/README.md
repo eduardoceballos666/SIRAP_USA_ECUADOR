@@ -4,7 +4,7 @@ The active detector is RT-DETRv2-S (ResNet-18vd). Fine-tuning uses Transformers/
 
 | Country | Active notebook | Coverage |
 |---|---|---|
-| Ecuador | [Ecuador backend](ecuador/sirap_backend.ipynb) and [notebook guide](ecuador/README.md) | Ecuador profile, training, and inference workflow |
+| Ecuador | [sirap_backend_ecuador.ipynb](ecuador/sirap_backend_ecuador.ipynb) and [notebook guide](ecuador/README.md) | Consolidated sections 0–9: Ecuador COCO scenes, SAVH review, training, plate normalization, OpenVINO, video, optional camera modes, CPU latency, and IR publication |
 | United States | [sirap_backend_usa.ipynb](usa/sirap_backend_usa.ipynb) and [USA notebook guide](usa/README.md) | One consolidated English workflow for exploration, Roboflow/COCO data, grouped holdout creation, training, tuning, evaluation, OCR, OpenVINO, and publishing |
 
 The former USA notebooks for exploration, preprocessing, modeling, optimization, evaluation, OCR, and multi-seed validation have been merged into the consolidated USA notebook and removed from the active folder. Their prior revisions remain in Git history.
