@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { countryMessages } from './countryMessages'
+import { countryMessages } from './countryMessages.js'
 
 const LANGUAGE_KEY = 'sirap_language'
 const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de', 'it']
@@ -1112,6 +1112,10 @@ export function setLanguage(value) {
 }
 
 const spanishAliases = {
+  country: 'País',
+  jurisdiction: 'Estado emisor',
+  ecuador: 'Ecuador',
+  usa: 'Estados Unidos',
   'Subir Archivo': 'Subir archivo',
   'Camara local': 'Cámara Local',
   'Camara URL': 'Cámara URL',
@@ -1122,7 +1126,7 @@ export function t(value) {
   if (value === null || value === undefined) return value
   const rawKey = String(value)
   const key = spanishAliases[rawKey] ?? rawKey
-  if (language.value === 'es') return enToEs[key] ?? key
+  if (language.value === 'es') return es[key] ?? enToEs[key] ?? key
   if (language.value !== 'en' && messages[language.value]?.[key]) return messages[language.value][key]
   if (en[key]) return en[key]
 
