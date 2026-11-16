@@ -194,6 +194,20 @@ def convert_yolo_to_coco(data_yaml: str | Path, output_dir: str | Path) -> Path:
     return output_root
 
 
+def _training_arguments(**options):
+    """Keep the 5% warmup recipe compatible with the installed Transformers API."""
+    from inspect import signature
+    from transformers import TrainingArguments
+
+    parameters = signature(TrainingArguments).parameters
+    # Transformers 5 uses a fractional warmup_steps value; older versions use warmup_ratio.
+    warmup = {"warmup_ratio": 0.05} if "warmup_ratio" in parameters else {"warmup_steps": 0.05}
+    if "save_safetensors" in parameters:
+        warmup["save_safetensors"] = True
+    # Selection uses eval_loss. Do not concatenate variable-length COCO labels/logits.
+    return TrainingArguments(**options, **warmup, prediction_loss_only=True)
+
+
 def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str = DEFAULT_MODEL_ID,
                    output_dir: str | Path | None = None, run_dir: str | Path | None = None,
                    epochs: int | None = None, batch_size: int = 8, learning_rate: float = 5e-5,
@@ -202,7 +216,7 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
     """Ajusta RT-DETRv2-S y exporta el checkpoint del país a OpenVINO IR."""
     import torch
     from transformers import (AutoImageProcessor, EarlyStoppingCallback, RTDetrV2ForObjectDetection,
-                              Trainer, TrainingArguments)
+                              Trainer)
 
     if country not in {"ecuador", "usa"}:
         raise ValueError("country debe ser 'ecuador' o 'usa'.")
@@ -239,7 +253,7 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
     model.config.id2label = {0: "license_plate"}
     model.config.label2id = {"license_plate": 0}
 
-    args = TrainingArguments(
+    args = _training_arguments(
         output_dir=str(train_dir),
         num_train_epochs=epochs,
         learning_rate=learning_rate,
@@ -252,7 +266,6 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         load_best_model_at_end=True,
         metric_for_best_model="eval_loss",
         greater_is_better=False,
-        warmup_ratio=0.05,
         dataloader_num_workers=2,
         remove_unused_columns=False,
         fp16=torch.cuda.is_available(),
@@ -260,7 +273,6 @@ def train_detector(data_dir: str | Path, country: str = "ecuador", model_id: str
         data_seed=seed,
         report_to="none",
         logging_steps=25,
-        save_safetensors=True,
     )
     trainer = Trainer(
         model=model,

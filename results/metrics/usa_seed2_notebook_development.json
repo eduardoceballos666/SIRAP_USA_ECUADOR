@@ -1,0 +1,87 @@
+{
+  "scope": "reused eight-photo development pilot through the real USA API",
+  "independent_final_test": false,
+  "original_images_reused": true,
+  "source_images_limit": 8,
+  "model": {
+    "seed": 2,
+    "artifact_repository": "eduardoceballos/SIRAP_USA_seed2",
+    "artifact_revision": "ceaf7b0c692df45f9692ac0817571ea006dd8c08",
+    "detector_sha256": {
+      "openvino_model.xml": "8eaaad4be89f1d4ac9ff3838d57ea20b66d40f1af3751078f7f628433343ba6c",
+      "openvino_model.bin": "85d6492a0fcc1661514fc81676afe65ecb379cc97885e13eaf87f2d5a49bd0af"
+    },
+    "metadata_sha256": {
+      "sirap_openvino.json": "9c7c3c3355157b8ba652f7524dbb5a371aeede6996f4374f6cb5d5a645167c0d",
+      "sirap_training.json": "ef928b6f9f8a9696bff3a500a2d5ff6dce17c15ce1d833348be1122b83989767"
+    },
+    "ocr_sha256": {
+      "cct_s_v2_global.onnx": "384bbbd2cea3ef54761d3df70822ef3a349ee1a112aeafddbe0e3ba06bc6e47b",
+      "cct_s_v2_global_plate_config.yaml": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+    }
+  },
+  "detector_threshold": 0.7,
+  "ocr_threshold": 0.94,
+  "counts": {
+    "source_images": 8,
+    "confirmed_plates": 13,
+    "complete_scenes": 7,
+    "complete_scene_tp": 8,
+    "complete_scene_fn": 3,
+    "complete_scene_fp": 0,
+    "matched_plates": 10,
+    "serial_exact": 9,
+    "known_serials": 10,
+    "serial_character_errors": 1,
+    "reference_characters": 65,
+    "state_exact": 2,
+    "known_states": 9,
+    "state_predictions_on_known": 2,
+    "wrong_state_assignments": 0,
+    "known_state_serial_pairs": 9,
+    "pair_exact_confident": 1
+  },
+  "confidence_intervals_95": {
+    "serial_exact": {
+      "wilson": {
+        "lower": 0.5958499732047616,
+        "upper": 0.982123786904927,
+        "method": "Wilson score 95%"
+      },
+      "image_cluster_bootstrap": {
+        "lower": 0.6666666666666666,
+        "upper": 1.0,
+        "method": "paired image-cluster percentile bootstrap 95%",
+        "resamples": 5000
+      }
+    },
+    "state_exact": {
+      "wilson": {
+        "lower": 0.06322510711784671,
+        "upper": 0.547411030893011,
+        "method": "Wilson score 95%"
+      },
+      "image_cluster_bootstrap": {
+        "lower": 0.0,
+        "upper": 0.5714285714285714,
+        "method": "paired image-cluster percentile bootstrap 95%",
+        "resamples": 5000
+      }
+    }
+  },
+  "packages": {
+    "openvino": "2026.4.1",
+    "fast-plate-ocr": "1.1.0",
+    "onnxruntime": "1.31.1",
+    "opencv-python-headless": "4.12.0.88"
+  },
+  "reference_sha256": "a93c7c601297abf2393ea90065c755b0724bddb3503beafd1c779e45eff8f34f",
+  "elapsed_seconds": 22.471227744998032,
+  "access_operations": 0,
+  "notes": [
+    "Unresolved scenes are excluded from complete-scene detection counts.",
+    "OCR denominators include only matched detections with a known reference for that field.",
+    "The convenience set has prior review exposure; intervals do not remove this bias.",
+    "No empty-scene false-alarm estimate, independent final test or physical barrier test."
+  ]
+}
