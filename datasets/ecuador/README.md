@@ -1,11 +1,10 @@
-# datasets/ecuador
+# Datasets de Estados Unidos
 
-> Purpose: Ecuador plate datasets, gate captures, and SAVH evidence.
+Este directorio separa los datos para OCR de los datos requeridos para detección.
 
-## Español
+- seg_and_ocr/: recortes de matrículas USA y groundtruth.csv para evaluación OCR.
+- detection_coco/: preparación de escenas completas y cajas COCO para ajustar RT-DETRv2-S.
 
-This folder holds Ecuador-specific source data and ground truth. Do not mix U.S. plates into these evaluation sets.
+Para entrenar detección, sigue la [guía del dataset COCO](detection_coco/README.md). Los recortes de seg_and_ocr no reemplazan las escenas completas anotadas.
 
-## English
-
-Esta carpeta contiene datos de origen y referencias de Ecuador. No mezcles placas estadounidenses en estos conjuntos de evaluación.
+El conjunto de escenas y sus cajas debe contener splits independientes train, valid y test; conserva juntas las imágenes de la misma secuencia, cámara o vehículo.
