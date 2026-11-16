@@ -219,5 +219,12 @@ rows.push(...[
   ['Almacenamiento temporalmente no disponible. Consulte el estado de la operación antes de reintentar.', 'Storage is temporarily unavailable. Check the operation status before trying again.', 'Armazenamento temporariamente indisponível. Consulte o estado da operação antes de tentar novamente.', 'Stockage temporairement indisponible. Consultez l’état de l’opération avant de réessayer.', 'Speicher vorübergehend nicht verfügbar. Prüfen Sie den Vorgangsstatus vor einem erneuten Versuch.', 'Archivio temporaneamente non disponibile. Controlla lo stato dell’operazione prima di riprovare.'],
   ['CANCELADA', 'CANCELLED', 'CANCELADA', 'ANNULÉE', 'ABGEBROCHEN', 'ANNULLATA'],
 ])
+// Labels of the vehicle-details panel in the United States interface (Ecuador keeps Marca/Modelo/Año/Cia. de transporte).
+rows.push(...[
+  ['Año y modelo', 'Year and model', 'Ano e modelo', 'Année et modèle', 'Baujahr und Modell', 'Anno e modello'],
+  ['Color', 'Color', 'Cor', 'Couleur', 'Farbe', 'Colore'],
+  ['Tipo de carrocería', 'Body type', 'Tipo de carroceria', 'Type de carrosserie', 'Karosserieform', 'Tipo di carrozzeria'],
+  ['Estado', 'State', 'Estado', 'État', 'Bundesstaat', 'Stato'],
+])
 export const countryMessages = Object.fromEntries(['en', 'pt', 'fr', 'de', 'it'].map((language, index) =>
   [language, Object.fromEntries(rows.map((row) => [row[0], row[index + 1]]))]))

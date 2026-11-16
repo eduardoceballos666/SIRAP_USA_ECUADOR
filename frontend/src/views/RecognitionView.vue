@@ -10,6 +10,7 @@ import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
 import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
+import { usaVehicleDetails } from '@/lib/vehicleDetails'
 import { readPendingOperation, startPendingOperation, clearPendingOperation,
   recoverPendingOperation, cancelUnacceptedOperation, operationIsSettled } from '@/lib/operationRecovery'
 
@@ -632,6 +633,16 @@ const vehicleDisplay = computed(() => ({
   anio: vehicleLookup.value?.anio || vehicle.value?.anio || vehicle.value?.year || '',
   transportista: vehicleLookup.value?.transportista || vehicle.value?.transportista || '',
 }))
+// United States: Year and model / Color / Body type / State (see lib/vehicleDetails.js for the source of each value).
+const isUSA = computed(() => session.country === 'usa')
+const usaDetails = computed(() => usaVehicleDetails({
+  lookup: vehicleLookup.value, vehicle: vehicle.value, jurisdiction: manualJurisdiction.value, plate: plateShown.value,
+}))
+const detailRows = computed(() => isUSA.value
+  ? [['Año y modelo', usaDetails.value.yearModel], ['Color', usaDetails.value.color],
+     ['Tipo de carrocería', usaDetails.value.bodyType], ['Estado', usaDetails.value.state]]
+  : [['Marca', vehicle.value?.marca], ['Modelo', vehicle.value?.modelo],
+     ['Año', vehicleDisplay.value.anio], ['Cia. de transporte', vehicleDisplay.value.transportista]])
 const decisionLabel = computed(() => decision.value?.resultado === 'NO_REGISTRADO' && vehicle.value
   ? 'SIN AUTORIZACIÓN'
   : RESULT[decision.value?.resultado]?.label || 'EN ESPERA')
@@ -924,7 +935,13 @@ onMounted(async () => {
             <div><strong>{{ $t("Esta placa no está registrada.") }}</strong><span>{{ $t("¿Desea guardar el camión en la base de datos?") }}</span></div>
             <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">{{ $t("Sí, registrar") }}</button><button class="btn-ghost" @click="registrationPromptDismissed = true">{{ $t("No, continuar") }}</button></div>
           </div>
-          <dl class="vehicle-rows">
+          <dl v-if="isUSA" class="vehicle-rows vehicle-rows-usa">
+            <div><dt>{{ $t("Año y modelo") }}</dt><dd :title="usaDetails.yearModel">{{ usaDetails.yearModel || '—' }}</dd></div>
+            <div><dt>{{ $t("Color") }}</dt><dd :title="usaDetails.color">{{ usaDetails.color || '—' }}</dd></div>
+            <div><dt>{{ $t("Tipo de carrocería") }}</dt><dd :title="usaDetails.bodyType">{{ usaDetails.bodyType || '—' }}</dd></div>
+            <div><dt>{{ $t("Estado") }}</dt><dd :title="usaDetails.state">{{ usaDetails.state || '—' }}</dd></div>
+          </dl>
+          <dl v-else class="vehicle-rows">
             <div><dt>{{ $t("Marca") }}</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
             <div><dt>{{ $t("Modelo") }}</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
             <div><dt>{{ $t("Año") }}</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
@@ -958,7 +975,7 @@ onMounted(async () => {
       <div class="mt-4 flex justify-end gap-2"><button type="button" class="btn-ghost" @click="registrationOpen = false">{{ $t("Cancelar") }}</button><button type="submit" class="btn-primary" :disabled="busy || !plateConfirmedForRegistration">{{ $t(busy ? 'Guardando…' : 'Guardar camión') }}</button></div>
     </form>
   </ModalDialog>
-  <ModalDialog :open="detailsOpen" :title="$t('Detalle de la verificación')" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 grid grid-cols-2 gap-2 text-sm"><div v-for="[k,v] in [['Marca', vehicle.marca], ['Modelo', vehicle.modelo], ['Año', vehicleDisplay.anio], ['Cia. de transporte', vehicleDisplay.transportista]]" :key="k"><dt class="font-bold">{{ $t(k) }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">{{ $t("Cerrar") }}</button></ModalDialog>
+  <ModalDialog :open="detailsOpen" :title="$t('Detalle de la verificación')" @close="detailsOpen = false"><ResultCard :decision="decision" :loading="loading" /><dl v-if="vehicle" class="mt-3 grid grid-cols-2 gap-2 text-sm"><div v-for="[k,v] in detailRows" :key="k"><dt class="font-bold">{{ $t(k) }}</dt><dd class="break-words">{{ v || '—' }}</dd></div></dl><button class="btn-ghost mt-4" @click="detailsOpen = false">{{ $t("Cerrar") }}</button></ModalDialog>
   <ModalDialog :open="readingsOpen" :title="$t('Lecturas de esta sesión')" @close="readingsOpen = false"><div class="max-h-[60vh] overflow-auto">
     <div class="table-wrap">
       <table class="tbl">
