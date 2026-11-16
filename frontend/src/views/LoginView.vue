@@ -3,10 +3,15 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SirapLogo from '@/components/SirapLogo.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { language } from '@/i18n'
 
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const session = useSessionStore()
+const country = ref(['usa', 'ecuador'].includes(route.query.country) ? route.query.country : session.country)
 const usuario = ref('operador')
 const password = ref('')
 const error = ref('')
@@ -16,8 +21,8 @@ async function submit() {
   error.value = ''
   loading.value = true
   try {
-    await auth.login(usuario.value, password.value)
-    router.push(route.query.next || '/reconocimiento')
+    await auth.login(usuario.value, password.value, country.value, language.value)
+    router.push({ name: 'recognition', params: { country: country.value } })
   } catch (e) {
     error.value = e.message
   } finally {
@@ -32,6 +37,14 @@ async function submit() {
       <SirapLogo class="mb-6" />
       <form class="card space-y-4" @submit.prevent="submit">
         <h1 class="text-xl font-bold">{{ $t("Iniciar sesión") }}</h1>
+        <div class="login-profile-fields grid grid-cols-2 gap-3">
+          <LanguageSwitcher />
+          <div><label class="field-label" for="login-country">{{ $t('País') }}</label>
+            <select id="login-country" v-model="country" class="field" :disabled="loading" required>
+              <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ $t('Estados Unidos') }}</option>
+            </select>
+          </div>
+        </div>
         <div>
           <label class="field-label" for="u">{{ $t("Usuario") }}</label>
           <input id="u" v-model.trim="usuario" class="field" autocomplete="username" required />
@@ -49,3 +62,4 @@ async function submit() {
     </div>
   </div>
 </template>
+

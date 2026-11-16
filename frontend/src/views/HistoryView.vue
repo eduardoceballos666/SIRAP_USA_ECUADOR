@@ -6,10 +6,11 @@ import { ACTION, RESULT, TONE_PILL, formatDateTime, pct, today } from '@/lib/for
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
 import { localeTag } from '@/i18n'
+import { US_STATES } from '@/lib/plateIdentity'
 
 const auth = useAuthStore()
 const session = useSessionStore()
-const filters = reactive({ desde: today(-6), hasta: today(), placa: '', garita: '', resultado: '', tipo_movimiento: '' })
+const filters = reactive({ desde: today(-6), hasta: today(), placa: '', garita: '', resultado: '', tipo_movimiento: '', country: session.country, jurisdiction: '' })
 const rows = ref([])
 const loading = ref(false)
 
@@ -44,6 +45,8 @@ onMounted(async () => {
 <template>
   <section class="card mb-5">
     <form class="grid gap-3 sm:grid-cols-2 lg:grid-cols-7" @submit.prevent="load">
+      <div><label class="field-label">{{ $t('País') }}</label><p class="field">{{ $t(session.country) }}</p></div>
+      <div v-if="filters.country === 'usa'"><label class="field-label">{{ $t('Estado emisor') }}</label><select v-model="filters.jurisdiction" class="field"><option value="">{{ $t('Todos') }}</option><option v-for="(name, code) in US_STATES" :key="code" :value="code">{{ code }} · {{ name }}</option></select></div>
       <div><label class="field-label">{{ $t("Desde") }}</label><input v-model="filters.desde" type="date" class="field" /></div>
       <div><label class="field-label">{{ $t("Hasta") }}</label><input v-model="filters.hasta" type="date" class="field" /></div>
       <div><label class="field-label">{{ $t("Placa") }}</label><input v-model.trim="filters.placa" class="field font-mono uppercase" :placeholder='$t("PBA-8901")' /></div>
@@ -80,7 +83,7 @@ onMounted(async () => {
         <tbody>
           <tr v-for="r in rows" :key="r.id">
             <td>{{ formatDateTime(r.fecha_hora, localeTag) }}</td><td>{{ r.garita }}</td><td>{{ $t(r.tipo_movimiento === 'ENTRADA' ? 'Entrada' : 'Salida') }}</td>
-            <td class="font-mono">{{ r.placa_leida || '—' }}</td><td class="font-mono font-bold">{{ r.placa_final || '—' }}</td>
+            <td class="font-mono">{{ r.placa_leida || '—' }}</td><td class="font-mono font-bold">{{ r.placa_final || '—' }}<small class="block text-muted">{{ $t(r.country || 'ecuador') }}{{ r.jurisdiction ? ' · ' + r.jurisdiction : '' }}</small></td>
             <td>{{ pct(r.confianza_ocr, 1) }}</td>
             <td><span class="pill" :class="TONE_PILL[RESULT[r.resultado]?.tone]">{{ $t(RESULT[r.resultado]?.label || r.resultado) }}</span></td>
             <td>{{ $t(ACTION[r.accion] || r.accion) }}</td>
@@ -95,3 +98,4 @@ onMounted(async () => {
     </div>
   </section>
 </template>
+

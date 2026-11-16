@@ -46,6 +46,7 @@ def create_token(user: dict[str, Any]) -> str:
     """JWT con usuario, nombre y rol, válido ``settings.jwt_hours`` horas."""
     now = datetime.now(timezone.utc)
     payload = {"sub": user["usuario"], "nombre": user["nombre"], "rol": user["rol"],
+               'country':user.get('country','ecuador'),'language':user.get('language','en'),
                "iat": now, "exp": now + timedelta(hours=settings.jwt_hours)}
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
@@ -84,3 +85,4 @@ def authenticate(store: Any, usuario: str, password: str) -> dict[str, Any] | No
 def set_password(store: Any, usuario: str, password: str) -> None:
     """Crea o cambia la contraseña de un usuario."""
     store.set_credential(usuario, hash_password(password))
+

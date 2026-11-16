@@ -5,6 +5,8 @@ import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
 import { t } from '@/i18n'
+import PlateCountryFields from '@/components/PlateCountryFields.vue'
+import { plateKey as countryPlateKey } from '@/lib/plateIdentity'
 
 const auth = useAuthStore()
 const session = useSessionStore()
@@ -17,16 +19,16 @@ const selectedTruckPlates = ref([])
 const selectedUsers = ref([])
 const selectedGateNames = ref([])
 
-const vehicle = reactive({ placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
+const vehicle = reactive({ country: session.country, jurisdiction: '', placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
 const editingVehiclePlate = ref('')
-const auth_ = reactive({ placa: '', lista: '', motivo: '', vigente_hasta: '' })
+const auth_ = reactive({ country: session.country, jurisdiction: '', placa: '', lista: '', motivo: '', vigente_hasta: '' })
 const gate = reactive({ nombre: '', ubicacion: '' })
 const user = reactive({ usuario: '', nombre: '', rol: 'OPERADOR', password: '' })
 const editingUser = ref('')
 const demoN = ref(20)
 
-const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]) : []))
-const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.placa))
+const columns = computed(() => (rows.value[0] ? Object.keys(rows.value[0]).filter((key) => !['identity_key', 'lookup_key'].includes(key)) : []))
+const selectableTrucks = computed(() => rows.value.filter((row) => row.tipo === 'CAMION' && row.placa).map((row) => row.identity_key || row.placa))
 const allTrucksSelected = computed(() => selectableTrucks.value.length > 0 && selectableTrucks.value.every((plate) => selectedTruckPlates.value.includes(plate)))
 const selectableGates = computed(() => rows.value.filter((row) => row.nombre).map((row) => row.nombre))
 const allGatesSelected = computed(() => selectableGates.value.length > 0 && selectableGates.value.every((name) => selectedGateNames.value.includes(name)))
@@ -58,20 +60,20 @@ async function run(fn) {
   }
 }
 function resetVehicle() {
-  Object.assign(vehicle, { placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
+  Object.assign(vehicle, { jurisdiction: '', placa: '', marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
   editingVehiclePlate.value = ''
 }
 function loadVehicleForEdit() {
-  const key = plateKey(vehicle.placa)
+  const key = formKey(vehicle)
   if (!key) {
     session.notify('Ingrese una placa para buscarla en la lista.', 'warn')
     return
   }
-  if (editingVehiclePlate.value && plateKey(editingVehiclePlate.value) === key) {
+  if (editingVehiclePlate.value && editingVehiclePlate.value === key) {
     session.notify(`Los datos de ${editingVehiclePlate.value} ya están cargados.`, 'ok')
     return
   }
-  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  const existing = rows.value.find((row) => formKey(row) === key)
   if (!existing) {
     if (editingVehiclePlate.value) {
       Object.assign(vehicle, { marca: '', modelo: '', color: '', tipo: '', propietario: '', transportista: '' })
@@ -82,6 +84,7 @@ function loadVehicleForEdit() {
   }
   Object.assign(vehicle, {
     placa: existing.placa,
+    country: existing.country || 'ecuador', jurisdiction: existing.jurisdiction || '',
     marca: existing.marca || '',
     modelo: existing.modelo || '',
     color: existing.color || '',
@@ -89,17 +92,17 @@ function loadVehicleForEdit() {
     propietario: existing.propietario || '',
     transportista: existing.transportista || '',
   })
-  editingVehiclePlate.value = existing.placa
+  editingVehiclePlate.value = key
   session.notify(`Datos de ${existing.placa} cargados para actualizar.`, 'ok')
 }
 async function saveVehicle() {
   const complete = vehicle.placa.trim() && vehicle.marca.trim() && vehicle.modelo.trim() &&
-    vehicle.color.trim() && vehicle.tipo && vehicle.propietario.trim() && vehicle.transportista.trim()
+    vehicle.color.trim() && vehicle.tipo && vehicle.propietario.trim() && vehicle.transportista.trim() && formKey(vehicle)
   if (!complete) {
     session.notify('Complete todos los campos obligatorios antes de guardar el vehículo.', 'warn')
     return
   }
-  const existing = rows.value.find((row) => plateKey(row.placa) === plateKey(vehicle.placa))
+  const existing = rows.value.find((row) => formKey(row) === formKey(vehicle))
   if (existing && !window.confirm(t(`La placa ${existing.placa} ya existe en el listado. ¿Desea actualizarla?`))) {
     session.notify('No se actualizó el registro.', 'warn')
     return
@@ -107,29 +110,33 @@ async function saveVehicle() {
   if (await run(() => api('/api/admin/vehiculos', { method: 'POST', body: vehicle }))) resetVehicle()
 }
 function resetAuth() {
-  Object.assign(auth_, { placa: '', lista: '', motivo: '', vigente_hasta: '' })
+  Object.assign(auth_, { jurisdiction: '', placa: '', lista: '', motivo: '', vigente_hasta: '' })
 }
 function loadAuthForEdit() {
-  const key = plateKey(auth_.placa)
+  const key = formKey(auth_)
   if (!key) {
     session.notify('Ingrese una placa para buscarla en la lista.', 'warn')
     return
   }
-  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  const existing = rows.value.find((row) => formKey(row) === key)
   if (!existing) {
     session.notify('La placa no está registrada en las listas.', 'warn')
     return
   }
   Object.assign(auth_, {
     placa: existing.placa || '',
+    country: existing.country || 'ecuador', jurisdiction: existing.jurisdiction || '',
     lista: existing.lista || '',
     motivo: existing.motivo || '',
     vigente_hasta: String(existing.vigente_hasta || '').slice(0, 10),
   })
   session.notify(`Datos de ${existing.placa} cargados.`, 'ok')
 }
-function plateKey(value) {
-  return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+function formKey(value) {
+  return countryPlateKey(value.placa, value.country || 'ecuador', value.jurisdiction)
+}
+function storageKey(value) {
+  return value.country === 'usa' ? formKey(value) : value.placa
 }
 async function saveAuth() {
   const complete = auth_.placa.trim() && auth_.lista && auth_.motivo.trim() && auth_.vigente_hasta
@@ -137,8 +144,9 @@ async function saveAuth() {
     session.notify('Complete todos los campos obligatorios antes de asignar.', 'warn')
     return
   }
-  const key = plateKey(auth_.placa)
-  const existing = rows.value.find((row) => plateKey(row.placa) === key)
+  const key = formKey(auth_)
+  if (!key) { session.notify('Seleccione estado emisor', 'warn'); return }
+  const existing = rows.value.find((row) => formKey(row) === key)
   let method = 'POST'
   let url = '/api/admin/autorizaciones'
   if (existing) {
@@ -148,7 +156,7 @@ async function saveAuth() {
       return
     }
     method = 'PUT'
-    url = `/api/admin/autorizaciones/${encodeURIComponent(existing.placa)}`
+    url = `/api/admin/autorizaciones/${encodeURIComponent(existing.identity_key || existing.placa)}`
   }
   const saved = await run(() => api(url, { method, body: { ...auth_ } }))
   if (saved) resetAuth()
@@ -158,7 +166,9 @@ async function revoke() {
     session.notify('Ingrese la placa que desea quitar de la lista.', 'warn')
     return
   }
-  const saved = await run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(auth_.placa)}`, { method: 'DELETE' }))
+  const key = storageKey(auth_)
+  if (!key) { session.notify('Seleccione estado emisor', 'warn'); return }
+  const saved = await run(() => api(`/api/admin/autorizaciones/${encodeURIComponent(key)}`, { method: 'DELETE' }))
   if (saved) resetAuth()
 }
 function toggleTruckSelection(plate, checked) {
@@ -330,6 +340,7 @@ onMounted(load)
       <template v-if="tab === 'vehiculos'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="car" /></span> {{ $t("Crear o actualizar vehículo") }}</h2>
         <form class="space-y-3" novalidate @submit.prevent="saveVehicle">
+          <PlateCountryFields v-model:country="vehicle.country" v-model:jurisdiction="vehicle.jurisdiction" :disabled="busy" lock-country />
           <input v-model.trim="vehicle.placa" class="field font-mono uppercase" :placeholder='$t("Placa (PBA-8901) *")' required @keydown.enter.prevent="loadVehicleForEdit" />
           <div class="grid grid-cols-2 gap-3">
             <input v-model.trim="vehicle.marca" class="field bg-subtle font-semibold" :placeholder='$t("Marca *")' required />
@@ -348,6 +359,7 @@ onMounted(load)
       <template v-else-if="tab === 'autorizaciones'">
         <h2 class="card-title"><span class="icon-chip"><AppIcon name="lock" /></span> {{ $t("Lista blanca o restringida") }}</h2>
         <form class="space-y-3" @submit.prevent="saveAuth">
+          <PlateCountryFields v-model:country="auth_.country" v-model:jurisdiction="auth_.jurisdiction" :disabled="busy" lock-country />
           <input v-model.trim="auth_.placa" class="field font-mono uppercase" :placeholder="$t('Placa registrada *')" required @keydown.enter.prevent="loadAuthForEdit" />
           <select v-model="auth_.lista" class="field" required><option disabled value="">{{ $t("Seleccione una lista *…") }}</option><option value="BLANCA">{{ $t("Lista blanca (autorizado)") }}</option><option value="RESTRINGIDA">{{ $t("Lista restringida (denegado)") }}</option></select>
           <input v-model.trim="auth_.motivo" class="field" :placeholder="$t('Motivo *')" required />
@@ -442,7 +454,7 @@ onMounted(load)
           <tbody><tr v-for="(r, i) in rows" :key="i">
             <td v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="$t('Seleccionar usuario ') + r.usuario" :checked="selectedUsers.includes(r.usuario)" :disabled="r.usuario === auth.user?.usuario" @change="toggleUserSelection(r.usuario, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="$t('Seleccionar garita ') + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
-            <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="$t('Seleccionar camión') + ' ' + r.placa" :checked="selectedTruckPlates.includes(r.placa)" @change="toggleTruckSelection(r.placa, $event.target.checked)" /></td>
+            <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="$t('Seleccionar camión') + ' ' + (r.jurisdiction || '') + ' ' + r.placa" :checked="selectedTruckPlates.includes(r.identity_key || r.placa)" @change="toggleTruckSelection(r.identity_key || r.placa, $event.target.checked)" /></td>
             <td v-for="c in columns" :key="c">{{ $t(fmt(r[c])) }}</td>
             <td v-if="isAdmin && tab === 'usuarios'">
               <button class="btn-ghost whitespace-nowrap" :disabled="busy" @click="editUser(r)">{{ $t("Editar") }}</button>
@@ -453,3 +465,4 @@ onMounted(load)
     </section>
   </div>
 </template>
+
