@@ -8,10 +8,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from api import schemas
 from api.jsonsafe import plain
-from api.deps import get_store, require_roles
+from api.deps import get_store, require_roles, profile_country
 from api.security import set_password
 from src.data_processing import normalize_plate
 from src.storage import StorageError
+from src.plate_identity import normalize_identity, identity_from_key, public_plate_record
 
 router = APIRouter(prefix="/api/admin", tags=["Administración"])
 admin_only = require_roles("ADMINISTRADOR")
@@ -20,11 +21,15 @@ admin_read = require_roles("SUPERVISOR", "ADMINISTRADOR")
 Table = Literal["vehiculos", "propietarios", "autorizaciones", "garitas", "usuarios"]
 
 
-def _plate(raw: str) -> str:
-    plate = normalize_plate(raw)
-    if not plate:
-        raise HTTPException(422, "Placa inválida (3 letras y 3 o 4 dígitos).")
-    return plate
+def _plate(raw: str, country=None, jurisdiction=None) -> str:
+    try:
+        identity=normalize_identity(raw,country,jurisdiction) if country else identity_from_key(raw)
+        return identity.key
+    except ValueError as exc:
+        raise HTTPException(422,str(exc)) from exc
+
+def _check_identity_country(user,key):
+    profile_country(user,identity_from_key(key).country)
 
 
 def _active(value: Any) -> bool:
@@ -39,14 +44,25 @@ def _run(fn, *args, **kwargs):
 
 
 @router.get("/{table}", summary="Contenido de una tabla")
-def get_table(table: Table, _: dict = Depends(admin_read)) -> list[dict[str, Any]]:
+def get_table(table: Table, user: dict = Depends(admin_read)) -> list[dict[str, Any]]:
     df = get_store().table(table)
-    return plain(df.to_dict(orient="records"))
+    rows=df.to_dict(orient='records')
+    if table in ('vehiculos','autorizaciones'):
+        rows=[public_plate_record(row) for row in rows]
+        if user.get('country'):
+            rows=[row for row in rows if row['country']==user['country']]
+    elif table=='propietarios' and user.get('country'):
+        vehicles=get_store().table('vehiculos').to_dict(orient='records')
+        names={row['propietario'] for row in vehicles
+               if row.get('propietario') and identity_from_key(row['placa']).country==user['country']}
+        rows=[row for row in rows if row['nombre'] in names]
+    return plain(rows)
 
 
 @router.post("/vehiculos", status_code=201, summary="Crear o actualizar un vehículo")
-def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) -> dict[str, str]:
-    plate = _plate(body.placa)
+def upsert_vehicle(body: schemas.AdminVehicleIn, user: dict = Depends(admin_only)) -> dict[str, str]:
+    profile_country(user,body.country)
+    plate = _plate(body.placa,body.country,body.jurisdiction)
     fields = [body.marca, body.modelo, body.color, body.propietario, body.transportista]
     if any(not value.strip() for value in fields):
         raise HTTPException(422, "Complete todos los campos obligatorios del vehículo.")
@@ -55,12 +71,13 @@ def upsert_vehicle(body: schemas.AdminVehicleIn, _: dict = Depends(admin_only)) 
     _run(db.upsert_vehicle, plate, body.marca.strip(), body.modelo.strip(), body.color.strip(), body.tipo,
          body.propietario.strip(), body.transportista.strip())
     message = "Registro actualizado correctamente." if updating else f"Vehículo {plate} guardado correctamente."
-    return {"placa": plate, "mensaje": message}
+    return {"placa": identity_from_key(plate).serial,"identity_key":plate,"mensaje":message}
 
 
 @router.post("/autorizaciones", status_code=201, summary="Asignar lista blanca o restringida")
 def set_authorization(body: schemas.AuthorizationIn, user: dict = Depends(admin_only)) -> dict[str, str]:
-    plate = _plate(body.placa)
+    profile_country(user,body.country)
+    plate = _plate(body.placa,body.country,body.jurisdiction)
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
     _run(get_store().set_authorization, plate, body.lista, body.motivo.strip(), body.vigente_hasta, user["usuario"])
@@ -71,7 +88,8 @@ def set_authorization(body: schemas.AuthorizationIn, user: dict = Depends(admin_
 def update_authorization(placa: str, body: schemas.AuthorizationIn,
                          user: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(placa)
-    if _plate(body.placa) != plate:
+    _check_identity_country(user,plate)
+    if _plate(body.placa,body.country,body.jurisdiction) != plate:
         raise HTTPException(422, "La placa del formulario no coincide con la placa que se actualiza.")
     if not body.motivo.strip():
         raise HTTPException(422, "El motivo es obligatorio.")
@@ -81,8 +99,9 @@ def update_authorization(placa: str, body: schemas.AuthorizationIn,
 
 
 @router.delete("/autorizaciones/{placa}", summary="Quitar una placa de todas las listas")
-def revoke_authorization(placa: str, _: dict = Depends(admin_only)) -> dict[str, str]:
+def revoke_authorization(placa: str, user: dict = Depends(admin_only)) -> dict[str, str]:
     plate = _plate(placa)
+    _check_identity_country(user,plate)
     _run(get_store().revoke_authorization, plate)
     return {"placa": plate, "mensaje": f"{plate} quedó sin autorización."}
 
@@ -91,6 +110,8 @@ def revoke_authorization(placa: str, _: dict = Depends(admin_only)) -> dict[str,
 def update_selected_truck_authorizations(body: schemas.BulkTruckAuthorizationIn,
                                          user: dict = Depends(admin_only)) -> dict[str, str | int]:
     plates = list(dict.fromkeys(_plate(raw) for raw in body.placas))
+    for plate in plates:
+        _check_identity_country(user,plate)
     db = get_store()
     vehicles = {plate: db.get_vehicle(plate) for plate in plates}
     missing = [plate for plate, vehicle in vehicles.items() if vehicle is None]
@@ -240,11 +261,12 @@ def set_users_state(body: schemas.BulkUserStateIn,
 
 
 @router.post("/demo", summary="Generar operaciones de demostración (origen DEMO)")
-def demo_generate(n: int = 120, _: dict = Depends(admin_only)) -> dict[str, Any]:
+def demo_generate(n: int = 120, user: dict = Depends(admin_only)) -> dict[str, Any]:
     n = max(1, min(int(n), 1000))
-    return {"creadas": get_store().load_demo_history(n)}
+    return {"creadas": get_store().load_demo_history(n,country=profile_country(user))}
 
 
 @router.delete("/demo", summary="Borrar las operaciones de demostración")
-def demo_clear(_: dict = Depends(admin_only)) -> dict[str, Any]:
-    return {"borradas": get_store().clear_demo_history()}
+def demo_clear(user: dict = Depends(admin_only)) -> dict[str, Any]:
+    return {"borradas": get_store().clear_demo_history(country=profile_country(user))}
+

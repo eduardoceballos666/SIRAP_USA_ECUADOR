@@ -14,7 +14,9 @@
 
 La app ejecuta **RT-DETRv2-S (ResNet-18vd)** con **OpenVINO Runtime nativo en Python**. El IR se obtiene del checkpoint de placas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), cuya ficha declara licencia **Apache-2.0** y señala como base a [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). El ajuste fino se entrena previamente con Transformers/PyTorch y se exporta a `openvino_model.xml` + `openvino_model.bin`; la aplicación no carga Transformers durante la inferencia.
 
-Ese checkpoint compartido no se ha validado específicamente para Ecuador ni Estados Unidos. Las métricas y umbrales YOLO anteriores no se transfieren a RT-DETR. A la fecha no hay métricas RT-DETR por país versionadas; los umbrales del detector en configuración son provisionales. Para adopción de un modelo nacional, hay que ajustar y evaluar con datos propios y test reservado.
+La aplicación usa ahora el **mismo checkpoint ajustado para USA, semilla 2**, en Ecuador y Estados Unidos. Los pesos privados se fijan por commit y SHA-256 en [selected_checkpoint.json](models/usa/selected_checkpoint.json), se verifican al cargar y no se reemplazan por otro detector. La detección se mantiene en **0,70** y el OCR global en **0,94** (probabilidad mínima por carácter). No se reentrenó para esta integración.
+
+Cambian las reglas OCR: Ecuador normaliza el formato ecuatoriano (`ABC-1234`); USA conserva letras y números e identifica el vehículo por **estado emisor + matrícula**. El rendimiento del detector con placas ecuatorianas sigue pendiente de evaluación. Los resultados históricos de otros modelos no se muestran como métricas de esta semilla.
 
 El OCR `fast-plate-ocr`, las reglas de acceso, la API y la interfaz se mantienen como componentes separados. Para arquitectura y licencias, consulta [arquitectura](docs/arquitectura.md), [avisos de terceros](THIRD_PARTY_NOTICES.md) y [manual de usuario](docs/manual_usuario.md).
 
@@ -46,11 +48,13 @@ Las corridas multisemilla y la búsqueda Optuna consumen GPU y están apagadas p
 | Ecuador | [Backend RT-DETR + OCR](notebooks/ecuador/sirap_backend.ipynb) | Flujo de Ecuador por etapas |
 | Estados Unidos | [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb) | Notebook unificado: COCO, entrenamiento, validación, OCR y OpenVINO |
 
-El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extremo; estas no activan decisiones de acceso en la app. La integración USA en la aplicación requiere reglas y normalización específicas del país. Los notebooks USA por etapas fueron consolidados y sus versiones previas permanecen en el historial de Git.
+El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extremo. Las pruebas del notebook no crean autorizaciones en la aplicación. La integración de ambos países está descrita en [flujo de aplicación](docs/usa_app_integration.md). Los notebooks USA por etapas fueron consolidados y sus versiones previas permanecen en el historial de Git.
 
 ## Aplicación web
 
-La app integra Reconocimiento y Acceso, Historial, Dashboard y Administración con perfiles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés, alemán e italiano. El Space utiliza el perfil Ecuador por defecto. El notebook USA incluye evaluaciones separadas de detección y OCR; la integración de ese perfil en decisiones de acceso requiere reglas específicas del país.
+Al iniciar sesión se eligen **idioma y país**. Ecuador y Estados Unidos usan los mismos módulos: Reconocimiento y Acceso, Historial, Dashboard y Administración, con roles de operador, supervisor y administrador. La interfaz está disponible en español, inglés, portugués, francés, alemán e italiano. Las rutas `/ecuador/…` y `/usa/…` comparten componentes; la API vincula el país al token de sesión. Para cambiar de país se vuelve al login. Vehículos, listas, propietarios, demostraciones, historial y dashboard se filtran por el país elegido; usuarios y garitas son comunes.
+
+USA permite la apertura normal mediante **Registrar y abrir barrera** cuando se cumplen los umbrales, la lista blanca vigente y dos cuadros con identificadores y hashes RGB distintos dentro de 7,5 segundos. El servidor emite una confirmación de un solo uso ligada al usuario, garita y sesión. Guarda la solicitud antes de accionar la barrera y vuelve a comprobar las autorizaciones. Una foto estática repetida no cumple esa confirmación. La barrera de la configuración publicada sigue siendo simulada.
 
 Los registros de operación persisten en el repositorio privado configurado mediante secretos de Hugging Face; no subas datos operativos a este repo. Los cambios de `main` se sincronizan al Space mediante [GitHub Actions](.github/workflows/deploy-hf-space.yml).
 
@@ -58,7 +62,9 @@ Los registros de operación persisten en el repositorio privado configurado medi
 
 Los archivos antiguos con `yolo11` en el nombre y sus reportes describen experimentos anteriores. No deben citarse como métricas del checkpoint RT-DETR. Los resultados nuevos se guardan con sufijo `rtdetr`; revisa [`results/README.md`](results/README.md) para distinguirlos.
 
-SAVH se utiliza para OCR en recortes; la evaluación de detección necesita escenas completas anotadas. Los perfiles Ecuador y USA requieren datasets, normalización y evaluación independientes.
+El diagnóstico del flujo real de la API reutilizó **8 fotos**: 9/10 matrículas exactas entre las detectadas y 2/9 estados conocidos correctos; en 7 escenas con referencia completa hubo 8 placas detectadas, 3 omitidas y 0 falsas detecciones. Una región adicional de la foto 3 sigue dudosa. El [resumen agregado](results/metrics/usa_runtime_development.json) no contiene las matrículas ni las imágenes. Es desarrollo, no un test final independiente; no estima falsas alarmas en escenas vacías.
+
+SAVH y los informes anteriores permanecen como evidencia histórica de sus propios modelos. No validan el checkpoint actual ni la adopción en Ecuador. Las pruebas de software usan listas, imágenes y barrera sintéticas.
 
 ## Licencias
 
@@ -68,8 +74,10 @@ El código de este repositorio se distribuye bajo [Apache License 2.0](LICENSE);
 
 # SIRAP_USA_ECUADOR (English)
 
-SIRAP is a vehicle license-plate recognition and access-control application. Its detector is **RT-DETRv2-S (ResNet-18vd)**, running natively through the **OpenVINO Runtime Python API**. Fine-tuning happens before deployment with Transformers/PyTorch; the app loads an OpenVINO IR (`openvino_model.xml` and `.bin`). The source license-plate checkpoint [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2) is listed as **Apache-2.0**. Country-specific fine-tuned IRs take precedence over the shared IR.
+The login now selects **country and language**. Ecuador and USA share the same Vue interface, the **same USA-trained seed-2 RT-DETRv2-S/OpenVINO detector**, and the same verified global OCR weights. There is no retraining in this integration. Country-specific rules interpret the OCR output: Ecuador uses its plate format; USA preserves alphanumeric characters and requires the issuing state plus serial. Detector confidence remains **0.70**; minimum OCR character probability is **0.94**. Ecuador performance is not yet validated.
 
-The shared checkpoint has not been validated specifically for Ecuador or the United States. Previous YOLO metrics and confidence thresholds are not carried over. No country-specific RT-DETR test metrics are currently versioned; configured detector thresholds are provisional. Fine-tune and evaluate each profile using representative data and a reserved test split.
+Country is bound to the session token and to recognition, registry, allowlists and history. Routes `/ecuador/…` and `/usa/…` reuse the same components. Users and gates are shared. USA normal opening requires a current allowlist entry and two distinct server-confirmed frame IDs and RGB hashes within 7.5 seconds. Receipts expire after 30 seconds, are single-use, and cannot be forged by sending client confidence values. Operations are persisted before actuation. The configured barrier remains simulated.
 
-Training uses COCO Detection in `src/train.py`, then `src/export_openvino.py` creates the IR. The Roboflow downloader uses `plateblur/european-usa-license-plates` v1 as COCO Segmentation and maps its bounding boxes to one plate class. The consolidated USA notebook builds a grouped internal holdout of at least 400 images from the same export; it is not an external dataset, and vehicle/session separation requires supplied identifiers. Ecuador retains staged notebooks; the USA workflow is in [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb). The Hugging Face Space is [SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Earlier staged USA notebooks remain in Git history.
+The immutable [model selection](models/usa/selected_checkpoint.json) references a private Hugging Face model repository. Deployment verifies access and hashes before updating the Space and stores the runtime model credential as a Space secret; model binaries are not copied into public Space source. A reused eight-photo diagnostic is [reported as development](results/metrics/usa_runtime_development.json), not as an independent final test. Historical YOLO/Ecuador results are not presented as validation of these weights.
+
+See [application integration](docs/usa_app_integration.md), [notebooks](notebooks/README.md), and the [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Training remains separate from the deployed, pinned model selection.

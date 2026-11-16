@@ -1,0 +1,21 @@
+{
+  "country": "usa",
+  "seed": 2,
+  "artifact_repository": "eduardoceballos/SIRAP_USA_seed2",
+  "artifact_revision": "ceaf7b0c692df45f9692ac0817571ea006dd8c08",
+  "detector_threshold": 0.70,
+  "ocr_threshold": 0.94,
+  "metadata_sha256": {
+    "sirap_openvino.json": "9c7c3c3355157b8ba652f7524dbb5a371aeede6996f4374f6cb5d5a645167c0d",
+    "sirap_training.json": "ef928b6f9f8a9696bff3a500a2d5ff6dce17c15ce1d833348be1122b83989767"
+  },
+  "detector_sha256": {
+    "openvino_model.xml": "8eaaad4be89f1d4ac9ff3838d57ea20b66d40f1af3751078f7f628433343ba6c",
+    "openvino_model.bin": "85d6492a0fcc1661514fc81676afe65ecb379cc97885e13eaf87f2d5a49bd0af"
+  },
+  "ocr_sha256": {
+    "cct_s_v2_global.onnx": "384bbbd2cea3ef54761d3df70822ef3a349ee1a112aeafddbe0e3ba06bc6e47b",
+    "cct_s_v2_global_plate_config.yaml": "0335c74a305173bb6f393efed0fde03cadeaa0b649ed8e19f431016d8232d0a6"
+  },
+  "evaluation_scope": "development; eight previously reviewed photos; not an independent final test"
+}

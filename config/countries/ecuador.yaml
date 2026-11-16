@@ -15,29 +15,26 @@ app:
 
 detector:
   arquitectura: "RT-DETRv2-S"
-  # RT-DETRv2-S (ResNet-18vd), checkpoint de matrículas Apache-2.0 convertido a OpenVINO IR.
-  # El IR ajustado para Ecuador, si existe, tiene prioridad sobre el compartido.
+  # Misma semilla 2 entrenada en USA, verificada y compartida por los dos países.
+  # La aplicación cambia las reglas OCR; no carga pesos ecuatorianos alternativos.
   model_id: "merve/license-plates-rtdetrv2"
   base_model_id: "PekingU/rtdetr_v2_r18vd"
-  checkpoint: "models/ecuador/detector/rtdetrv2_s/openvino"
-  fallback_checkpoint: "models/shared/detector/rtdetrv2_s/openvino"
+  checkpoint: "models/shared/detector/rtdetrv2_s/seed_2/openvino"
+  fallback_checkpoint: null
   class_id: 0
   runtime: "OpenVINO Runtime"
   dispositivo: "CPU"
   imgsz_entrenamiento: 640
   imgsz_inferencia: 640
-  conf_minima: 0.25            # provisional; calibrar con el split de validación tras el ajuste fino
-  # Umbral operativo provisional. El umbral previo de YOLO no se transfiere a RT-DETR.
-  conf_decision: 0.30
+  conf_minima: 0.70            # mismo checkpoint de semilla 2 que USA
+  # Umbral conservado por decisión del propietario; rendimiento en Ecuador pendiente.
+  conf_decision: 0.70
   margen_recorte: 0.06
 
 ocr:
   modelo: "cct-s-v2-global-model"   # fast-plate-ocr 1.1.0 (≈5 MB, CPU)
   dispositivo: "cpu"
-  # OCR afinado opcional; si ambos archivos existen, la app
-  # los usa en lugar del modelo del hub; si no, sigue con cct-s-v2-global-model.
-  onnx_afinado: "models/ecuador/ocr/ecuador_ocr.onnx"
-  plate_config_afinado: "models/ecuador/ocr/ecuador_ocr_plate_config.yaml"
+  # Mismos pesos globales verificados que USA, sin reentrenamiento.
 
 placas:
   # Placas ecuatorianas: 3 letras + 3 o 4 dígitos; se escriben XXX-0000 (las de 3 dígitos se completan con 0).
@@ -67,3 +64,4 @@ metas:
 logging:
   nivel: "INFO"
   archivo: "results/reports/sirap.log"
+

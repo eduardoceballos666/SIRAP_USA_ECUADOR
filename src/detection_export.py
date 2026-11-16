@@ -38,6 +38,7 @@ CSV_FIELDS = (
     "propietario_nombre", "propietario_fuente", "propietario_consultado_en",
     "propietario_estado", "propietario_detalle", "propietario_cambiado_en",
     "propietario_anterior", "propietario_nuevo",
+    "country", "jurisdiction", "identity_key", "evidence_id", "model_seed",
 )
 
 _API = "https://api.github.com"
@@ -284,3 +285,4 @@ def _enrich(event_id: str, plate: str, plant_brand: str | None) -> None:
 def enrich_detection(event_id: str, plate: str, plant_brand: str | None = None) -> None:
     """Encola la consulta al SRI para que no retrase la respuesta del operador."""
     _ENRICHMENT_POOL.submit(_enrich, event_id, plate, plant_brand)
+

@@ -66,6 +66,18 @@ def test_login_rechaza_clave_incorrecta(client):
     r = client.post("/api/auth/login", json={"usuario": "admin", "password": "incorrecta"})
     assert r.status_code == 401
 
+def test_login_country_and_language_are_kept_in_the_authenticated_profile(client):
+    response=client.post('/api/auth/login',json={'usuario':'operador','password':'sirap2026',
+                                              'country':'usa','language':'es'})
+    assert response.status_code==200,response.text
+    data=response.json()
+    assert data['user']['country']=='usa' and data['user']['language']=='es'
+    headers={'Authorization':'Bearer '+data['access_token']}
+    assert client.get('/api/auth/me',headers=headers).json()['country']=='usa'
+    assert client.get('/api/system',params={'country':'ecuador'},headers=headers).status_code==403
+    assert client.post('/api/plates/verify',json={'placa':'PBA8901','country':'ecuador'},headers=headers).status_code==403
+    assert client.post('/api/auth/login',json={'usuario':'operador','password':'sirap2026','country':'unknown'}).status_code==422
+
 
 def test_endpoints_protegidos(client):
     assert client.get("/api/system").status_code == 401
@@ -90,7 +102,16 @@ def test_verificar_placa_manual(client):
     assert client.post("/api/plates/verify", json={"placa": "1234"}, headers=h).status_code == 422
 
 
-def test_reconocer_imagen_de_ejemplo(client):
+def test_reconocer_imagen_de_ejemplo(client,monkeypatch):
+    # This tests HTTP/auth/image wiring, independently of external model downloads.
+    from types import SimpleNamespace
+    from src.model import Recognition
+    from api.routers import recognition
+    pipeline=SimpleNamespace(
+        detector=SimpleNamespace(name='RT-DETRv2-S/OpenVINO (test stub)',is_model=True),
+        recognize=lambda image:Recognition('PBA-8901',plate_raw='PBA8901',ocr_confidence=.99,
+            det_confidence=.9,detector='RT-DETRv2-S/OpenVINO (test stub)'))
+    monkeypatch.setattr(recognition,'get_pipeline',lambda:pipeline)
     h = _token(client, "operador")
     with open(SAMPLES / "garita3_PBA-8901.jpg", "rb") as f:
         r = client.post("/api/recognize", files={"file": ("p.jpg", f, "image/jpeg")}, headers=h)
@@ -185,3 +206,4 @@ def test_carga_de_archivo_env(tmp_path, monkeypatch):
     assert os.environ["SIRAP_PRUEBA_B"] == "ya definida"      # no pisa variables existentes
     assert "SIRAP_PRUEBA_VACIA" not in os.environ
     monkeypatch.delenv("SIRAP_PRUEBA_A")
+

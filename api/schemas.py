@@ -11,17 +11,26 @@ Resultado = Literal["AUTORIZADO", "DENEGADO", "NO_REGISTRADO", "VERIFICACION_MAN
 Accion = Literal["APERTURA_AUTOMATICA", "APERTURA_MANUAL", "SOLO_REGISTRO", "RECHAZO"]
 Movimiento = Literal["ENTRADA", "SALIDA"]
 Rol = Literal["OPERADOR", "SUPERVISOR", "ADMINISTRADOR"]
+Country = Literal['ecuador', 'usa']
+
+class CountryFields(BaseModel):
+    country: Country = 'ecuador'
+    jurisdiction: Optional[str] = Field(default=None, max_length=2)
 
 
 class LoginIn(BaseModel):
     usuario: str = Field(min_length=1, max_length=40)
     password: str = Field(min_length=1, max_length=128)
+    country: Country = 'ecuador'
+    language: Literal['en','es','pt','fr','de','it'] = 'en'
 
 
 class User(BaseModel):
     usuario: str
     nombre: str
     rol: Rol
+    country: Country = 'ecuador'
+    language: str = 'en'
 
 
 class TokenOut(BaseModel):
@@ -54,23 +63,36 @@ class Recognition(BaseModel):
     crop_jpeg_base64: Optional[str] = None
     image_width: int
     image_height: int
+    country: Country = 'ecuador'
+    jurisdiction: Optional[str] = None
+    jurisdiction_name: str = ''
+    jurisdiction_status: str = 'not_applicable'
+    identity_key: Optional[str] = None
+    lookup_key: Optional[str] = None
+    evidence_id: Optional[str] = None
+    confirmation_frames: int = 0
+    temporal_confirmed: bool = False
 
 
-class RecognizeOut(BaseModel):
+class CandidateOut(BaseModel):
     recognition: Recognition
     decision: Decision
 
+class RecognizeOut(CandidateOut):
+    candidates: list[CandidateOut] = Field(default_factory=list)
 
-class VerifyIn(BaseModel):
-    placa: str = Field(min_length=3, max_length=12)
+
+class VerifyIn(CountryFields):
+    placa: str = Field(min_length=1, max_length=12)
 
 
-class VerifyOut(BaseModel):
+class VerifyOut(CountryFields):
     placa: str
     decision: Decision
+    identity_key: Optional[str] = None
 
 
-class OperationIn(BaseModel):
+class OperationIn(CountryFields):
     garita: str = Field(min_length=1, max_length=60)
     tipo_movimiento: Movimiento
     accion: Accion
@@ -82,6 +104,7 @@ class OperationIn(BaseModel):
     origen: Literal["DETECCION", "MANUAL"] = "DETECCION"
     tiempo_ms: Optional[float] = None
     operacion_id: Optional[str] = Field(default=None, min_length=36, max_length=36)
+    evidence_id: Optional[str] = Field(default=None, min_length=36, max_length=36)
 
 
 class OperationOut(BaseModel):
@@ -95,8 +118,8 @@ class OperationOut(BaseModel):
     mensaje: str
 
 
-class VehicleIn(BaseModel):
-    placa: str = Field(min_length=3, max_length=12)
+class VehicleIn(CountryFields):
+    placa: str = Field(min_length=1, max_length=12)
     marca: str = ""
     modelo: str = ""
     color: str = ""
@@ -107,8 +130,8 @@ class VehicleIn(BaseModel):
     autorizar: bool = False
 
 
-class AdminVehicleIn(BaseModel):
-    placa: str = Field(min_length=3, max_length=12)
+class AdminVehicleIn(CountryFields):
+    placa: str = Field(min_length=1, max_length=12)
     marca: str = Field(min_length=1, max_length=80)
     modelo: str = Field(min_length=1, max_length=80)
     color: str = Field(min_length=1, max_length=40)
@@ -117,8 +140,8 @@ class AdminVehicleIn(BaseModel):
     transportista: str = Field(min_length=1, max_length=120)
 
 
-class AuthorizationIn(BaseModel):
-    placa: str = Field(min_length=3, max_length=12)
+class AuthorizationIn(CountryFields):
+    placa: str = Field(min_length=1, max_length=12)
     lista: Literal["BLANCA", "RESTRINGIDA"]
     motivo: str = Field(min_length=1, max_length=250)
     vigente_hasta: date
@@ -158,3 +181,4 @@ class AdminUserUpdateIn(BaseModel):
 
 class AdminPasswordResetIn(BaseModel):
     password: str = Field(min_length=8, max_length=128)
+

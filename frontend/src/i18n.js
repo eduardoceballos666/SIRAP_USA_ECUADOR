@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { countryMessages } from './countryMessages'
 
 const LANGUAGE_KEY = 'sirap_language'
 const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de', 'it']
@@ -1097,6 +1098,9 @@ const it = {
   "Cámara Local": "Telecamera locale",
 }
 
+for (const [locale, translations] of Object.entries(countryMessages)) {
+  Object.assign({ en, pt, fr, de, it }[locale], translations)
+}
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
 const enToEs = Object.fromEntries(Object.entries(en).map(([spanish, english]) => [english, spanish]))
 export const messages = { es, en, pt, fr, de, it }
@@ -1166,3 +1170,4 @@ export function installI18n(app) {
   app.config.globalProperties.$t = t
   document.documentElement.lang = localeTag.value
 }
+

@@ -47,6 +47,12 @@ class Recognition:
     detector: str = ""
     timings_ms: dict[str, float] = field(default_factory=dict)
     candidates: int = 0
+    country: str = "ecuador"
+    jurisdiction: str | None = None
+    jurisdiction_name: str = ""
+    jurisdiction_status: str = "not_applicable"
+    identity_key: str | None = None
+    lookup_key: str | None = None
 
     @property
     def found(self) -> bool:
@@ -63,6 +69,12 @@ class Recognition:
             "box": [round(v, 1) for v in self.box] if self.box else None,
             "detector": self.detector,
             "timings_ms": {k: round(v, 1) for k, v in self.timings_ms.items()},
+            "country": self.country,
+            "jurisdiction": self.jurisdiction,
+            "jurisdiction_name": self.jurisdiction_name,
+            "jurisdiction_status": self.jurisdiction_status,
+            "identity_key": self.identity_key or (self.plate if self.country == "ecuador" else None),
+            "lookup_key": self.lookup_key or (self.plate if self.country == "ecuador" else None),
         }
 
 
@@ -201,10 +213,11 @@ class PlateDetector:
             if label != self.class_id or score < self.conf:
                 continue
             cx, cy, box_w, box_h = (float(value) for value in boxes[query_index])
-            x1 = (cx - box_w / 2) * width
-            y1 = (cy - box_h / 2) * height
-            x2 = (cx + box_w / 2) * width
-            y2 = (cy + box_h / 2) * height
+            scale_x, scale_y = self._box_pixel_scales(height, width)
+            x1 = (cx - box_w / 2) * scale_x
+            y1 = (cy - box_h / 2) * scale_y
+            x2 = (cx + box_w / 2) * scale_x
+            y2 = (cy + box_h / 2) * scale_y
             detections.append(Detection(
                 (float(np.clip(x1, 0, width)), float(np.clip(y1, 0, height)),
                  float(np.clip(x2, 0, width)), float(np.clip(y2, 0, height))),
@@ -212,6 +225,24 @@ class PlateDetector:
             ))
         detections.sort(key=lambda detection: detection.confidence, reverse=True)
         return detections
+
+    def _box_pixel_scales(self, height: int, width: int) -> tuple[float, float]:
+        """Undo right/bottom padding when the IR explicitly uses padded coordinates.
+
+        Older manifests without this declaration retain their original-image mapping.
+        Use the actual rounded resize dimensions, as in _preprocess, for both axes.
+        """
+        space = self.manifest.get("bbox_coordinate_space", "original_image")
+        if space == "original_image":
+            return float(width), float(height)
+        if space != "padded_input":
+            raise ValueError(f"Unsupported bbox_coordinate_space: {space!r}")
+        max_height = min(self.imgsz, int(self.manifest.get("resize_max_height", self.imgsz)))
+        max_width = min(self.imgsz, int(self.manifest.get("resize_max_width", self.imgsz)))
+        scale = min(max_height / height, max_width / width)
+        resized_h = max(1, min(max_height, int(round(height * scale))))
+        resized_w = max(1, min(max_width, int(round(width * scale))))
+        return self.imgsz * width / resized_w, self.imgsz * height / resized_h
 
 
 class PlateReader:
@@ -308,3 +339,4 @@ class ALPRPipeline:
                     result.plate, result.plate_raw, result.ocr_confidence,
                     self.detector.name, timings["total"])
         return result
+

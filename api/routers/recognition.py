@@ -6,16 +6,19 @@ import base64
 import threading
 import time
 import uuid
+import hashlib
 from dataclasses import asdict
 
 import cv2
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 
 from api import schemas
 from api.jsonsafe import plain
-from api.deps import current_user, get_barrier, get_config, get_store, get_pipeline, thresholds
-from src.access_control import AccessDecision, decide_access
+from api.deps import current_user, get_barrier, get_config, get_store, get_pipeline, thresholds, profile_country
+from src.access_control import AccessDecision, decide_access, decide_usa_access
+from src.plate_identity import normalize_identity, public_plate_record
+from api.recognition_evidence import evidence_store
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.storage import StorageError
 from src.github_storage import durable_backup_configured
@@ -107,10 +110,34 @@ def _decision_out(decision: AccessDecision) -> schemas.Decision:
     return schemas.Decision(**data)
 
 
-def _decide(plate: str | None, ocr_conf: float, det_conf: float | None) -> AccessDecision:
+def _decide(plate: str | None, ocr_conf: float, det_conf: float | None,
+            country='ecuador', jurisdiction=None, confirmed=False) -> AccessDecision:
+    if country=='usa':
+        return decide_usa_access(plate,jurisdiction,ocr_conf,get_store(),det_confidence=det_conf,
+                                 temporal_confirmed=confirmed,
+                                 automatic_enabled=get_config('usa')['automatic_access']['enabled'])
     ocr_threshold, det_threshold, distance = thresholds()
     return decide_access(plate, ocr_conf, get_store(), ocr_threshold, distance,
                          det_confidence=det_conf, det_threshold=det_threshold)
+
+def _identity(raw, country='ecuador', jurisdiction=None):
+    try:
+        return normalize_identity(raw,country,jurisdiction)
+    except ValueError as exc:
+        raise HTTPException(422,str(exc)) from exc
+
+def _recognition_out(rec,pipeline,image,receipt=None):
+    crop_b64=None
+    if rec.crop is not None and rec.crop.size:
+        ok,buffer=cv2.imencode('.jpg',cv2.cvtColor(rec.crop,cv2.COLOR_RGB2BGR),[cv2.IMWRITE_JPEG_QUALITY,90])
+        crop_b64=base64.b64encode(buffer.tobytes()).decode() if ok else None
+    data=rec.as_dict()
+    if rec.country=='usa':
+        data.update(ocr_confidence=rec.ocr_confidence,det_confidence=rec.det_confidence)
+    return schemas.Recognition(**data,detector_is_model=pipeline.detector.is_model,
+        crop_jpeg_base64=crop_b64,image_width=int(image.shape[1]),image_height=int(image.shape[0]),
+        evidence_id=receipt.id if receipt else None,confirmation_frames=len(receipt.frames) if receipt else 0,
+        temporal_confirmed=receipt.confirmed if receipt else False)
 
 
 @router.get("/samples", summary="Imágenes de ejemplo precargadas")
@@ -128,44 +155,69 @@ def get_sample(name: str) -> FileResponse:
 
 @router.post("/recognize", response_model=schemas.RecognizeOut, summary="Reconocer la placa de una imagen")
 def recognize(file: UploadFile = File(..., description="JPG, PNG o WEBP; máx. 10 MB"),
-              _: dict = Depends(current_user)) -> schemas.RecognizeOut:
+              country: schemas.Country = Form('ecuador'),
+              garita: str = Form('',max_length=60),
+              capture_session: str | None = Form(None,max_length=64),
+              frame_id: str | None = Form(None,max_length=64),
+              user: dict = Depends(current_user)) -> schemas.RecognizeOut:
     """Detecta la placa con RT-DETRv2, la lee con fast-plate-ocr, la normaliza y aplica la regla de acceso.
 
     No registra nada: el operador confirma después con ``POST /api/operations``.
     """
-    cfg = get_config()["app"]
+    country=profile_country(user,country)
+    cfg = get_config(country)["app"]
     try:
         image = load_image(file.file.read(), ImageLimits(cfg["max_tamano_imagen_mb"], cfg["min_lado_imagen_px"]))
     except ImageValidationError as exc:
         raise HTTPException(422, str(exc))
-    pipeline = get_pipeline()
+    received_at=time.monotonic()
     try:
+        pipeline = get_pipeline('usa') if country=='usa' else get_pipeline()
+    except (ValueError,FileNotFoundError,RuntimeError) as exc:
+        logger.error('No se pudo cargar el perfil %s: %s',country,exc)
+        raise HTTPException(503,f'El modelo del perfil {country} no está disponible. Puede verificar la placa manualmente.') from exc
+    try:
+        if country=='usa':
+            readings=pipeline.recognize_many(image)
+            receipts=evidence_store.record(readings,owner=user['usuario'],gate=garita,
+                session=capture_session or str(uuid.uuid4()),frame_id=frame_id or str(uuid.uuid4()),
+                image_sha256=hashlib.sha256(image.tobytes()).hexdigest(),received_at=received_at)
+            candidates=[]
+            for rec,receipt in zip(readings,receipts):
+                decision=_decide(rec.plate,rec.ocr_confidence,rec.det_confidence,'usa',rec.jurisdiction,receipt.confirmed)
+                candidates.append(schemas.CandidateOut(recognition=_recognition_out(rec,pipeline,image,receipt),
+                                                       decision=_decision_out(decision)))
+            return schemas.RecognizeOut(**candidates[0].model_dump(),candidates=candidates)
         rec = pipeline.recognize(image)
         decision = _decide(rec.plate, rec.ocr_confidence,
                            rec.det_confidence if pipeline.detector.is_model else None)
     except StorageError as exc:
         logger.exception("Almacenamiento CSV: %s", exc)
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "No se pudieron consultar los archivos CSV.")
-    crop_b64 = None
-    if rec.crop is not None and rec.crop.size:
-        ok, buffer = cv2.imencode(".jpg", cv2.cvtColor(rec.crop, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 90])
-        crop_b64 = base64.b64encode(buffer.tobytes()).decode() if ok else None
-    data = rec.as_dict()
-    recognition = schemas.Recognition(
-        plate=data["plate"], plate_raw=data["plate_raw"], ocr_confidence=data["ocr_confidence"],
-        ocr_mean_confidence=data["ocr_mean_confidence"], det_confidence=data["det_confidence"], box=data["box"],
-        detector=data["detector"], detector_is_model=pipeline.detector.is_model, timings_ms=data["timings_ms"],
-        crop_jpeg_base64=crop_b64, image_width=int(image.shape[1]), image_height=int(image.shape[0]))
+    recognition = _recognition_out(rec,pipeline,image)
     return schemas.RecognizeOut(recognition=recognition, decision=_decision_out(decision))
 
 
 @router.post("/plates/vehicle-data", status_code=202, summary="Iniciar consulta de datos del vehículo")
 def start_vehicle_data_lookup(body: schemas.VerifyIn, background_tasks: BackgroundTasks,
-                              _: dict = Depends(current_user)) -> dict[str, str]:
+                              user: dict = Depends(current_user)) -> dict[str, str]:
     """Consulta datos vehiculares del SRI y el registro local; omite la fuente de pago de propietario."""
-    plate = normalize_plate(body.placa)
-    if not plate:
-        raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+    profile_country(user,body.country)
+    identity=_identity(body.placa,body.country,body.jurisdiction)
+    plate=identity.serial
+    if body.country=='usa':
+        # No U.S. plate is sent to SRI or an external plate-lookup service.
+        local=get_store().get_vehicle(identity.key)
+        request_id=str(uuid.uuid4())
+        with _VEHICLE_LOOKUP_LOCK:
+            cutoff=time.monotonic()-900
+            for old_id,value in list(_VEHICLE_LOOKUPS.items()):
+                if value.get('_created_at',0)<cutoff:
+                    _VEHICLE_LOOKUPS.pop(old_id,None)
+            _VEHICLE_LOOKUPS[request_id]={'estado':'completado','placa':plate,**identity.as_dict(),
+                'vehiculo':public_plate_record(local) if local else {},'fuentes':{'local':'consultado','sri':'no_aplica'},
+                '_created_at':time.monotonic()}
+        return {'request_id':request_id,'estado':'completado','placa':plate}
     request_id = str(uuid.uuid4())
     with _VEHICLE_LOOKUP_LOCK:
         cutoff = time.monotonic() - 900
@@ -187,11 +239,14 @@ def get_vehicle_data_lookup(request_id: str, _: dict = Depends(current_user)) ->
 
 
 @router.post("/plates/verify", response_model=schemas.VerifyOut, summary="Verificar una placa escrita a mano")
-def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> schemas.VerifyOut:
-    plate = normalize_plate(body.placa)
-    if not plate:
-        raise HTTPException(422,
-                            "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+def verify_plate(body: schemas.VerifyIn, user: dict = Depends(current_user)) -> schemas.VerifyOut:
+    profile_country(user,body.country)
+    identity=_identity(body.placa,body.country,body.jurisdiction)
+    plate=identity.serial
+    if body.country=='usa':
+        decision=_decide(plate,1.0,None,'usa',identity.jurisdiction)
+        return schemas.VerifyOut(placa=plate,country='usa',jurisdiction=identity.jurisdiction,
+                                  identity_key=identity.key,decision=_decision_out(decision))
     ocr_threshold, det_threshold, _ = thresholds()
     decision = decide_access(plate, 1.0, get_store(), ocr_threshold, 0)
     return schemas.VerifyOut(placa=plate, decision=_decision_out(decision))
@@ -200,9 +255,9 @@ def verify_plate(body: schemas.VerifyIn, _: dict = Depends(current_user)) -> sch
 @router.post("/plates/register", status_code=201, summary="Registrar un camión nuevo y, si se confirma, autorizarlo")
 def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)) -> dict[str, str]:
     """Los tres perfiles pueden registrar y autorizar; solo nuevos y con confirmación explícita."""
-    plate = normalize_plate(body.placa)
-    if not plate:
-        raise HTTPException(422, "Formato inválido: use 3 letras y 3 o 4 dígitos (ej.: PBA-8901).")
+    profile_country(user,body.country)
+    identity=_identity(body.placa,body.country,body.jurisdiction)
+    plate=identity.key
     if not body.placa_confirmada:
         raise HTTPException(422, "Confirme visualmente la placa antes de registrar o autorizar.")
     required = {"marca": body.marca, "modelo": body.modelo, "color": body.color,
@@ -231,8 +286,10 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
                                 "Camión registrado, pero NO autorizado: falló el guardado de la lista blanca. "
                                 "Un Administrador debe revisar el registro.") from exc
-        return {"placa": plate, "mensaje": f"Camión {plate} registrado y autorizado por {user['usuario']}."}
-    return {"placa": plate, "mensaje": f"Camión {plate} registrado, pendiente de autorización."}
+        return {"placa": identity.serial, "country":identity.country,"jurisdiction":identity.jurisdiction or '',
+                "identity_key":identity.key,"mensaje": f"Camión {identity.lookup_key} registrado y autorizado por {user['usuario']}."}
+    return {"placa": identity.serial,"country":identity.country,"jurisdiction":identity.jurisdiction or '',
+            "identity_key":identity.key,"mensaje": f"Camión {identity.lookup_key} registrado, pendiente de autorización."}
 
 
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
@@ -243,11 +300,31 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     - ``APERTURA_AUTOMATICA`` solo se acepta si la placa está AUTORIZADA.
     - ``APERTURA_MANUAL`` exige un motivo de al menos 10 caracteres.
     """
-    plate = normalize_plate(body.placa_final) if body.placa_final else None
-    if body.placa_final and not plate:
-        raise HTTPException(422, "Placa final con formato inválido.")
+    profile_country(user,body.country)
+    identity=_identity(body.placa_final,body.country,body.jurisdiction) if body.placa_final and (
+        body.country=='ecuador' or body.jurisdiction) else None
+    plate=identity.serial if identity else None
+    receipt=None
+    if body.country=='usa' and body.origen=='DETECCION':
+        try:
+            receipt=evidence_store.get(body.evidence_id,owner=user['usuario'],gate=body.garita,
+                                       identity_key=identity.key if identity else None)
+        except ValueError as exc:
+            raise HTTPException(409,str(exc)) from exc
+        rec=receipt.reading
+        if body.placa_final and body.placa_final.replace('-','').replace(' ','').upper()!=rec.plate:
+            raise HTTPException(409,'La matrícula no coincide con la lectura guardada en el servidor.')
+        plate=rec.plate
+        body.jurisdiction=rec.jurisdiction
+        identity=_identity(plate,'usa',rec.jurisdiction) if plate and rec.jurisdiction else None
+        body.confianza_ocr=rec.ocr_confidence
+        body.det_confidence=rec.det_confidence
+        body.placa_leida=rec.plate_raw
+    if body.country=='usa' and body.origen=='MANUAL' and body.accion=='APERTURA_AUTOMATICA':
+        raise HTTPException(409,'La apertura automática requiere dos lecturas del detector confirmadas en el servidor.')
     confidence = 1.0 if body.origen == "MANUAL" else (body.confianza_ocr or 0.0)
-    decision = _decide(plate, confidence, None if body.origen == "MANUAL" else body.det_confidence)
+    decision = _decide(plate, confidence, None if body.origen == "MANUAL" else body.det_confidence,
+                       body.country,body.jurisdiction,receipt.confirmed if receipt else False)
     if body.accion == "APERTURA_AUTOMATICA" and not decision.permite_apertura:
         raise HTTPException(status.HTTP_409_CONFLICT,
                             f"No se puede abrir automáticamente: el resultado es {decision.resultado}. "
@@ -266,6 +343,14 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     opening = body.accion in ("APERTURA_AUTOMATICA", "APERTURA_MANUAL")
     final = plate if decision.resultado != "VERIFICACION_MANUAL" or body.origen == "MANUAL" else None
     db = get_store()
+    claimed=False
+    if body.country=='usa' and body.accion=='APERTURA_AUTOMATICA':
+        try:
+            receipt=evidence_store.get(body.evidence_id,owner=user['usuario'],gate=body.garita,
+                                       identity_key=identity.key,claim=True)
+            claimed=True
+        except ValueError as exc:
+            raise HTTPException(409,str(exc)) from exc
 
     # 1. Se escribe la solicitud antes de emitir cualquier orden de apertura.
     try:
@@ -274,14 +359,25 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             resultado=decision.resultado, accion=body.accion, placa_leida=body.placa_leida, placa_final=final,
             confianza_ocr=body.confianza_ocr, lista=decision.lista, motivo=(body.motivo or None),
             origen=body.origen, tiempo_ms=body.tiempo_ms, operacion_id=op_id,
-            estado_barrera="SOLICITADA" if opening else "NO_APLICA")
+            estado_barrera="SOLICITADA" if opening else "NO_APLICA",
+            country=body.country,jurisdiction=body.jurisdiction,
+            identity_key=identity.key if identity else None,
+            evidence_id=receipt.id if receipt else None,evidence_json=receipt.audit() if receipt else None,
+            det_confidence=body.det_confidence,model_seed=2 if receipt else None)
     except ValueError as exc:
+        if claimed:
+            evidence_store.release(receipt.id)
         if "Operación duplicada" in str(exc):
             raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
         raise HTTPException(422, f"No se pudo registrar: {exc}") from exc
     except StorageError as exc:
+        if claimed:
+            evidence_store.release(receipt.id)
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
                             "Apertura bloqueada: no se pudo guardar primero la solicitud en el CSV.") from exc
+
+    if claimed:
+        evidence_store.consume(receipt)
 
     # 2. La barrera solo recibe la orden después de persistir la solicitud.
     opened = False
@@ -320,6 +416,9 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             "accion": body.accion,
             "origen": body.origen,
             "placa": final,
+            "country":body.country,"jurisdiction":body.jurisdiction or '',
+            "identity_key":identity.key if identity else '',
+            "evidence_id":receipt.id if receipt else '',"model_seed":2 if receipt else '',
             "texto_ocr": body.placa_leida or final,
             "formato_valido": True,
             "confianza_ocr": body.confianza_ocr,
@@ -338,7 +437,8 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
         try:
             append_detection(row)
             export_saved = True
-            background_tasks.add_task(enrich_detection, row["event_id"], final, row["marca_planta"])
+            if body.country=='ecuador':
+                background_tasks.add_task(enrich_detection, row["event_id"], final, row["marca_planta"])
         except Exception as exc:
             logger.exception("No se pudo guardar la detección en GitHub: %s", exc)
     messages = {"APERTURA_AUTOMATICA": "Operación registrada y barrera abierta.",
@@ -346,9 +446,11 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
                 "RECHAZO": "Rechazo registrado; la barrera permanece cerrada.",
                 "SOLO_REGISTRO": "Operación registrada sin abrir la barrera."}
     if body.origen == "DETECCION" and final:
-        messages[body.accion] += (" Detección guardada en el CSV de GitHub; consultando los datos vehiculares del SRI."
+        messages[body.accion] += ((' Detección guardada; datos del registro local de Estados Unidos.' if body.country=='usa' else
+                                  " Detección guardada en el CSV de GitHub; consultando los datos vehiculares del SRI.")
                                   if export_saved else
                                   " No se guardó en GitHub; revise la configuración del repositorio y el token.")
     return schemas.OperationOut(registrada=True, resultado=decision.resultado, accion=body.accion,
                                 barrera_abierta=opened, barrera_simulada=getattr(barrier, "simulated", True),
                                 operacion_id=op_id, estado_barrera=barrier_state, mensaje=messages[body.accion])
+

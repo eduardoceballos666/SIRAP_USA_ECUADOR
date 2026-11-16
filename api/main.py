@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+import json
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,10 +31,17 @@ logger = get_logger("sirap.api")
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     get_store()
-    try:
-        get_pipeline()  # carga RT-DETRv2-S/OpenVINO y el OCR una sola vez
-    except Exception as exc:  # noqa: BLE001 - la API arranca aunque falte el modelo
-        logger.error("No se pudo precargar el pipeline: %s", exc)
+    app.state.profile_status={}
+    detectors=[]
+    for country in ('ecuador','usa'):
+        try:
+            pipeline=get_pipeline(country)
+            detectors.append(pipeline.detector)
+            app.state.profile_status[country]={'model_ready':True,'seed':2,'training_country':'usa'}
+        except Exception as exc:  # noqa: BLE001 - la API conserva la verificación manual
+            logger.error("No se pudo precargar el perfil %s: %s",country,exc)
+            app.state.profile_status[country]={'model_ready':False,'seed':2,'training_country':'usa'}
+    app.state.shared_detector=len(detectors)==2 and detectors[0] is detectors[1]
     yield
 
 
@@ -51,8 +59,15 @@ for module in (auth, recognition, reports, admin):
 
 
 @app.get("/api/health", tags=["Sistema"], summary="Prueba de vida")
-def health() -> dict[str, str]:
-    return {"estado": "ok", "version": __version__}
+def health() -> dict:
+    build_path=ROOT_DIR/'BUILD_INFO.json'
+    try:
+        build=json.loads(build_path.read_text()).get('commit','development')
+    except (OSError,ValueError):
+        build='development'
+    return {"estado":"ok","version":__version__,'build':build,
+            'profiles':getattr(app.state,'profile_status',{}),
+            'shared_detector':getattr(app.state,'shared_detector',False)}
 
 
 _dist = (ROOT_DIR / settings.frontend_dist).resolve()
@@ -68,3 +83,4 @@ if (_dist / "index.html").exists():
         if path and file.is_file() and _dist in file.parents:
             return FileResponse(file)
         return FileResponse(_dist / "index.html")
+
