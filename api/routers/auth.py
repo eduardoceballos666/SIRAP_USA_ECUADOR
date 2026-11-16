@@ -16,9 +16,11 @@ def login(body: schemas.LoginIn) -> schemas.TokenOut:
     user = authenticate(get_store(), body.usuario.strip(), body.password)
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuario o contraseña incorrectos.")
+    user.update(country=body.country,language=body.language)
     return schemas.TokenOut(access_token=create_token(user), user=schemas.User(**user))
 
 
 @router.get("/me", response_model=schemas.User, summary="Usuario de la sesión")
 def me(user: dict = Depends(current_user)) -> schemas.User:
     return schemas.User(**user)
+

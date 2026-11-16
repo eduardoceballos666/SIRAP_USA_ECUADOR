@@ -13,11 +13,16 @@ function initialTheme() {
   return 'light'
 }
 
+function initialCountry() {
+  try { return localStorage.getItem('sirap_country') === 'usa' ? 'usa' : 'ecuador' } catch { return 'ecuador' }
+}
+
 // Estado del puesto de control: garita y movimiento elegidos, datos del sistema, tema, avisos y
 // las lecturas hechas en esta sesión (para compararlas; no se guardan en el servidor hasta que se registran).
 export const useSessionStore = defineStore('session', {
   state: () => ({
     system: null,
+    country: initialCountry(),
     garita: null,
     movimiento: 'ENTRADA',
     toasts: [],
@@ -26,12 +31,18 @@ export const useSessionStore = defineStore('session', {
   }),
   actions: {
     async loadSystem(force = false) {
-      if (this.system && !force) return this.system
-      this.system = await api('/api/system')
+      if (this.system?.country === this.country && !force) return this.system
+      const country = this.country
+      const result = await api('/api/system', { params: { country } })
+      if (this.country !== country) return this.system
+      this.system = result
       if (!this.garita || !this.system.garitas.includes(this.garita)) {
         this.garita = this.system.garitas.find((g) => g.includes('3')) || this.system.garitas[0] || null
       }
       return this.system
+    },
+    rememberCountry() {
+      try { localStorage.setItem('sirap_country', this.country) } catch { /* sin almacenamiento */ }
     },
     notify(message, kind = 'ok') {
       const id = Date.now() + Math.random()
@@ -47,7 +58,9 @@ export const useSessionStore = defineStore('session', {
       this.applyTheme()
     },
     addLectura(lectura) {
-      this.lecturas.unshift({ id: Date.now() + Math.random(), hora: new Date().toLocaleTimeString(localeTag.value), ...lectura })
+      const country = lectura.country || this.country
+      this.lecturas.unshift({ id: Date.now() + Math.random(), hora: new Date().toLocaleTimeString(localeTag.value),
+        country, jurisdiction: null, identity_key: country === 'ecuador' ? lectura.placa || '' : '', ...lectura })
       this.lecturas = this.lecturas.slice(0, 50)
     },
     markRegistered(id, accion) {
@@ -63,3 +76,4 @@ export const useSessionStore = defineStore('session', {
     },
   },
 })
+

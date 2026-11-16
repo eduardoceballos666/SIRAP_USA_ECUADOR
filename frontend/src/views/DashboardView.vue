@@ -15,20 +15,21 @@ const dark = computed(() => session.theme === 'dark')
 const theme = computed(() => chartTheme(dark.value))
 const days = ref(7)
 const includeDemo = ref(true)
+const country = ref(session.country)
 const data = ref(null)
 const loading = ref(false)
 
 async function load() {
   loading.value = true
   try {
-    data.value = await api('/api/dashboard', { params: { days: days.value, include_demo: includeDemo.value } })
+    data.value = await api('/api/dashboard', { params: { days: days.value, include_demo: includeDemo.value, country: country.value } })
   } catch (e) {
     session.notify(e.message, 'bad')
   } finally {
     loading.value = false
   }
 }
-watch([days, includeDemo], load)
+watch([days, includeDemo, country], load)
 onMounted(load)
 
 const kpis = computed(() => {
@@ -83,6 +84,7 @@ const empty = computed(() => data.value && !data.value.por_resultado.length)
 </script>
 
 <template>
+  <p class="mb-3 font-semibold">{{ $t('País') }}: {{ $t(session.country) }}</p>
   <div class="mb-4 flex flex-wrap items-center gap-3">
     <select v-model.number="days" class="field !w-auto">
       <option :value="1">{{ $t("Hoy") }}</option>
@@ -128,7 +130,7 @@ const empty = computed(() => data.value && !data.value.por_resultado.length)
           <thead><tr><th>{{ $t("Fecha y hora") }}</th><th>{{ $t("Garita") }}</th><th>{{ $t("Placa") }}</th><th>{{ $t("Resultado") }}</th><th>{{ $t("Acción") }}</th><th>{{ $t("Operador") }}</th></tr></thead>
           <tbody>
             <tr v-for="(a, i) in data?.alertas || []" :key="i">
-              <td>{{ formatDateTime(a.fecha_hora, localeTag) }}</td><td>{{ a.garita }}</td><td class="font-mono font-bold">{{ a.placa_final || '—' }}</td>
+              <td>{{ formatDateTime(a.fecha_hora, localeTag) }}</td><td>{{ a.garita }}</td><td class="font-mono font-bold">{{ a.jurisdiction ? a.jurisdiction + ' · ' : '' }}{{ a.placa_final || '—' }}<small class="block text-muted">{{ $t(a.country || 'ecuador') }}</small></td>
               <td>{{ $t(a.resultado_txt) }}</td><td>{{ $t(ACTION[a.accion] || a.accion) }}</td><td>{{ a.operador }}</td>
             </tr>
             <tr v-if="!data?.alertas?.length"><td colspan="6" class="text-center text-muted">{{ $t("Sin alertas.") }}</td></tr>
@@ -138,3 +140,4 @@ const empty = computed(() => data.value && !data.value.por_resultado.length)
     </section>
   </div>
 </template>
+

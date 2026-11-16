@@ -1,6 +1,6 @@
 """Persistencia de SIRAP en CSV locales con respaldo privado opcional."""
 from __future__ import annotations
-import csv, io, os, tempfile, threading, random
+import csv, io, os, tempfile, threading, random, json
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Sequence
@@ -11,7 +11,8 @@ from src.utils import now_local, resolve_path
 HEADERS = {
     "vehiculos": ["placa","marca","modelo","color","tipo","propietario","transportista","fuente","actualizado_en","registrado_por"],
     "autorizaciones": ["id","placa","lista","motivo","vigente_desde","vigente_hasta","activa","creado_por"],
-    "operaciones": ["id","fecha_hora","garita","operador","tipo_movimiento","placa_leida","placa_final","confianza_ocr","resultado","lista","accion","motivo","origen","tiempo_ms","operacion_id","estado_barrera","actualizado_en"],
+    "operaciones": ["id","fecha_hora","garita","operador","tipo_movimiento","placa_leida","placa_final","confianza_ocr","resultado","lista","accion","motivo","origen","tiempo_ms","operacion_id","estado_barrera","actualizado_en",
+                    "country","jurisdiction","identity_key","evidence_id","evidence_json","det_confidence","model_seed"],
     "garitas": ["id","nombre","ubicacion","activa"],
     "usuarios": ["id","usuario","nombre","rol","activo"],
     "credenciales": ["usuario","password_hash"],
@@ -61,6 +62,10 @@ class CsvStore:
                 d = pd.read_csv(path, dtype=str, keep_default_na=False)
             for col in HEADERS[name]:
                 if col not in d: d[col]=""
+            if name=='operaciones':
+                d.loc[d.country=='','country']='ecuador'
+                legacy=(d.identity_key=='')&(d.country=='ecuador')
+                d.loc[legacy,'identity_key']=d.loc[legacy,'placa_final']
             return d[HEADERS[name]]
         except pd.errors.EmptyDataError:
             if os.getenv("SIRAP_DATA_GITHUB_TOKEN") or remote_storage_required():
@@ -129,8 +134,10 @@ class CsvStore:
         d=d.assign(_rank=d.lista.map(lambda x:0 if x=="RESTRINGIDA" else 1))
         row=d.sort_values("_rank").iloc[0].drop(labels=["_rank"]).to_dict()
         return {k:(v if v!="" else None) for k,v in row.items()}
-    def registered_plates(self): return self._read("vehiculos").placa.tolist()
-    def log_operation(self,*,garita,operador,tipo_movimiento,resultado,accion,placa_leida=None,placa_final=None,confianza_ocr=None,lista=None,motivo=None,origen="DETECCION",tiempo_ms=None,fecha_hora=None,operacion_id=None,estado_barrera="NO_APLICA"):
+    def registered_plates(self):
+        return [plate for plate in self._read('vehiculos').placa.tolist() if not plate.startswith('US:')]
+    def log_operation(self,*,garita,operador,tipo_movimiento,resultado,accion,placa_leida=None,placa_final=None,confianza_ocr=None,lista=None,motivo=None,origen="DETECCION",tiempo_ms=None,fecha_hora=None,operacion_id=None,estado_barrera="NO_APLICA",
+                      country='ecuador',jurisdiction=None,identity_key=None,evidence_id=None,evidence_json=None,det_confidence=None,model_seed=None):
         """Persiste la solicitud antes de abrir. Un UUID duplicado no crea otro intento."""
         import uuid
         movement=tipo_movimiento.upper()
@@ -143,7 +150,18 @@ class CsvStore:
             d=self._read("operaciones")
             if d.operacion_id.eq(op_id).any(): raise ValueError("Operación duplicada: ya se registró la solicitud. No reintente la apertura.")
             now=(fecha_hora or now_local()).isoformat(sep=" ",timespec="seconds")
-            d.loc[len(d)]=[self._next_id(d),now,garita,operador,movement,placa_leida or "",placa_final or "",confianza_ocr if confianza_ocr is not None else "",resultado,lista or "",accion,motivo or "",origen,tiempo_ms if tiempo_ms is not None else "",op_id,estado_barrera,now]
+            d.loc[len(d)]={
+                'id':self._next_id(d),'fecha_hora':now,'garita':garita,'operador':operador,'tipo_movimiento':movement,
+                'placa_leida':placa_leida or '', 'placa_final':placa_final or '',
+                'confianza_ocr':confianza_ocr if confianza_ocr is not None else '',
+                'resultado':resultado,'lista':lista or '', 'accion':accion,'motivo':motivo or '', 'origen':origen,
+                'tiempo_ms':tiempo_ms if tiempo_ms is not None else '', 'operacion_id':op_id,
+                'estado_barrera':estado_barrera,'actualizado_en':now,'country':country,
+                'jurisdiction':jurisdiction or '', 'identity_key':identity_key or (placa_final if country=='ecuador' else '') or '',
+                'evidence_id':evidence_id or '', 'evidence_json':json.dumps(evidence_json,ensure_ascii=False) if evidence_json else '',
+                'det_confidence':det_confidence if det_confidence is not None else '',
+                'model_seed':model_seed if model_seed is not None else '',
+            }
             self._write("operaciones",d)
         return op_id
 
@@ -162,7 +180,7 @@ class CsvStore:
             d.loc[mask,"actualizado_en"]=now_local().isoformat(sep=" ",timespec="seconds")
             self._write("operaciones",d)
 
-    def operations(self,desde=None,hasta=None,placa=None,garita=None,resultado=None,tipo_movimiento=None,limit=5000):
+    def operations(self,desde=None,hasta=None,placa=None,garita=None,resultado=None,tipo_movimiento=None,limit=5000,country=None,jurisdiction=None):
         d=self._read("operaciones")
         if desde:d=d[d.fecha_hora>=str(desde)+" 00:00:00"]
         if hasta:d=d[d.fecha_hora<=str(hasta)+" 23:59:59"]
@@ -171,6 +189,8 @@ class CsvStore:
         if garita:d=d[d.garita==garita]
         if resultado:d=d[d.resultado==resultado]
         if tipo_movimiento:d=d[d.tipo_movimiento==tipo_movimiento.upper()]
+        if country:d=d[d.country==country]
+        if jurisdiction:d=d[d.jurisdiction==jurisdiction.upper()]
         d=d.sort_values(["fecha_hora","id"],ascending=False).head(int(limit)).copy()
         if len(d):
             d["fecha_hora"]=pd.to_datetime(d.fecha_hora,errors="coerce")
@@ -264,15 +284,23 @@ class CsvStore:
             d=self._read("garitas"); missing=wanted-set(d.nombre)
             if missing:raise ValueError("No existen: "+", ".join(sorted(missing)))
             m=d.nombre.isin(wanted); d.loc[m,"activa"]="true" if activa else "false"; self._write("garitas",d); return int(m.sum())
-    def load_demo_history(self,n=120,days=7,seed=7):
-        rng=random.Random(seed); plates=self.registered_plates() or ["GBA-1234","GBO-0429"]; gates=self.garitas() or ["Garita 1"]
+    def load_demo_history(self,n=120,days=7,seed=7,country='ecuador'):
+        from src.plate_identity import identity_from_key
+        rng=random.Random(seed)
+        plates=[key for key in self._read('vehiculos').placa.tolist()
+                if identity_from_key(key).country==country]
+        plates=plates or (['US:CA:DEMO123','US:NY:DEMO456'] if country=='usa' else ['GBA-1234','GBO-0429'])
+        gates=self.garitas() or ['Garita 1']
         for _ in range(int(n)):
             plate=rng.choice(plates); result,action=rng.choice([("AUTORIZADO","APERTURA_AUTOMATICA"),("DENEGADO","RECHAZO"),("NO_REGISTRADO","RECHAZO")])
-            self.log_operation(garita=rng.choice(gates),operador="Operador de garita",tipo_movimiento="ENTRADA",resultado=result,accion=action,placa_leida=plate,placa_final=plate,confianza_ocr=.99,origen="DEMO")
+            identity=identity_from_key(plate)
+            self.log_operation(garita=rng.choice(gates),operador="Operador de garita",tipo_movimiento="ENTRADA",resultado=result,accion=action,placa_leida=identity.serial,placa_final=identity.serial,confianza_ocr=.99,origen="DEMO",country=country,jurisdiction=identity.jurisdiction,identity_key=plate)
         return int(n)
-    def clear_demo_history(self):
+    def clear_demo_history(self,country=None):
         with LOCK:
-            d=self._read("operaciones"); keep=d.origen!="DEMO"; removed=int((~keep).sum()); self._write("operaciones",d[keep]); return removed
+            d=self._read("operaciones"); remove=d.origen=="DEMO"
+            if country is not None: remove=remove & (d.country==country)
+            removed=int(remove.sum()); self._write("operaciones",d[~remove]); return removed
     def add_user(self,usuario,nombre,rol):
         usuario,nombre=usuario.strip(),nombre.strip()
         if not usuario or not nombre:raise ValueError("Usuario y nombre son obligatorios.")
@@ -296,3 +324,4 @@ class CsvStore:
             d=self._read("usuarios"); missing=wanted-set(d.usuario)
             if missing:raise ValueError("No existen: "+", ".join(sorted(missing)))
             m=d.usuario.isin(wanted); d.loc[m,"activo"]="true" if activo else "false"; self._write("usuarios",d); return int(m.sum())
+

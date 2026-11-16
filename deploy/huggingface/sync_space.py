@@ -17,8 +17,9 @@ from pathlib import Path
 import json
 import urllib.error
 import urllib.request
+import hashlib
 
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, hf_hub_download
 
 ROOT = Path(__file__).resolve().parents[2]
 INCLUDE = [
@@ -28,8 +29,7 @@ INCLUDE = [
     "docs", "notebooks", "models/README.md",
     "datasets/usa/README.md", "datasets/usa/detection_coco/README.md",
     "datasets/usa/detection_coco/annotations_template.csv", "scripts/usa_annotations_to_coco.py",
-    "models/ecuador/detector/rtdetrv2_s/openvino",
-    "models/usa/detector/rtdetrv2_s/openvino",
+    "models/usa/selected_checkpoint.json",
 ]
 IGNORE = shutil.ignore_patterns("node_modules", "dist", "__pycache__", "*.pyc", ".ipynb_checkpoints")
 
@@ -76,6 +76,16 @@ def main() -> None:
             raise RuntimeError(
                 f"No se desplegará SIRAP: falta o no es legible {file_name} en GitHub privado."
             ) from exc
+    # Verify access and exact model identity before changing the live Space.
+    selection=json.loads((ROOT/'models/usa/selected_checkpoint.json').read_text())
+    artifact_repo=selection['artifact_repository']
+    artifact_revision=selection['artifact_revision']
+    expected=dict(selection['detector_sha256'],**selection['metadata_sha256'])
+    with tempfile.TemporaryDirectory() as model_cache:
+        for name,digest in expected.items():
+            downloaded=hf_hub_download(artifact_repo,name,revision=artifact_revision,token=token,cache_dir=model_cache)
+            if hashlib.sha256(Path(downloaded).read_bytes()).hexdigest()!=digest:
+                raise RuntimeError(f'El checkpoint seleccionado no coincide: {name}')
     api = HfApi(token=token)
     api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
     for name in ("SIRAP_JWT_SECRET", "SIRAP_DEMO_PASSWORD"):
@@ -84,6 +94,8 @@ def main() -> None:
     # Autorizado por el propietario: el Space necesita este token para acceder al repo privado.
     api.add_space_secret(space, "SIRAP_DATA_GITHUB_TOKEN", data_token)
     api.add_space_secret(space, "SIRAP_DATA_GITHUB_REPO", data_repo)
+    # Runtime downloads from the private model repo; weights never enter public Space source.
+    api.add_space_secret(space, "SIRAP_USA_MODEL_TOKEN", token)
 
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp)
@@ -103,6 +115,7 @@ def main() -> None:
         # El repositorio y su rama de respaldo conservan los registros históricos.
         shutil.copy2(Path(__file__).with_name("README.md"), out / "README.md")
         sha = os.environ.get("GITHUB_SHA", "local")[:7]
+        (out/'BUILD_INFO.json').write_text(json.dumps({'commit':os.environ.get('GITHUB_SHA','local')}))
         api.upload_folder(folder_path=out, repo_id=space, repo_type="space", delete_patterns="*",
                           commit_message=f"Sincronizar desde GitHub ({sha})")
     print(f"Publicado: https://huggingface.co/spaces/{space}")
@@ -110,3 +123,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

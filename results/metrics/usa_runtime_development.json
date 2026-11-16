@@ -1,0 +1,33 @@
+{
+  "scope": "eight reused development photos through the real USA API; no access operations performed",
+  "seed": 2,
+  "detector_threshold": 0.7,
+  "ocr_threshold": 0.94,
+  "counts": {
+    "source_images": 8,
+    "confirmed_plates": 13,
+    "complete_scenes": 7,
+    "complete_scene_tp": 8,
+    "complete_scene_fn": 3,
+    "complete_scene_fp": 0,
+    "serial_exact": 9,
+    "known_serials": 10,
+    "state_exact": 2,
+    "known_states": 9,
+    "pair_exact_confident": 1
+  },
+  "independent_final_test": false,
+  "date": "2026-11-16",
+  "training_country": "usa",
+  "country_validation_pending": [
+    "ecuador"
+  ],
+  "annotation_complete_images": 7,
+  "annotation_incomplete_images": 1,
+  "notes": [
+    "Reused development images; not an independent final test.",
+    "Scene counts exclude the image with an unresolved additional region.",
+    "OCR exact-match counts are conditional on matched detections.",
+    "No empty-scene false-alarm estimate or physical barrier test."
+  ]
+}

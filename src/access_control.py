@@ -103,6 +103,40 @@ def _suggest(plate: str, store: Any, max_distance: int) -> str | None:
     return candidate if candidate and 0 < distance <= max_distance else None
 
 
+def decide_usa_access(plate, jurisdiction, ocr_confidence, store, *, det_confidence=None,
+                      temporal_confirmed=False, automatic_enabled=True):
+    """USA uses an exact state/serial identity and server-confirmed frames for opening."""
+    import math
+    from src.plate_identity import normalize_identity, public_plate_record
+    try:
+        identity=normalize_identity(plate,'usa',jurisdiction)
+    except ValueError:
+        return AccessDecision('VERIFICACION_MANUAL','VERIFICACIÓN MANUAL','ESTADO O MATRÍCULA SIN CONFIRMAR',
+                              motivos=['Confirme la matrícula y su estado emisor; no se deduce el estado por ubicación.'])
+    raw_vehicle=store.get_vehicle(identity.key)
+    vehicle=public_plate_record(raw_vehicle) if raw_vehicle else None
+    if not math.isfinite(ocr_confidence) or ocr_confidence<.94:
+        return AccessDecision('VERIFICACION_MANUAL','VERIFICACIÓN MANUAL','CONFIANZA OCR BAJA',vehiculo=vehicle,
+                              motivos=['La mínima probabilidad por carácter debe ser al menos 0,94.'])
+    if det_confidence is not None and (not math.isfinite(det_confidence) or det_confidence<.70):
+        return AccessDecision('VERIFICACION_MANUAL','VERIFICACIÓN MANUAL','DETECCIÓN DUDOSA',vehiculo=vehicle,
+                              motivos=['La confianza del detector debe ser al menos 0,70.'])
+    authorization=(vehicle or {}).get('autorizacion') or {}
+    if authorization.get('lista')=='RESTRINGIDA':
+        return AccessDecision('DENEGADO','ACCESO DENEGADO','LISTA RESTRINGIDA','RESTRINGIDA',vehicle,
+                              motivos=[authorization.get('motivo') or 'Placa en lista restringida vigente.'])
+    if authorization.get('lista')=='BLANCA':
+        if automatic_enabled and temporal_confirmed and det_confidence is not None:
+            return AccessDecision('AUTORIZADO','ACCESO AUTORIZADO','LISTA BLANCA','BLANCA',vehicle,
+                                  motivos=['Estado y matrícula confirmados en dos cuadros distintos en el servidor.'])
+        detail='CONFIRMACIÓN TEMPORAL PENDIENTE' if automatic_enabled else 'APERTURA AUTOMÁTICA DESACTIVADA'
+        return AccessDecision('VERIFICACION_MANUAL','VERIFICACIÓN MANUAL',detail,'BLANCA',vehicle,
+                              motivos=['La lista blanca está vigente; faltan dos cuadros distintos confirmados por el servidor.'])
+    return AccessDecision('NO_REGISTRADO','SIN AUTORIZACIÓN',
+                          'REGISTRADO SIN PERMISO VIGENTE' if vehicle else 'PLACA NO REGISTRADA',vehiculo=vehicle,
+                          motivos=['Consulte o registre la combinación exacta de estado y matrícula.'])
+
+
 # --------------------------------------------------------------------------------------------
 # Barrera
 # --------------------------------------------------------------------------------------------
@@ -161,3 +195,4 @@ def barrier_from_config(config: dict[str, Any]) -> BarrierController:
             return HttpBarrier(url, token, cfg.get("timeout_s", 3))
         logger.warning("Modo de barrera http sin BARRERA_URL/BARRERA_TOKEN: se usa la barrera simulada.")
     return SimulatedBarrier()
+
