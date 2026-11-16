@@ -172,14 +172,29 @@ class HttpBarrier:
         self.url, self.token, self.timeout_s = url, token, timeout_s
 
     def open(self, garita: str, motivo: str) -> bool:
+        return self._open(garita, motivo)
+
+    def open_operation(self, operation_id: str, garita: str, motivo: str) -> bool:
+        """One request; pass the durable ID to controllers that support deduplication."""
+        return self._open(garita, motivo, operation_id)
+
+    def _open(self, garita: str, motivo: str, operation_id: str | None = None) -> bool:
         import json
         import urllib.request
 
+        payload = {"garita": garita, "motivo": motivo}
+        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
+        if operation_id:
+            payload["operacion_id"] = operation_id
+            headers["Idempotency-Key"] = operation_id
         request = urllib.request.Request(
-            self.url, data=json.dumps({"garita": garita, "motivo": motivo}).encode(),
-            headers={"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}, method="POST")
+            self.url, data=json.dumps(payload).encode(), headers=headers, method="POST")
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *args, **kwargs):
+                return None
+        opener=urllib.request.build_opener(NoRedirect())
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout_s) as response:  # noqa: S310
+            with opener.open(request, timeout=self.timeout_s) as response:  # noqa: S310
                 return 200 <= response.status < 300
         except OSError as exc:
             logger.error("La barrera de %s no respondió: %s", garita, exc)

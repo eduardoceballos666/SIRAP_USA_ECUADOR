@@ -22,7 +22,7 @@ function detailMessage(body, status) {
   return `Error ${status}`
 }
 
-export async function api(path, { method = 'GET', body, form, params, raw = false } = {}) {
+export async function api(path, { method = 'GET', body, form, params, raw = false, timeoutMs } = {}) {
   const url = new URL(path, window.location.origin)
   Object.entries(params || {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v) })
   const headers = {}
@@ -31,18 +31,23 @@ export async function api(path, { method = 'GET', body, form, params, raw = fals
   let payload
   if (form) payload = form
   else if (body !== undefined) { headers['Content-Type'] = 'application/json'; payload = JSON.stringify(body) }
-  let res
+  const controller = timeoutMs ? new AbortController() : null
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null
   try {
-    res = await fetch(url, { method, headers, body: payload })
-  } catch {
+    const res = await fetch(url, { method, headers, body: payload, cache: 'no-store',
+      ...(controller ? { signal: controller.signal } : {}) })
+    if (res.status === 401 && token) onUnauthorized()
+    if (!res.ok) {
+      let data = null
+      try { data = await res.json() } catch { /* cuerpo vacío */ }
+      throw new ApiError(res.status, detailMessage(data, res.status))
+    }
+    if (raw) return res
+    return res.status === 204 ? null : await res.json()
+  } catch (error) {
+    if (error instanceof ApiError) throw error
     throw new ApiError(0, 'No se pudo conectar con la API de SIRAP_USA_ECUADOR_HF.')
+  } finally {
+    if (timer !== null) clearTimeout(timer)
   }
-  if (res.status === 401 && token) onUnauthorized()
-  if (!res.ok) {
-    let data = null
-    try { data = await res.json() } catch { /* cuerpo vacío */ }
-    throw new ApiError(res.status, detailMessage(data, res.status))
-  }
-  if (raw) return res
-  return res.status === 204 ? null : res.json()
 }

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+import uuid
 from pathlib import Path
 
 import pytest
@@ -129,7 +130,7 @@ def test_reconocer_rechaza_archivo_invalido(client):
 
 def test_operaciones_reglas_del_servidor(client):
     h = _token(client, "operador")
-    base = {"garita": "Garita 3", "tipo_movimiento": "ENTRADA", "origen": "MANUAL"}
+    base = {"garita": "Garita 3", "tipo_movimiento": "ENTRADA", "origen": "MANUAL", "operacion_id": str(uuid.uuid4())}
     # No se puede abrir automáticamente una placa denegada.
     r = client.post("/api/operations", json={**base, "accion": "APERTURA_AUTOMATICA", "placa_final": "GBO-0429"},
                     headers=h)
