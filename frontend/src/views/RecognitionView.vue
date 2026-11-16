@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ModalDialog from '@/components/ModalDialog.vue'
@@ -9,6 +9,7 @@ import { ACTION, RESULT, TONE_PILL, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
+import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
 
 const session = useSessionStore()
 const auth = useAuthStore()
@@ -48,6 +49,12 @@ const vehicleLookup = ref(null)
 const vehicleLookupStatus = ref('')
 let vehicleLookupGeneration = 0
 const manualPlate = ref('') // placa corregida o escrita por el operador
+const manualJurisdiction = ref('')
+const alternatives = ref([])
+const captureSession = ref(crypto.randomUUID())
+const currentFrameId = ref(crypto.randomUUID())
+const recognitionConfirmed = computed(() => Boolean(recognition.value &&
+  (session.country !== 'usa' || recognition.value.temporal_confirmed)))
 const origin = ref('DETECCION')
 const busy = ref(false)
 const done = ref(false) // ya se registró esta lectura
@@ -132,14 +139,14 @@ function finishVideoAnalysis() {
   videoAnalysisFinished = true
   stopContinuousAnalysis()
   mediaVideo.value?.pause()
-  if (!recognition.value) {
+  if (!recognitionConfirmed.value) {
     analysisMessage.value = 'El video terminó sin confirmar la misma placa en dos cuadros con confianza ≥94 %. Verifique la placa manualmente.'
     session.notify(analysisMessage.value, 'warn')
   }
 }
 function videoEnded() {
   videoPlaybackEnded = true
-  if (recognition.value) return
+  if (recognitionConfirmed.value) return
   if (!continuousAnalysis.value) {
     if (!loading.value) finishVideoAnalysis()
     return
@@ -179,6 +186,7 @@ function startAutomaticAnalysis() {
   analysisMessage.value = ''
   showCapture.value = false
   continuousAnalysis.value = true
+  captureSession.value = crypto.randomUUID()
   captureFrame({ freeze: false })
   analysisTimer = setInterval(() => {
     if (continuousAnalysis.value && mediaReady.value && !videoPlaybackEnded && !loading.value && !framePending) captureFrame({ freeze: false })
@@ -300,6 +308,8 @@ function reset() {
   ocrAttempt.value = null
   decision.value = null
   manualPlate.value = ''
+  manualJurisdiction.value = ''
+  alternatives.value = []
   origin.value = 'DETECCION'
   done.value = false
   registrationPromptDismissed.value = false
@@ -311,6 +321,7 @@ function setImage(blob, label = '') {
   sourceLabel.value = label
   if (preview.value) URL.revokeObjectURL(preview.value)
   file.value = blob
+  currentFrameId.value = crypto.randomUUID()
   preview.value = URL.createObjectURL(blob)
   stamp.value = new Date().toLocaleString(localeTag.value)
   reset()
@@ -318,6 +329,7 @@ function setImage(blob, label = '') {
 function clearCurrentReading() {
   if (loading.value || busy.value) return
   stopContinuousAnalysis()
+  captureSession.value = crypto.randomUUID()
   session.clearUnregisteredLecturas(currentReadingIds.value)
   if (preview.value) URL.revokeObjectURL(preview.value)
   if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
@@ -344,6 +356,7 @@ function clearCurrentReading() {
   motivo.value = ''
 }
 async function pickSample(name) {
+  captureSession.value = crypto.randomUUID()
   selectedSample.value = name
   const res = await api(`/api/samples/${name}`, { raw: true })
   setImage(await res.blob(), samples.value.find((s) => s.nombre === name)?.etiqueta.split(' (')[0] || name)
@@ -352,6 +365,7 @@ async function pickSample(name) {
 async function onUpload(event) {
   const f = event.target.files?.[0]
   if (!f) return
+  captureSession.value = crypto.randomUUID()
   const isVideo = f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(f.name)
   stopContinuousAnalysis()
   clearPlateConfirmation()
@@ -390,9 +404,28 @@ async function recognize() {
   try {
     const form = new FormData()
     form.append('file', file.value, 'imagen.jpg')
+    form.append('country', session.country)
+    form.append('garita', session.garita || '')
+    form.append('capture_session', captureSession.value)
+    form.append('frame_id', currentFrameId.value)
     const data = await api('/api/recognize', { method: 'POST', form })
     detection.value = data.recognition
     ocrAttempt.value = { confidence: Number(data.recognition.ocr_confidence) || 0, hasPlate: Boolean(data.recognition.plate) }
+    if (session.country === 'usa') {
+      alternatives.value = data.candidates || []
+      confirmedFrames.value = Number(data.recognition.confirmation_frames) || 0
+      recognition.value = data.recognition
+      decision.value = data.decision
+      manualPlate.value = data.recognition.plate || ''
+      manualJurisdiction.value = data.recognition.jurisdiction || ''
+      if (continuousAnalysis.value && !data.recognition.temporal_confirmed) return
+      if (continuousAnalysis.value) stopContinuousAnalysis()
+      if (data.recognition.plate) {
+        void loadVehicleDetails(data.recognition.plate)
+        recordReading(data)
+      }
+      return
+    }
     const accepted = Boolean(data.recognition.plate) && Number(data.recognition.ocr_confidence) >= OCR_MIN_CONFIDENCE
     if (continuousAnalysis.value) {
       const candidate = String(data.recognition.plate || '').replace(/[^A-Z0-9]/gi, '').toUpperCase()
@@ -430,8 +463,32 @@ async function recognize() {
     session.notify(e.message, 'bad')
   } finally {
     loading.value = false
-    if (videoPlaybackEnded && !recognition.value && !videoEndGraceActive) finishVideoAnalysis()
+    if (videoPlaybackEnded && !recognitionConfirmed.value && !videoEndGraceActive) finishVideoAnalysis()
   }
+}
+
+function recordReading(data) {
+  session.addLectura({ fuente: sourceLabel.value || 'Imagen', placa: data.recognition.plate,
+    country: data.recognition.country || session.country, jurisdiction: data.recognition.jurisdiction,
+    identity_key: data.recognition.identity_key, resultado: data.decision.resultado,
+    confianza: data.recognition.ocr_confidence, ms: data.recognition.timings_ms?.total, origen: 'DETECCION' })
+  lecturaId.value = session.lecturas[0].id
+  currentReadingIds.value.push(lecturaId.value)
+}
+
+function chooseCandidate(data) {
+  stopContinuousAnalysis()
+  recognition.value = data.recognition
+  detection.value = data.recognition
+  decision.value = data.decision
+  manualPlate.value = data.recognition.plate || ''
+  manualJurisdiction.value = data.recognition.jurisdiction || ''
+  origin.value = 'DETECCION'
+  operationAttemptId.value = null
+  done.value = false
+  confirmedFrames.value = data.recognition.confirmation_frames || 0
+  recordReading(data)
+  void loadVehicleDetails(data.recognition.plate)
 }
 
 function processCurrentMedia() {
@@ -441,13 +498,17 @@ function processCurrentMedia() {
 
 async function loadVehicleDetails(plate) {
   if (!plate) return
+  if (session.country === 'usa' && !manualJurisdiction.value) {
+    vehicleLookupStatus.value = 'Confirme el estado emisor para consultar el registro local.'
+    return
+  }
   const generation = ++vehicleLookupGeneration
   vehicleLookup.value = null
-  vehicleLookupStatus.value = 'Consultando datos públicos del SRI…'
+  vehicleLookupStatus.value = session.country === 'usa' ? 'Consultando el registro local…' : 'Consultando datos públicos del SRI…'
   try {
     const started = await api('/api/plates/vehicle-data', {
       method: 'POST',
-      body: { placa: plate },
+      body: { placa: plate, ...profilePayload(session.country, manualJurisdiction.value) },
     })
     const deadline = Date.now() + 130000
     while (generation === vehicleLookupGeneration && Date.now() < deadline) {
@@ -456,7 +517,7 @@ async function loadVehicleDetails(plate) {
       if (result.estado === 'completado') {
         vehicleLookup.value = result.vehiculo || null
         const sriOk = result.fuentes?.sri === 'encontrado'
-        vehicleLookupStatus.value = sriOk
+        vehicleLookupStatus.value = session.country === 'usa' ? 'Datos del registro local de Estados Unidos.' : sriOk
           ? 'Marca, modelo y año cargados desde el SRI.'
           : 'El SRI no devolvió todos los datos; se muestran los valores locales disponibles.'
         return
@@ -476,7 +537,8 @@ async function verifyManual() {
   if (!manualPlate.value) return
   busy.value = true
   try {
-    const data = await api('/api/plates/verify', { method: 'POST', body: { placa: manualPlate.value } })
+    const data = await api('/api/plates/verify', { method: 'POST',
+      body: { placa: manualPlate.value, ...profilePayload(session.country, manualJurisdiction.value) } })
     manualPlate.value = data.placa
     decision.value = data.decision
     origin.value = 'MANUAL'
@@ -484,6 +546,7 @@ async function verifyManual() {
     done.value = false
     registrationPromptDismissed.value = false
     session.addLectura({ fuente: 'Escrita a mano', placa: data.placa, resultado: data.decision.resultado,
+      country: session.country, jurisdiction: manualJurisdiction.value || null, identity_key: data.identity_key,
       confianza: null, ms: null, origen: 'MANUAL' })
     lecturaId.value = session.lecturas[0].id
     currentReadingIds.value.push(lecturaId.value)
@@ -497,7 +560,9 @@ async function verifyManual() {
 // --- acciones -----------------------------------------------------------------------------
 const tone = computed(() => RESULT[decision.value?.resultado]?.tone)
 const plateShown = computed(() => (origin.value === 'MANUAL' ? manualPlate.value : recognition.value?.plate) || '')
-const canOpen = computed(() => decision.value?.permite_apertura && !done.value)
+const canOpen = computed(() => decision.value?.permite_apertura && !done.value &&
+  (session.country !== 'usa' || (origin.value === 'DETECCION' &&
+    automaticUSAReadingAllowed(recognition.value, manualPlate.value, manualJurisdiction.value))))
 const vehicle = computed(() => decision.value?.vehiculo)
 const vehicleDisplay = computed(() => ({
   marca: vehicleLookup.value?.marca || vehicle.value?.marca || '',
@@ -528,9 +593,11 @@ async function saveVehicle() {
     const saved = await api('/api/plates/register', {
       method: 'POST',
       body: { placa: plateShown.value, ...vehicleDraft, tipo: 'CAMION',
+        ...profilePayload(session.country, manualJurisdiction.value),
         placa_confirmada: plateConfirmedForRegistration.value, autorizar: authorizeOnRegistration.value },
     })
-    const checked = await api('/api/plates/verify', { method: 'POST', body: { placa: saved.placa } })
+    const checked = await api('/api/plates/verify', { method: 'POST',
+      body: { placa: saved.placa, ...profilePayload(session.country, manualJurisdiction.value) } })
     manualPlate.value = checked.placa
     decision.value = checked.decision
     origin.value = 'MANUAL'
@@ -559,6 +626,8 @@ async function register(accion) {
         garita: session.garita,
         tipo_movimiento: session.movimiento,
         accion,
+        ...profilePayload(session.country, origin.value === 'DETECCION' ? recognition.value?.jurisdiction : manualJurisdiction.value),
+        evidence_id: origin.value === 'DETECCION' ? recognition.value?.evidence_id || null : null,
         operacion_id: operationAttemptId.value,
         placa_leida: recognition.value?.plate || recognition.value?.plate_raw || null,
         placa_final: plateShown.value || null,
@@ -589,14 +658,18 @@ async function register(accion) {
 }
 
 function exportLecturas() {
-  const head = ['hora', 'fuente', 'placa', 'resultado', 'confianza_ocr', 'tiempo_ms', 'origen', 'registro']
+  const head = ['hora', 'fuente', 'placa', 'resultado', 'confianza_ocr', 'tiempo_ms', 'origen', 'registro', 'country', 'jurisdiction', 'identity_key']
   const rows = session.lecturas.map((l) => [l.hora, l.fuente, l.placa || '', l.resultado,
-    l.confianza ?? '', l.ms ? Math.round(l.ms) : '', l.origen, l.registro || ''])
+    l.confianza ?? '', l.ms ? Math.round(l.ms) : '', l.origen, l.registro || '', l.country || 'ecuador', l.jurisdiction || '', l.identity_key || ''])
   const csv = [head, ...rows].map((r) => r.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(',')).join('\n')
   const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv' }))
   Object.assign(document.createElement('a'), { href: url, download: 'sirap_lecturas_sesion.csv' }).click()
   URL.revokeObjectURL(url)
 }
+
+watch(() => session.garita, () => {
+  if (!loading.value && !busy.value) { clearCurrentReading(); clearPlateConfirmation() }
+})
 
 onMounted(async () => {
   document.addEventListener('fullscreenchange', syncFullscreen)
@@ -614,12 +687,15 @@ onMounted(async () => {
   <div class="access-workspace">
     <div class="control-strip">
       <div class="control-field"><span>{{ $t("Punto de control") }}</span><strong><AppIcon name="pin" :size="17" /> {{ $t("Garita de acceso") }}</strong></div>
-      <label class="control-field" for="garita"><span>{{ $t("Garita") }}</span><select id="garita" v-model="session.garita" class="field"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
+      <div id="country" class="control-field"><span>{{ $t('País') }}</span><strong>{{ $t(session.country) }}</strong></div>
+      <label class="control-field" for="garita"><span>{{ $t("Garita") }}</span><select id="garita" v-model="session.garita" class="field" :disabled="loading || busy"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
       <div class="control-field"><span>{{ $t("Operador") }}</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
       <label class="control-field" for="mov"><span>{{ $t("Operación") }}</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">{{ $t("Entrada") }}</option><option value="SALIDA">{{ $t("Salida") }}</option></select></label>
       <button class="btn-ghost help-button" :aria-label='$t("Ayuda")' :title='$t("Ayuda")' @click="helpOpen = true"><AppIcon name="help" :size="17" /><span>{{ $t("Ayuda") }}</span></button>
       <div class="workspace-clock"><AppIcon name="calendar" :size="18" /> {{ displayClock }}</div>
     </div>
+
+    <p v-if="session.system?.model_ready === false" class="rounded-lg bg-warn-soft p-3 text-warn" role="status">{{ $t(session.system.model_message) }}</p>
 
     <div class="access-grid">
       <section ref="cameraPanel" class="card camera-panel" :aria-label='$t("Cámara e imagen")'>
@@ -695,7 +771,7 @@ onMounted(async () => {
           <div v-if="session.lecturas.length" class="reading-cards">
             <article v-for="l in session.lecturas.slice(0, 4)" :key="l.id" class="reading-card">
               <span class="reading-icon"><AppIcon name="car" :size="20" /></span>
-              <span class="reading-copy"><strong>{{ l.placa || $t('Sin placa') }}</strong><small>{{ l.hora }} · {{ $t(RESULT[l.resultado]?.label || l.resultado) }}</small></span>
+              <span class="reading-copy"><strong>{{ l.jurisdiction ? l.jurisdiction + ' · ' : '' }}{{ l.placa || $t('Sin placa') }}</strong><small>{{ l.hora }} · {{ $t(l.country || 'ecuador') }} · {{ $t(RESULT[l.resultado]?.label || l.resultado) }}</small></span>
             </article>
           </div>
           <p v-else class="reading-empty" style="font-size:18px">{{ $t("Las lecturas de esta sesión aparecerán aquí.") }}</p>
@@ -706,7 +782,21 @@ onMounted(async () => {
         <section class="card plate-panel" :aria-label="$t('Placa identificada')">
           <div class="section-heading"><h2><AppIcon name="camera" :size="19" /> {{ $t("Placa identificada") }}</h2><span>{{ $t(origin === 'MANUAL' ? 'Manual' : 'OCR') }}</span></div>
           <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div></div>
+          <div v-if="session.country === 'usa'" class="state-reading">
+            <label class="field-label" for="manual-jurisdiction">{{ $t('Estado emisor') }}</label>
+            <select id="manual-jurisdiction" v-model="manualJurisdiction" class="field" :disabled="busy || loading">
+              <option value="">{{ $t('Estado desconocido: verificar manualmente') }}</option>
+              <option v-for="(name, code) in US_STATES" :key="code" :value="code">{{ code }} · {{ name }}</option>
+            </select>
+            <p class="text-sm text-muted">{{ $t('Confirmación en servidor') }}: {{ confirmedFrames }}/2</p>
+          </div>
           <form class="plate-form" @submit.prevent="verifyManual"><input v-model.trim="manualPlate" class="field font-mono uppercase" :aria-label="$t('Corregir o escribir placa')" :placeholder="$t('Corregir / escribir placa')" maxlength="12" /><button class="btn-ghost" :disabled="busy || !manualPlate">{{ $t("Verificar") }}</button></form>
+          <div v-if="alternatives.length > 1" class="candidate-readings" :aria-label="$t('Otras placas detectadas')">
+            <span class="field-label">{{ $t('Otras placas detectadas') }}</span>
+            <button v-for="candidate in alternatives" :key="candidate.recognition.evidence_id" type="button" class="btn-ghost" :disabled="busy || loading" @click="chooseCandidate(candidate)">
+              {{ candidate.recognition.jurisdiction || '?' }} · {{ candidate.recognition.plate || '—' }} · {{ pct(candidate.recognition.ocr_confidence, 1) }}
+            </button>
+          </div>
         </section>
 
         <section class="card access-result-card" :class="tone ? 'tone-' + tone : 'tone-neutral'" role="status" aria-live="polite">
@@ -720,9 +810,9 @@ onMounted(async () => {
             <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">{{ $t("Ver detalle completo") }}</button>
           </div>
           <div class="ocr-meter">
-            <span><AppIcon name="chart" :size="15" /> {{ $t("SIRAP_USA_ECUADOR_HF en acción") }}</span>
-            <strong>100%</strong>
-            <div class="meter-track" role="progressbar" :aria-label="$t('Indicador visual de SIRAP_USA_ECUADOR_HF')" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"><i style="width:100%"></i></div>
+            <span><AppIcon name="chart" :size="15" /> {{ $t('Confianza OCR') }}</span>
+            <strong>{{ pct(recognition?.ocr_confidence ?? ocrAttempt?.confidence, 1) }}</strong>
+            <div class="meter-track" role="progressbar" :aria-label="$t('Confianza OCR')" :aria-valuenow="Math.round((recognition?.ocr_confidence ?? ocrAttempt?.confidence ?? 0) * 100)" aria-valuemin="0" aria-valuemax="100"><i :style="{ width: `${(recognition?.ocr_confidence ?? ocrAttempt?.confidence ?? 0) * 100}%` }"></i></div>
           </div>
         </section>
 
@@ -774,7 +864,7 @@ onMounted(async () => {
         <tbody>
           <tr v-for="l in session.lecturas" :key="l.id">
             <td>{{ l.hora }}</td><td class="max-w-56 truncate" :title="l.fuente">{{ l.fuente }}</td>
-            <td class="font-bold">{{ l.placa || '—' }}</td>
+            <td class="font-bold">{{ l.jurisdiction ? l.jurisdiction + ' · ' : '' }}{{ l.placa || '—' }}<small class="block text-muted">{{ $t(l.country || 'ecuador') }}</small></td>
             <td><span class="pill" :class="TONE_PILL[RESULT[l.resultado]?.tone]">{{ $t(RESULT[l.resultado]?.label) }}</span></td>
             <td>
               <div v-if="l.confianza !== null" class="flex items-center gap-2">
@@ -806,3 +896,4 @@ onMounted(async () => {
     </div>
   </ModalDialog>
 </template>
+

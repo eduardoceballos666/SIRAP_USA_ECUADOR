@@ -10,13 +10,30 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 
 from api.jsonsafe import plain
-from api.deps import current_user, get_barrier, get_store, get_pipeline, require_roles, thresholds
+from api.deps import current_user, get_barrier, get_store, get_pipeline, get_config, require_roles, thresholds, profile_country
+from api.schemas import Country
 from src.utils import load_json, now_local
 
 router = APIRouter(prefix="/api", tags=["Dashboard, Historial y Modelo"])
 
 RESULT_LABELS = {"AUTORIZADO": "Autorizado", "DENEGADO": "Denegado", "NO_REGISTRADO": "No registrado",
                  "VERIFICACION_MANUAL": "Verificación manual"}
+
+def _runtime_info(country):
+    cfg=get_config(country)
+    name=cfg['ocr'].get('model',cfg['ocr'].get('modelo','cct-s-v2-global-model'))
+    info={'country':country,'detector':f'RT-DETRv2-S · OpenVINO · {country}',
+          'detector_es_modelo':False,'ocr':name,'model_ready':False,
+          'model_seed':2,'model_training_country':'usa','country_validation_pending':country=='ecuador',
+          'automatic_access_enabled':cfg.get('automatic_access',{}).get('enabled',True)}
+    try:
+        pipeline=get_pipeline('usa') if country=='usa' else get_pipeline()
+    except (ValueError,FileNotFoundError,RuntimeError,ImportError):
+        info['model_message']='El modelo seleccionado no está disponible; puede verificar la placa manualmente.'
+        return info
+    info.update(detector=pipeline.detector.name,detector_es_modelo=pipeline.detector.is_model,
+                ocr=pipeline.reader.model_name,model_ready=True)
+    return info
 
 
 def _records(df: pd.DataFrame) -> list[dict[str, Any]]:
@@ -29,29 +46,36 @@ def _records(df: pd.DataFrame) -> list[dict[str, Any]]:
 
 
 @router.get("/system", summary="Estado del sistema")
-def system(_: dict = Depends(current_user)) -> dict[str, Any]:
-    pipeline, db, barrier = get_pipeline(), get_store(), get_barrier()
-    ocr_threshold, det_threshold, _ = thresholds()
-    return {"detector": pipeline.detector.name, "detector_es_modelo": pipeline.detector.is_model,
-            "ocr": pipeline.reader.model_name, "base_datos": db.engine,
+def system(country: Optional[Country]=None, user: dict = Depends(current_user)) -> dict[str, Any]:
+    country=profile_country(user,country)
+    db, barrier = get_store(), get_barrier()
+    ocr_threshold, det_threshold, _ = thresholds(country)
+    return {**_runtime_info(country),"base_datos": db.engine,
             "barrera": "simulada" if getattr(barrier, "simulated", True) else "conectada",
-            "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold, "garitas": db.garitas()}
+            "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold, "garitas": db.garitas(),
+            "countries":[{'code':'ecuador','name':'Ecuador'},{'code':'usa','name':'Estados Unidos'}]}
 
 
 @router.get("/operations", summary="Historial filtrado")
 def operations(desde: Optional[date] = None, hasta: Optional[date] = None, placa: Optional[str] = None,
                garita: Optional[str] = None, resultado: Optional[str] = None,
                tipo_movimiento: Optional[str] = None, limit: int = Query(1000, ge=1, le=5000),
-               _: dict = Depends(current_user)) -> list[dict[str, Any]]:
-    return _records(get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento, limit))
+               country: Optional[Country]=None,jurisdiction: Optional[str]=None,
+               user: dict = Depends(current_user)) -> list[dict[str, Any]]:
+    country=profile_country(user,country)
+    return _records(get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento, limit,
+                                          country=country,jurisdiction=jurisdiction))
 
 
 @router.get("/operations/export.csv", summary="Exportar el historial filtrado a CSV")
 def export_csv(desde: Optional[date] = None, hasta: Optional[date] = None, placa: Optional[str] = None,
                garita: Optional[str] = None, resultado: Optional[str] = None,
                tipo_movimiento: Optional[str] = None,
-               _: dict = Depends(require_roles("SUPERVISOR", "ADMINISTRADOR"))) -> Response:
-    df = get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento)
+               country: Optional[Country]=None,jurisdiction: Optional[str]=None,
+               user: dict = Depends(require_roles("SUPERVISOR", "ADMINISTRADOR"))) -> Response:
+    country=profile_country(user,country)
+    df = get_store().operations(desde, hasta, placa, garita, resultado, tipo_movimiento,
+                               country=country,jurisdiction=jurisdiction)
     name = f"sirap_historial_{now_local():%Y%m%d}.csv"
     return Response(df.to_csv(index=False).encode("utf-8-sig"), media_type="text/csv",
                     headers={"Content-Disposition": f'attachment; filename="{name}"'})
@@ -59,9 +83,11 @@ def export_csv(desde: Optional[date] = None, hasta: Optional[date] = None, placa
 
 @router.get("/dashboard", summary="Indicadores y datos para los gráficos")
 def dashboard(days: int = Query(7, ge=1, le=365), include_demo: bool = True,
-              _: dict = Depends(current_user)) -> dict[str, Any]:
+              country: Optional[Country]=None,
+              user: dict = Depends(current_user)) -> dict[str, Any]:
+    country=profile_country(user,country)
     today = now_local().date()
-    df = get_store().operations(desde=today - timedelta(days=days - 1), hasta=today)
+    df = get_store().operations(desde=today - timedelta(days=days - 1), hasta=today,country=country)
     if not include_demo and not df.empty:
         df = df[df["origen"] != "DEMO"]
     if df.empty:
@@ -73,31 +99,28 @@ def dashboard(days: int = Query(7, ge=1, le=365), include_demo: bool = True,
     return {
         "kpis": {"ingresos": int((df["tipo_movimiento"] == "ENTRADA").sum()),
                  "salidas": int((df["tipo_movimiento"] == "SALIDA").sum()),
-                 "identificados": int(df["placa_final"].dropna().nunique()),
+                 "identificados": int(df["identity_key"].replace('',pd.NA).dropna().nunique()),
                  "alertas": int(len(alerts))},
         "por_hora": [{"hora": int(h), "resultado": r, "n": int(n)} for (h, r), n in by_hour.items()],
         "por_resultado": [{"resultado": r, "n": int(n)} for r, n in df["resultado_txt"].value_counts().items()],
         "por_garita": [{"garita": g, "movimiento": m, "n": int(n)}
                        for (g, m), n in df.groupby(["garita", "tipo_movimiento"]).size().items()],
-        "alertas": _records(alerts[["fecha_hora", "garita", "placa_final", "resultado_txt", "accion", "operador"]]
+        "alertas": _records(alerts[["fecha_hora", "garita", "placa_final", "country", "jurisdiction", "resultado_txt", "accion", "operador"]]
                             .head(12)),
     }
 
 
 @router.get("/model/info", summary="Métricas y descripción del modelo")
-def model_info(_: dict = Depends(current_user)) -> dict[str, Any]:
-    metrics = {
-        "detector_test": load_json("results/metrics/detector_rtdetr_ecuador_test.json"),
-        "ocr_savh": load_json("results/metrics/ocr_savh.json"),
-        "e2e": load_json("results/metrics/e2e_rtdetr.json"),
-        "velocidad": load_json("results/metrics/velocidad_rtdetr.json"),
-        "entrenamiento": load_json("results/metrics/entrenamiento_rtdetr.json"),
-        "umbrales": load_json("results/metrics/umbrales_rtdetr.json"),
-        "ocr_afinamiento": load_json("results/metrics/ocr_afinamiento.json"),
-        "regla_decision_savh": load_json("results/metrics/regla_decision_savh.json"),
-        "optimizacion_resumen": load_json("results/metrics/optimizacion_rtdetr_resumen.json"),
-    }
+def model_info(country: Optional[Country]=None, user: dict = Depends(current_user)) -> dict[str, Any]:
+    country=profile_country(user,country)
+    if country=='usa':
+        return {**_runtime_info('usa'),'metricas':{'detector_test':None,
+            'development':load_json('results/metrics/usa_runtime_development.json')},
+            'umbral_ocr':.94,'umbral_detector':.70}
+    # Historical Ecuador reports describe other weights, not the current shared seed 2.
+    metrics = dict.fromkeys(('detector_test','ocr_savh','e2e','velocidad','entrenamiento',
+                             'umbrales','ocr_afinamiento','regla_decision_savh','optimizacion_resumen'))
     ocr_threshold, det_threshold, _ = thresholds()
-    return {"metricas": metrics,
-            "detector": get_pipeline().detector.name, "ocr": get_pipeline().reader.model_name,
+    return {"metricas": metrics,**_runtime_info('ecuador'),
             "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold}
+

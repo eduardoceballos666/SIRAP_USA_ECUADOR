@@ -16,9 +16,9 @@ short_description: RT-DETRv2-S con OpenVINO y OCR de placas
 
 **Versión del producto: SIRAP_USA_ECUADOR_HF 1.0.** La API y el paquete npm del frontend usan el identificador técnico 2.0.0. El tag de GitHub `v2.0` identifica el corte del código con arquitectura FastAPI + Vue 3; no es la versión del producto. El [código fuente y la documentación](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) se mantienen en GitHub.
 
-## Acceso e idioma
+## Acceso, idioma y país
 
-Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El idioma inicial es inglés. Puedes seleccionar Español, English, Português, Français, Deutsch o Italiano en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. La preferencia se conserva en ese navegador.
+Abre la [aplicación SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). El idioma inicial es inglés. Puedes seleccionar Español, English, Português, Français, Deutsch o Italiano en el control **Idioma** de la pantalla de inicio de sesión o en el menú común una vez dentro. La preferencia se conserva en ese navegador. En el mismo login se elige **Ecuador o Estados Unidos**. Ambos países comparten la interfaz y los pesos; el país de sesión define las reglas OCR y los registros visibles.
 
 Las cuentas de demostración son `operador`, `supervisor` y `admin`. La contraseña se puede configurar mediante el secreto `SIRAP_DEMO_PASSWORD`. Si no se define, la API usa el valor predeterminado configurado en `api/settings.py`; para el Space público, configura explícitamente un valor propio y no publiques el valor del secreto. Los registros de demostración son ficticios y la barrera está simulada.
 
@@ -38,7 +38,7 @@ El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el w
 
 La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
-El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. SIRAP_USA_ECUADOR_HF no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
+Solo el perfil Ecuador consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. USA consulta exclusivamente su registro local, usando estado emisor más matrícula. SIRAP_USA_ECUADOR_HF no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
 
 | Dato | Uso |
 |---|---|
@@ -49,13 +49,15 @@ El enriquecimiento consulta datos vehiculares públicos del SRI en segundo plano
 
 ## Detector y licencia
 
-La app ejecuta **RT-DETRv2-S (ResNet-18vd)** con OpenVINO Runtime nativo en Python. El Dockerfile descarga el checkpoint de matrículas [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2), cuya ficha indica **Apache-2.0**, y lo convierte a OpenVINO IR durante la construcción del Space. El checkpoint base es [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd). El entrenamiento fino con Transformers/PyTorch debe ejecutarse antes del despliegue; los modelos por país se exportan a `models/<país>/detector/rtdetrv2_s/openvino/`. El OCR `fast-plate-ocr` es independiente y sigue usando ONNX Runtime. Los resultados y umbrales históricos de YOLO no se reutilizan; las métricas RT-DETR por país están pendientes de entrenamiento y evaluación con datos reservados.
+Ambos países ejecutan **el mismo RT-DETRv2-S/OpenVINO ajustado para USA, semilla 2**. El modelo está en el repositorio privado `eduardoceballos/SIRAP_USA_seed2`, fijado por commit y SHA-256 en `models/usa/selected_checkpoint.json`. El despliegue verifica acceso e integridad y guarda `SIRAP_USA_MODEL_TOKEN` como secreto del Space para descargarlo al iniciar. Los pesos privados no se copian al código público ni se entrena un modelo durante la construcción. El OCR global conserva los mismos pesos para ambos países.
 
-## Umbral y revisión humana
+Ecuador normaliza su formato (por ejemplo `ABC-1234`); USA conserva letras y números y requiere estado emisor más matrícula. No hay un reentrenamiento ecuatoriano en esta integración. El rendimiento del checkpoint compartido en Ecuador sigue pendiente de evaluación. Los informes históricos de otros modelos no son métricas de estos pesos.
 
-El umbral OCR configurado en [config/countries/ecuador.yaml](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/config/countries/ecuador.yaml) establece una confianza OCR mínima de **94 %**. Las lecturas por debajo del umbral requieren verificación manual. En modo continuo de video o cámara, la interfaz espera que la misma placa alcance al menos 94 % de confianza OCR en dos cuadros aceptados dentro de 7,5 segundos antes de mostrar y registrar la decisión. Estas medidas reducen decisiones basadas en una lectura aislada; no reemplazan la revisión del operador cuando hay dudas.
+## Umbrales y apertura
 
-El umbral de detección RT-DETR está marcado como provisional hasta calibrarlo sobre validación. La aplicación de demostración ejecuta inferencia en CPU mediante OpenVINO. Las mediciones de entrenamiento o GPU de los notebooks no representan la latencia del Space.
+Detección **0,70**, OCR **0,94** (probabilidad mínima por carácter), sin cambiar la semilla 2. Para USA, **Registrar y abrir barrera** requiere lista blanca vigente y dos identificadores de cuadro y hashes RGB distintos recibidos dentro de 7,5 segundos. El servidor comprueba la evidencia, usuario y garita; la confirmación vence en 30 segundos y se utiliza una sola vez. Persiste la operación antes de accionar la barrera. Una sola foto estática repetida no cumple esta confirmación.
+
+Las lecturas incompletas, bajas confianzas y estados desconocidos requieren revisión manual. La barrera configurada sigue siendo **simulada**. El diagnóstico de ocho fotos reutilizadas es desarrollo, no un test final independiente. La inferencia de la aplicación se realiza en CPU.
 
 ## Enlaces
 
@@ -71,7 +73,7 @@ SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, franc
 
 ## English
 
-This folder contains the Hugging Face Space deployment guide and synchronization script. Deployment uses the shared application code and the Ecuador configuration by default. The U.S. lookup provider is not active until J.D. Power authorizes an API integration or grants written permission for automation.
+This folder contains the Hugging Face Space deployment guide and synchronization script. Login selects country and language. Ecuador and USA share the same USA-trained seed-2 detector and global OCR weights; only country interpretation and validation rules differ. USA requires state plus serial and server-confirmed distinct frames for normal opening. Ecuador performance remains unvalidated. Both profiles use the existing private CSV storage; USA vehicle lookup is local only.
 
 ## Licencia
 
@@ -80,3 +82,4 @@ El código original de SIRAP_USA_ECUADOR se distribuye bajo **Apache License 2.0
 ## License
 
 Original SIRAP_USA_ECUADOR code is distributed under **Apache License 2.0**. See [LICENSE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/LICENSE) and [NOTICE](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/NOTICE). Previously published versions under MIT remain subject to that license. Third-party models, weights, libraries, and datasets retain their respective licenses and terms.
+

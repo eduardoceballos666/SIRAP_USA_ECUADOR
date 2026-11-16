@@ -9,21 +9,11 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# 2) Convertir el checkpoint Apache-2.0 a OpenVINO IR antes del runtime.
-FROM python:3.11-slim AS detector-export
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 HF_HOME=/root/.cache/huggingface
-WORKDIR /build
-COPY requirements-training.txt ./
-RUN pip install --require-hashes -r requirements-training.txt
-COPY src/__init__.py src/export_openvino.py ./src/
-RUN python -m src.export_openvino \
-    --model-id merve/license-plates-rtdetrv2 \
-    --output-dir /build/models/shared/detector/rtdetrv2_s/openvino
-
-# 3) Runtime de la API: OpenVINO + OCR, sin Torch ni Transformers.
+# 2) Runtime: recupera la semilla 2 privada al iniciar usando un secreto del Space.
+# El mismo detector sirve a los dos países; no se exporta un modelo alternativo.
 FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
-RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 \
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1 libglib2.0-0 tesseract-ocr tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -u 1000 user
 ENV HOME=/home/user PATH=/home/user/.local/bin:$PATH HF_HOME=/home/user/.cache/huggingface \
@@ -46,8 +36,8 @@ RUN python -c "from fast_plate_ocr import LicensePlateRecognizer as R; R('cct-s-
 
 COPY --chown=user . .
 COPY --chown=user --from=frontend /app/frontend/dist frontend/dist
-COPY --chown=user --from=detector-export /build/models/shared/detector/rtdetrv2_s/openvino models/shared/detector/rtdetrv2_s/openvino
 RUN mkdir -p data/processed
 
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+

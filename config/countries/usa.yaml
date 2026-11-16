@@ -6,14 +6,27 @@ detector:
   architecture: "RT-DETRv2-S"
   model_id: "merve/license-plates-rtdetrv2"
   base_model_id: "PekingU/rtdetr_v2_r18vd"
-  checkpoint: "models/usa/detector/rtdetrv2_s/openvino"
-  fallback_checkpoint: "models/shared/detector/rtdetrv2_s/openvino"
+  checkpoint: "models/shared/detector/rtdetrv2_s/seed_2/openvino"
+  fallback_checkpoint: null
   class_id: 0
   runtime: "OpenVINO Runtime"
   device: "CPU"
   training_size: 640
   inference_size: 640
-  confidence: 0.25
+  confidence: 0.70
+  crop_margin: 0.06
+  seed: 2
+
+ocr:
+  model: "cct-s-v2-global-model"
+  confidence: 0.94
+
+automatic_access:
+  enabled: true
+  minimum_distinct_frames: 2
+  confirmation_window_seconds: 7.5
+  evidence_ttl_seconds: 30
+  require_current_whitelist: true
 
 plates:
   require_state: true
@@ -24,3 +37,4 @@ vehicle_lookup:
   enabled: false
   authorization_required: true
   notes: "Enable only after an authorized API or written permission is available."
+
