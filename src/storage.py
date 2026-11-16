@@ -12,7 +12,8 @@ HEADERS = {
     "vehiculos": ["placa","marca","modelo","color","tipo","propietario","transportista","fuente","actualizado_en","registrado_por"],
     "autorizaciones": ["id","placa","lista","motivo","vigente_desde","vigente_hasta","activa","creado_por"],
     "operaciones": ["id","fecha_hora","garita","operador","tipo_movimiento","placa_leida","placa_final","confianza_ocr","resultado","lista","accion","motivo","origen","tiempo_ms","operacion_id","estado_barrera","actualizado_en",
-                    "country","jurisdiction","identity_key","evidence_id","evidence_json","det_confidence","model_seed"],
+                    "country","jurisdiction","identity_key","evidence_id","evidence_json","det_confidence","model_seed",
+                    "operador_usuario","barrera_simulada"],
     "garitas": ["id","nombre","ubicacion","activa"],
     "usuarios": ["id","usuario","nombre","rol","activo"],
     "credenciales": ["usuario","password_hash"],
@@ -80,6 +81,8 @@ class CsvStore:
             with tempfile.NamedTemporaryFile("w",encoding="utf-8",newline="",dir=path.parent,delete=False,suffix=".tmp") as f:
                 temp=f.name
                 frame.reindex(columns=HEADERS[name],fill_value="").to_csv(f,index=False,quoting=csv.QUOTE_MINIMAL)
+                f.flush()
+                os.fsync(f.fileno())
             contents=Path(temp).read_text(encoding="utf-8")
             # La escritura remota se confirma ANTES de reemplazar la copia local.
             # El SHA del último _read evita perder datos ante escrituras concurrentes.
@@ -89,7 +92,7 @@ class CsvStore:
             os.replace(temp,path)
         except (OSError, GitHubStorageError) as exc:
             if temp and os.path.exists(temp): os.unlink(temp)
-            raise StorageError(f"No se pudo guardar {name}.csv; GitHub conserva su versión previa: {exc}") from exc
+            raise StorageError(f"No se pudo confirmar el guardado de {name}.csv; consulte su versión persistente antes de reintentar: {exc}") from exc
     @staticmethod
     def _active(v): return str(v).lower() in ("1","true","si","sí","yes")
     @staticmethod
@@ -137,13 +140,14 @@ class CsvStore:
     def registered_plates(self):
         return [plate for plate in self._read('vehiculos').placa.tolist() if not plate.startswith('US:')]
     def log_operation(self,*,garita,operador,tipo_movimiento,resultado,accion,placa_leida=None,placa_final=None,confianza_ocr=None,lista=None,motivo=None,origen="DETECCION",tiempo_ms=None,fecha_hora=None,operacion_id=None,estado_barrera="NO_APLICA",
-                      country='ecuador',jurisdiction=None,identity_key=None,evidence_id=None,evidence_json=None,det_confidence=None,model_seed=None):
+                      country='ecuador',jurisdiction=None,identity_key=None,evidence_id=None,evidence_json=None,det_confidence=None,model_seed=None,
+                      operador_usuario=None,barrera_simulada=None):
         """Persiste la solicitud antes de abrir. Un UUID duplicado no crea otro intento."""
         import uuid
         movement=tipo_movimiento.upper()
         if movement not in ("ENTRADA","SALIDA"): raise ValueError("tipo_movimiento debe ser ENTRADA o SALIDA")
         if accion=="APERTURA_MANUAL" and not(motivo and motivo.strip()): raise ValueError("La apertura manual exige un motivo.")
-        if estado_barrera not in ("SOLICITADA","CONFIRMADA","FALLIDA","INDETERMINADA","NO_APLICA"):
+        if estado_barrera not in ("SOLICITADA","CONFIRMADA","FALLIDA","INDETERMINADA","NO_APLICA","CANCELADA"):
             raise ValueError("Estado de barrera inválido.")
         op_id=str(operacion_id or uuid.uuid4())
         with LOCK:
@@ -161,9 +165,19 @@ class CsvStore:
                 'evidence_id':evidence_id or '', 'evidence_json':json.dumps(evidence_json,ensure_ascii=False) if evidence_json else '',
                 'det_confidence':det_confidence if det_confidence is not None else '',
                 'model_seed':model_seed if model_seed is not None else '',
+                'operador_usuario':operador_usuario or '',
+                'barrera_simulada':'' if barrera_simulada is None else str(bool(barrera_simulada)).lower(),
             }
             self._write("operaciones",d)
         return op_id
+
+    def operation(self, operacion_id):
+        """Find one durable UUID without a date/row limit or an in-memory cache."""
+        rows=self._read('operaciones')
+        found=rows[rows.operacion_id.eq(str(operacion_id))]
+        if len(found)>1:
+            raise StorageError('El historial contiene un identificador de operación duplicado; requiere revisión.')
+        return None if found.empty else found.iloc[0].to_dict()
 
     def update_operation_state(self,operacion_id,estado):
         """Actualiza la misma fila; SOLICITADA queda como evidencia si la escritura final falla."""
