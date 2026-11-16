@@ -118,6 +118,25 @@ class OperationOut(BaseModel):
     mensaje: str
 
 
+class OperationStatus(BaseModel):
+    operacion_id: str
+    country: Country
+    garita: str
+    accion: Accion
+    resultado: Resultado
+    estado_barrera: str
+    barrera_abierta: Optional[bool]
+    barrera_simulada: Optional[bool]
+    requiere_revision: bool
+    mensaje: str
+
+
+class CancelOperationIn(CountryFields):
+    garita: str = Field(min_length=1, max_length=60)
+    tipo_movimiento: Movimiento
+    accion_solicitada: Accion
+
+
 class VehicleIn(CountryFields):
     placa: str = Field(min_length=1, max_length=12)
     marca: str = ""

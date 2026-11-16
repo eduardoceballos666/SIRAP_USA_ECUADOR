@@ -10,7 +10,7 @@ import hashlib
 from dataclasses import asdict
 
 import cv2
-from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse
 
 from api import schemas
@@ -292,6 +292,73 @@ def register_vehicle(body: schemas.VehicleIn, user: dict = Depends(current_user)
             "identity_key":identity.key,"mensaje": f"Camión {identity.lookup_key} registrado, pendiente de autorización."}
 
 
+def _operation_uuid(value):
+    try:
+        return str(uuid.UUID(value))
+    except (ValueError, AttributeError, TypeError) as exc:
+        raise HTTPException(422, "Identificador de operación UUID inválido.") from exc
+
+
+def _operation_status(row, user, country):
+    # Never identify an operator by a mutable/non-unique display name.
+    owner=row.get('operador_usuario')
+    allowed=owner==user['usuario'] or user.get('rol') in ('SUPERVISOR','ADMINISTRADOR')
+    if row.get('country','ecuador')!=country or not allowed:
+        raise HTTPException(404, 'Operación no encontrada.')
+    state=row.get('estado_barrera') or 'INDETERMINADA'
+    simulated={'true':True,'false':False}.get(row.get('barrera_simulada',''))
+    messages={
+        'CONFIRMADA':'Apertura confirmada en el historial. No se envió una nueva orden.',
+        'FALLIDA':'El intento falló y está registrado. No se envió una nueva orden.',
+        'CANCELADA':'Intento cancelado antes de su aceptación. No se abrió la barrera.',
+        'NO_APLICA':'Operación registrada sin apertura.',
+    }
+    return schemas.OperationStatus(operacion_id=row['operacion_id'],country=country,
+        garita=row['garita'],accion=row['accion'],resultado=row['resultado'],estado_barrera=state,
+        barrera_abierta=True if state=='CONFIRMADA' else False if state in ('FALLIDA','CANCELADA','NO_APLICA') else None,
+        barrera_simulada=simulated,requiere_revision=state not in messages,
+        mensaje=messages.get(state,'La apertura no tiene confirmación definitiva. Revise el historial y la barrera; no repita la orden.'))
+
+
+@router.get('/operations/{operacion_id}/status',response_model=schemas.OperationStatus,
+            summary='Consultar una operación persistente sin repetir la orden')
+def operation_status(operacion_id: str,response: Response,country: schemas.Country | None=None,
+                     user: dict=Depends(current_user)):
+    response.headers['Cache-Control']='no-store'
+    selected=profile_country(user,country)
+    row=get_store().operation(_operation_uuid(operacion_id))
+    if row is None:
+        raise HTTPException(404,'Operación no encontrada.')
+    return _operation_status(row,user,selected)
+
+
+@router.post('/operations/{operacion_id}/cancel',response_model=schemas.OperationStatus,
+             summary='Reservar como cancelado un intento que todavía no fue aceptado')
+def cancel_operation(operacion_id: str,body: schemas.CancelOperationIn,response: Response,
+                     user: dict=Depends(current_user)):
+    response.headers['Cache-Control']='no-store'
+    selected=profile_country(user,body.country)
+    op_id=_operation_uuid(operacion_id)
+    db=get_store()
+    row=db.operation(op_id)
+    if row is None:
+        try:
+            # A durable tombstone races with acceptance using the same CSV CAS/UUID.
+            # Whichever request is persisted first wins; this endpoint never actuates.
+            db.log_operation(garita=body.garita,operador=user['nombre'],
+                operador_usuario=user['usuario'],tipo_movimiento=body.tipo_movimiento,
+                resultado='VERIFICACION_MANUAL',accion='SOLO_REGISTRO',origen='MANUAL',
+                motivo='Cancelación previa de '+body.accion_solicitada,
+                operacion_id=op_id,estado_barrera='CANCELADA',country=selected)
+        except (ValueError,StorageError):
+            # Another worker may have accepted it. Re-read, never repeat a stale write.
+            row=db.operation(op_id)
+            if row is None:
+                raise HTTPException(503,'No se pudo confirmar la cancelación. Consulte el estado de la operación.')
+        row=db.operation(op_id)
+    return _operation_status(row,user,selected)
+
+
 @router.post("/operations", response_model=schemas.OperationOut, status_code=201,
              summary="Registrar una operación (y abrir la barrera si corresponde)")
 def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTasks, user: dict = Depends(current_user)) -> schemas.OperationOut:
@@ -301,6 +368,14 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     - ``APERTURA_MANUAL`` exige un motivo de al menos 10 caracteres.
     """
     profile_country(user,body.country)
+    opening = body.accion in ("APERTURA_AUTOMATICA", "APERTURA_MANUAL")
+    if opening and not body.operacion_id:
+        raise HTTPException(422,'Toda apertura requiere un identificador de operación persistente.')
+    op_id=_operation_uuid(body.operacion_id) if body.operacion_id else str(uuid.uuid4())
+    db=get_store()
+    # The durable ledger survives restarts and expired in-memory recognition receipts.
+    if db.operation(op_id) is not None:
+        raise HTTPException(409,'Operación duplicada: ya se registró la solicitud. No reintente la apertura.')
     identity=_identity(body.placa_final,body.country,body.jurisdiction) if body.placa_final and (
         body.country=='ecuador' or body.jurisdiction) else None
     plate=identity.serial if identity else None
@@ -336,13 +411,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     if not getattr(barrier, "simulated", True) and not durable_backup_configured():
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
                             "Apertura bloqueada: configure primero el respaldo CSV privado y persistente.")
-    try:
-        op_id = str(uuid.UUID(body.operacion_id)) if body.operacion_id else str(uuid.uuid4())
-    except (ValueError, AttributeError) as exc:
-        raise HTTPException(422, "Identificador de operación UUID inválido.") from exc
-    opening = body.accion in ("APERTURA_AUTOMATICA", "APERTURA_MANUAL")
     final = plate if decision.resultado != "VERIFICACION_MANUAL" or body.origen == "MANUAL" else None
-    db = get_store()
     claimed=False
     if body.country=='usa' and body.accion=='APERTURA_AUTOMATICA':
         try:
@@ -363,7 +432,8 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
             country=body.country,jurisdiction=body.jurisdiction,
             identity_key=identity.key if identity else None,
             evidence_id=receipt.id if receipt else None,evidence_json=receipt.audit() if receipt else None,
-            det_confidence=body.det_confidence,model_seed=2 if receipt else None)
+            det_confidence=body.det_confidence,model_seed=2 if receipt else None,
+            operador_usuario=user['usuario'],barrera_simulada=getattr(barrier,'simulated',True))
     except ValueError as exc:
         if claimed:
             evidence_store.release(receipt.id)
@@ -385,7 +455,10 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
     if opening:
         barrier_state = "INDETERMINADA"  # Un fallo de red no demuestra que una barrera física esté cerrada.
         try:
-            opened = bool(barrier.open(body.garita, body.accion))
+            if hasattr(barrier,'open_operation'):
+                opened=bool(barrier.open_operation(op_id,body.garita,body.accion))
+            else:
+                opened = bool(barrier.open(body.garita, body.accion))
             barrier_state = "CONFIRMADA" if opened else (
                 "FALLIDA" if getattr(barrier, "simulated", False) else "INDETERMINADA")
         except Exception:

@@ -10,6 +10,8 @@ import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
 import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
+import { readPendingOperation, startPendingOperation, clearPendingOperation,
+  recoverPendingOperation, cancelUnacceptedOperation, operationIsSettled } from '@/lib/operationRecovery'
 
 const session = useSessionStore()
 const auth = useAuthStore()
@@ -68,6 +70,64 @@ const registrationPromptDismissed = ref(false)
 const plateConfirmedForRegistration = ref(false)
 const authorizeOnRegistration = ref(false)
 const operationAttemptId = ref(null)
+const pendingAttempt = ref(null)
+const recoveryBusy = ref(false)
+const recoveryMessage = ref('')
+const recoveryMissing = ref(false)
+const recoveryBlocked = ref(false)
+function operationScope() { return { usuario: auth.user?.usuario, country: session.country } }
+
+async function recoverOperation() {
+  if (recoveryBusy.value) return
+  recoveryBusy.value = true
+  try {
+    const scope = operationScope()
+    pendingAttempt.value = readPendingOperation(scope)
+    recoveryBlocked.value = Boolean(pendingAttempt.value)
+    recoveryMissing.value = false
+    recoveryMessage.value = ''
+    if (!pendingAttempt.value) return
+    const { attempt, result } = await recoverPendingOperation(scope, api)
+    if (result && operationIsSettled(result)) {
+      pendingAttempt.value = readPendingOperation(scope)
+      recoveryBlocked.value = Boolean(pendingAttempt.value)
+      done.value = result.estado_barrera !== 'CANCELADA'
+      operationAttemptId.value = null
+      session.notify(result.mensaje, result.estado_barrera === 'CONFIRMADA' ? 'ok' : 'warn')
+    } else if (result) recoveryMessage.value = result.mensaje
+  } catch (error) {
+    recoveryBlocked.value = true
+    recoveryMissing.value = error.status === 404
+    recoveryMessage.value = error.status === 404
+      ? 'El intento aún no figura en el historial. Consulte otra vez o cancele este identificador antes de crear otra operación.'
+      : error.message
+  } finally { recoveryBusy.value = false }
+}
+
+async function cancelUnacceptedAttempt() {
+  if (recoveryBusy.value || busy.value) return
+  recoveryBusy.value = true
+  try {
+    const { result } = await cancelUnacceptedOperation(operationScope(), api)
+    if (result && operationIsSettled(result)) {
+      pendingAttempt.value = readPendingOperation(operationScope())
+      recoveryBlocked.value = Boolean(pendingAttempt.value)
+      done.value = result.estado_barrera !== 'CANCELADA'
+      operationAttemptId.value = null
+      recoveryMessage.value = ''
+      recoveryMissing.value = false
+      session.notify(result.mensaje, 'warn')
+    } else if (result) {
+      recoveryMissing.value = false
+      recoveryMessage.value = result.mensaje
+    }
+  } catch (error) { recoveryMessage.value = error.message }
+  finally { recoveryBusy.value = false }
+}
+
+function recoverAfterStorageChange(event) {
+  if (event.key?.startsWith('sirap_pending_operation_v1:')) void recoverOperation()
+}
 const vehicleDraft = reactive({ marca: '', modelo: '', color: '', propietario: '', transportista: '' })
 const showCapture = ref(false)
 const motivo = ref('')
@@ -296,6 +356,8 @@ onBeforeUnmount(() => {
   if (mediaUrl.value) URL.revokeObjectURL(mediaUrl.value)
   clearInterval(clockTimer)
   document.removeEventListener('fullscreenchange', syncFullscreen)
+  window.removeEventListener('online', recoverOperation)
+  window.removeEventListener('storage', recoverAfterStorageChange)
 })
 
 // --- imagen -----------------------------------------------------------------------------
@@ -560,7 +622,7 @@ async function verifyManual() {
 // --- acciones -----------------------------------------------------------------------------
 const tone = computed(() => RESULT[decision.value?.resultado]?.tone)
 const plateShown = computed(() => (origin.value === 'MANUAL' ? manualPlate.value : recognition.value?.plate) || '')
-const canOpen = computed(() => decision.value?.permite_apertura && !done.value &&
+const canOpen = computed(() => decision.value?.permite_apertura && !done.value && !recoveryBlocked.value &&
   (session.country !== 'usa' || (origin.value === 'DETECCION' &&
     automaticUSAReadingAllowed(recognition.value, manualPlate.value, manualJurisdiction.value))))
 const vehicle = computed(() => decision.value?.vehiculo)
@@ -613,6 +675,11 @@ async function saveVehicle() {
 }
 
 async function register(accion) {
+  if (busy.value || recoveryBusy.value || done.value) return
+  if (recoveryBlocked.value || pendingAttempt.value) {
+    await recoverOperation()
+    return
+  }
   if (!decision.value) {
     session.notify('Procese una imagen o verifique una placa antes de registrar.', 'warn')
     return
@@ -620,8 +687,20 @@ async function register(accion) {
   busy.value = true
   if (!operationAttemptId.value) operationAttemptId.value = crypto.randomUUID()
   try {
+    const reservation = await startPendingOperation(operationScope(), {
+      operacion_id: operationAttemptId.value, accion, garita: session.garita,
+      tipo_movimiento: session.movimiento,
+    })
+    pendingAttempt.value = reservation.attempt
+    operationAttemptId.value = reservation.attempt.operacion_id
+    recoveryBlocked.value = true
+    if (reservation.reused) {
+      await recoverOperation()
+      return
+    }
     const out = await api('/api/operations', {
       method: 'POST',
+      timeoutMs: 90000,
       body: {
         garita: session.garita,
         tipo_movimiento: session.movimiento,
@@ -638,6 +717,9 @@ async function register(accion) {
         tiempo_ms: recognition.value?.timings_ms?.total ?? null,
       },
     })
+    clearPendingOperation(operationScope(), out.operacion_id)
+    pendingAttempt.value = readPendingOperation(operationScope())
+    recoveryBlocked.value = Boolean(pendingAttempt.value)
     done.value = true
     session.markRegistered(lecturaId.value, out.accion)
     manualOpen.value = false
@@ -652,6 +734,12 @@ async function register(accion) {
     }
   } catch (e) {
     session.notify(e.message, 'bad')
+    if ([403, 422].includes(e.status)) {
+      // These rejections happen before acceptance; no opening can have been sent.
+      clearPendingOperation(operationScope(), operationAttemptId.value)
+      operationAttemptId.value = null
+    }
+    await recoverOperation() // A GET may recover a lost response; it never repeats the POST.
   } finally {
     busy.value = false
   }
@@ -673,7 +761,10 @@ watch(() => session.garita, () => {
 
 onMounted(async () => {
   document.addEventListener('fullscreenchange', syncFullscreen)
+  window.addEventListener('online', recoverOperation)
+  window.addEventListener('storage', recoverAfterStorageChange)
   clockTimer = setInterval(() => { now.value = new Date() }, 1000)
+  void recoverOperation()
   try {
     await session.loadSystem()
     samples.value = await api('/api/samples')
@@ -684,6 +775,17 @@ onMounted(async () => {
 </script>
 
 <template>
+  <section v-if="pendingAttempt || recoveryBlocked" class="card mb-5 border border-amber-400" aria-live="polite">
+    <h2 class="font-semibold">{{ $t('Operación pendiente de confirmar') }}</h2>
+    <p class="mt-2">{{ $t('Consulte el resultado antes de abrir otra vez. La recuperación no reenvía la orden de apertura.') }}</p>
+    <p v-if="pendingAttempt" class="mt-2 text-sm">{{ pendingAttempt.garita }} · <span class="font-mono">{{ pendingAttempt.operacion_id }}</span></p>
+    <p v-if="recoveryMessage" class="mt-2">{{ $t(recoveryMessage) }}</p>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <button class="btn-primary" :disabled="recoveryBusy || busy" @click="recoverOperation">{{ $t('Consultar resultado') }}</button>
+      <button v-if="recoveryMissing && pendingAttempt" class="btn-ghost" :disabled="recoveryBusy || busy" @click="cancelUnacceptedAttempt">{{ $t('Cancelar intento no registrado') }}</button>
+      <RouterLink class="btn-ghost" :to="`/${session.country}/historial`">{{ $t('Ver historial') }}</RouterLink>
+    </div>
+  </section>
   <div class="access-workspace">
     <div class="control-strip">
       <div class="control-field"><span>{{ $t("Punto de control") }}</span><strong><AppIcon name="pin" :size="17" /> {{ $t("Garita de acceso") }}</strong></div>
@@ -805,8 +907,8 @@ onMounted(async () => {
             <span class="eyebrow">{{ $t("Resultado de acceso") }}</span>
             <strong>{{ loading ? $t('PROCESANDO…') : $t(decisionLabel) }}</strong>
             <span class="result-detail">{{ $t(decision?.detalle || 'Seleccione o capture una imagen para verificar') }}</span>
-            <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done" @click="register('RECHAZO')">{{ $t("Registrar rechazo") }}</button>
-            <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done" @click="register('SOLO_REGISTRO')">{{ $t("Registrar sin abrir") }}</button>
+            <button v-if="decision?.resultado === 'DENEGADO'" class="result-action" :disabled="busy || done || recoveryBlocked" @click="register('RECHAZO')">{{ $t("Registrar rechazo") }}</button>
+            <button v-else-if="decision && !decision.permite_apertura" class="result-action" :disabled="busy || done || recoveryBlocked" @click="register('SOLO_REGISTRO')">{{ $t("Registrar sin abrir") }}</button>
             <button v-if="decision" class="text-link result-detail-link" @click="detailsOpen = true">{{ $t("Ver detalle completo") }}</button>
           </div>
           <div class="ocr-meter">
@@ -834,7 +936,7 @@ onMounted(async () => {
         <div class="access-action-bar" :aria-label="$t('Acciones de acceso')">
           <button class="btn-yellow action-button" :disabled="!canOpen || busy" @click="register('APERTURA_AUTOMATICA')"><AppIcon name="barrier" :size="20" /><span>{{ $t("Registrar y abrir barrera") }}</span></button>
           <button class="btn-red action-button" :disabled="loading || (!file && !mediaReady)" @click="processCurrentMedia"><AppIcon name="settings" :size="20" /><span>{{ $t("Procesar detección automática") }}</span></button>
-          <button class="btn-navy action-button" :disabled="!decision || busy || done" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>{{ $t("Apertura manual (Contingencia)") }}</span></button>
+          <button class="btn-navy action-button" :disabled="!decision || busy || done || recoveryBlocked" @click="manualOpen = true"><AppIcon name="lock" :size="19" /><span>{{ $t("Apertura manual (Contingencia)") }}</span></button>
         </div>
       </div>
     </div>
