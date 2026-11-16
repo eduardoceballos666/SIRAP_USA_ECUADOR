@@ -1,16 +1,18 @@
 # SIRAP notebooks
 
-The active detector is RT-DETRv2-S (ResNet-18vd). Fine-tuning uses Transformers/PyTorch and exports OpenVINO IR; inference uses the native Python OpenVINO Runtime. The plate checkpoint `merve/license-plates-rtdetrv2` is listed as Apache-2.0. Dataset and third-party component licenses remain separate.
+The application runs native OpenVINO inference with the USA-trained seed-2 RT-DETRv2-S detector and verified global serial OCR weights. Ecuador and USA share those frozen weights; country-specific rules interpret OCR differently. Model selection, datasets, interpretation and evaluation evidence must retain their own identities.
 
 | Country | Active notebook | Coverage |
 |---|---|---|
-| Ecuador | [sirap_backend_ecuador.ipynb](ecuador/sirap_backend_ecuador.ipynb) and [notebook guide](ecuador/README.md) | Consolidated sections 0–9: Ecuador COCO scenes, SAVH review, training, plate normalization, OpenVINO, video, optional camera modes, CPU latency, and IR publication |
-| United States | [sirap_backend_usa.ipynb](usa/sirap_backend_usa.ipynb) and [USA notebook guide](usa/README.md) | One consolidated English workflow for exploration, Roboflow/COCO data, grouped holdout creation, training, tuning, evaluation, OCR, OpenVINO, and publishing |
+| Ecuador | [sirap_backend_ecuador.ipynb](ecuador/sirap_backend_ecuador.ipynb) and [guide](ecuador/README.md) | Consolidated Ecuador training, OCR, evaluation and optional camera workflow |
+| United States | [sirap_backend_usa.ipynb](usa/sirap_backend_usa.ipynb) and [guide](usa/README.md) | Frozen seed-2 application pipeline, at most eight reviewed photos, isolated API access-flow checks and optional separate research |
 
-The former USA notebooks for exploration, preprocessing, modeling, optimization, evaluation, OCR, and multi-seed validation have been merged into the consolidated USA notebook and removed from the active folder. Their prior revisions remain in Git history.
+The USA diagnostic keeps detection at **0.70** and minimum OCR character probability at **0.94**. It verifies issuing state + serial and reuses the actual application provider and HTTP handlers. Its eight-photo path does not download a training dataset or request a 400-image review. Set `PILOT8_ROOT` to the private reviewed bundle and enable the pilot and software-check switches; see the USA guide for setup and results.
 
-For USA training, add `ROBOFLOW_API_KEY` to Colab Secrets before downloading the default Roboflow dataset. The consolidated USA notebook includes both a disabled-by-default Cloudflare camera test and an on-site OpenVINO edge runner. The remote test reads `CAMARA_URL` and `CAMARA_TOKEN` from Colab Secrets. The local runner saves confirmed OCR events without video; its optional uploader stays disabled because the current API has no dedicated machine-to-machine USA event route. Do not automate the interactive operations endpoint. The notebook also supports full-scene USA annotations through [the COCO dataset guide](../datasets/usa/detection_coco/README.md) and [the converter](../scripts/usa_annotations_to_coco.py).
+USA camera modes and the generated edge runner are diagnostic only. Their local confirmations cannot authorize a production opening and do not upload to the interactive operations endpoint. USA vehicle lookup uses the local registry; no browser or external vehicle lookup is required.
 
-The USA test builder creates a grouped internal holdout with at least 400 images from the selected source export. It is not an external dataset; vehicle/session separation is guaranteed only when those identifiers are provided. The model test is locked until the checkpoint and threshold are selected using validation and frozen.
+Research is off by default. Roboflow download requires `ROBOFLOW_API_KEY` in Secrets; grouped internal holdout creation, Optuna and training require explicit research switches. That internal holdout is not independent external evidence. Full-scene conversion is documented in [the COCO guide](../datasets/usa/detection_coco/README.md) and [converter](../scripts/usa_annotations_to_coco.py).
 
-Ecuador and USA models, datasets, OCR inputs, and metrics must remain separate. The removed video ground-truth experiment is not part of the active notebook workflows.
+Historical staged USA notebooks and metrics retain their own model identities in Git history. The independent seed-2 test remains unrun pending a separate reviewed source. Reused photo checks, synthetic software tests and previous checkpoints' reports are not substitutes for it. The notebook does not publish model binaries or operational data.
+
+Fine-tuning uses Transformers/PyTorch and exports OpenVINO IR; the application does not need Transformers for inference. Checkpoint, dataset and component licenses remain separate.
