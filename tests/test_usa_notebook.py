@@ -136,3 +136,6 @@ def test_notebook_code_and_generated_scripts_compile_without_execution():
     assert 'ALPRPipeline(' not in joined
     assert 'RUN_RESEARCH_WORKFLOW = False' in joined
     assert 'RUN_FINAL_TEST_EVALUATION = False' in joined
+    documentation='\n'.join(''.join(c['source']) for c in nb['cells'] if c['cell_type']=='markdown')
+    assert 'The selected candidate is seed 1' not in documentation
+    assert 'RUN_OPTUNA is enabled' not in documentation

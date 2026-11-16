@@ -76,7 +76,7 @@
     "opencv-python-headless": "4.12.0.88"
   },
   "reference_sha256": "a93c7c601297abf2393ea90065c755b0724bddb3503beafd1c779e45eff8f34f",
-  "elapsed_seconds": 22.471227744998032,
+  "elapsed_seconds": 24.350597749998997,
   "access_operations": 0,
   "notes": [
     "Unresolved scenes are excluded from complete-scene detection counts.",
