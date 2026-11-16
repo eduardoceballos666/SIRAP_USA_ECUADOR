@@ -1,0 +1,42 @@
+{
+  "info": {
+    "description": "Six user-provided Ecuador development photos, manually boxed on 2026-11-16.",
+    "country": "ecuador",
+    "scope": "development_only",
+    "source_url": "https://drive.google.com/drive/folders/1fEsgY7onlFo4ZkJmKBbHWaLbwl-WCyBp",
+    "annotation_version": "2026-11-16"
+  },
+  "licenses": [],
+  "images": [
+    {
+      "id": 5,
+      "file_name": "images/ecuador_05.jpeg",
+      "width": 1200,
+      "height": 648,
+      "sha256": "deba6410946ee7678365eb65fd599677006a1f2b992d5c64b3b0c868cb95b113",
+      "source_group": "pcq1834_roadside"
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 5,
+      "category_id": 1,
+      "bbox": [
+        350,
+        580,
+        126,
+        47
+      ],
+      "area": 5922,
+      "iscrowd": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "license_plate",
+      "supercategory": "license_plate"
+    }
+  ]
+}

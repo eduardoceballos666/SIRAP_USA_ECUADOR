@@ -1,32 +1,37 @@
-# Dataset COCO de detección — Estados Unidos
+# Ecuador COCO detection development set
 
-Este directorio prepara el dataset de escenas completas USA que necesita el detector RT-DETRv2-S.
+This directory contains the six Ecuador photographs supplied for training and testing.
+The original files came from the user's public [source folder](https://drive.google.com/drive/folders/1fEsgY7onlFo4ZkJmKBbHWaLbwl-WCyBp).
+Only the six requested photos are included; older files in that folder are excluded.
 
-## Diferencia entre detección y OCR
+| Split | Images | Plate boxes | Files |
+|---|---:|---:|---|
+| train | 4 | 9 | ecuador_01.jpg, ecuador_03.jpg, ecuador_04.jpeg, ecuador_06.jpeg |
+| valid | 1 | 1 | ecuador_05.jpeg |
+| test | 1 | 1 | ecuador_02.jpeg |
 
-Las imágenes de datasets/usa/seg_and_ocr/usimages son recortes de matrículas con texto real en groundtruth.csv. Sirven para medir OCR; no contienen vehículos completos ni cajas de matrícula dentro de una escena. No las uses como sustituto de escenas para entrenar el detector.
+Each split has `_annotations.coco.json` and an `images/` directory.
+`file_name` resolves relative to its split, for example `images/ecuador_01.jpg`.
+`sample_annotations.json` records original filenames, pixel dimensions, SHA256 hashes,
+scene groups, split assignments and manually reviewed pixel `[x, y, width, height]` boxes.
 
-## Preparación
+The two views showing truck PDE-1577 share `source_group=quito_pde1577` and both stay in train.
+All images and groups are disjoint across splits. Visible background plates are annotated,
+including a partially occluded bus plate. A plate fully hidden behind the gate barrier is
+excluded. Detection labels do not include guessed OCR transcriptions.
 
-1. Copia escenas completas con vehículos a source_images/. Puedes usar imágenes fijas o cuadros seleccionados de cámaras, siempre que tengas permiso para usarlos.
-2. Copia annotations_template.csv como annotations.csv.
-3. Anota una fila por cada caja de matrícula usando coordenadas en píxeles: x, y, width, height. El recuadro debe ajustarse a la matrícula.
-4. Escribe train, valid o test en split. Conserva todos los cuadros de la misma sesión, secuencia, cámara o vehículo en un único split.
-5. Escribe un source_group estable para cada secuencia o vehículo. Las escenas negativas llevan una fila con las cuatro coordenadas vacías.
-6. En Colab, ejecuta la celda de conversión del notebook USA o este comando:
+Run [the Ecuador notebook](../../../notebooks/ecuador/sirap_backend_ecuador.ipynb):
+audit in 1.2, train in 3.1, load the resulting IR in 4, validate in 5.2,
+then evaluate the frozen candidate on the held-out development image in 5.3.
+The notebook reads this directory directly from its GitHub clone; no Drive download is needed.
 
-    python scripts/usa_annotations_to_coco.py --images-dir datasets/usa/detection_coco/source_images --annotations-csv datasets/usa/detection_coco/annotations.csv --output-dir datasets/usa/detection_coco
+The audit rejects missing JSON/images, invalid boxes/categories, incorrect dimensions,
+duplicate bytes and shared scene groups. Test data must not select weights, epochs or thresholds.
+AP uses COCO IoU .50:.95 with maxDets=100; precision/recall/F1 use actual TP/FP/FN at the fixed
+confidence threshold and IoU .50. Empty predictions are evaluated rather than skipped.
 
-El convertidor comprueba archivos, dimensiones, cajas dentro de la imagen, grupos entre particiones y duplicados exactos; luego copia las escenas y genera _annotations.coco.json para train, valid y test. El notebook consume esa raíz mediante DATA_DIR.
-
-## Columnas del CSV
-
-| Columna | Contenido |
-|---|---|
-| image_file | Nombre o ruta relativa a source_images/ |
-| split | train, valid o test |
-| source_group | Identificador de sesión, cámara, recorrido o vehículo para evitar fuga entre splits |
-| x, y | Esquina superior izquierda de la caja, en píxeles |
-| width, height | Ancho y alto de la caja, en píxeles |
-
-Las imágenes y anotaciones no vienen incluidas: deben cargarse y etiquetarse por el equipo. El repositorio conserva la plantilla y el proceso de conversión.
+**Scope:** this is a six-image, positive-only development set, not an independent field study.
+One validation and one test image cannot establish general accuracy or a negative-scene
+false-positive rate. Add diverse Ecuador vehicles, sessions, lighting and real negative scenes
+before operational evaluation. SAVH crops and USA images are separate sources and are not
+silently added to these splits. No trained-model results are claimed by preparing these files.

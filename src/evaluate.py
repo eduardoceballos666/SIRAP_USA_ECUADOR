@@ -43,89 +43,59 @@ def f1_score(precision: float, recall: float) -> float:
 def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str = "test",
                       checkpoint: str | Path | None = None, model_id: str = DEFAULT_MODEL_ID,
                       threshold: float = 0.001,
-                      result_path: str | Path | None = None) -> dict[str, Any]:
-    """Calcula mAP COCO, AP50, AP75, precisión y recall en un split COCO."""
-    from pycocotools.coco import COCO
-    from pycocotools.cocoeval import COCOeval
+                      result_path: str | Path | None = None,
+                      operating_threshold: float | None = None) -> dict[str, Any]:
+    """Measure standard COCO AP and actual TP/FP/FN at a fixed confidence."""
+    import hashlib
+    import io
+    from PIL import Image
+    from src.coco_evaluation import (annotation_file, split_image_path, normalize_coco,
+                                     coco_detection_metrics)
 
     if country not in {"ecuador", "usa"}:
-        raise ValueError("country debe ser 'ecuador' o 'usa'.")
-    dataset = CocoPlateDataset(data_dir, split, image_processor=None)
-    coco_gt = COCO(str(dataset.annotation_path))
-    categories = coco_gt.dataset.get("categories", [])
-    if not categories:
-        raise ValueError(f"El JSON COCO no define categorías: {dataset.annotation_path}")
-    category_id = int(categories[0]["id"])
-    source_category_count = len(categories)
-    # SIRAP entrena un detector de una clase; unifica etiquetas equivalentes de placas.
-    for annotation in coco_gt.dataset.get("annotations", []):
-        annotation["category_id"] = category_id
-    coco_gt.dataset["categories"] = [{
-        "id": category_id,
-        "name": "license_plate",
-        "supercategory": "license_plate",
-    }]
-    coco_gt.createIndex()
+        raise ValueError("country must be 'ecuador' or 'usa'.")
+    if not 0 <= threshold <= 1:
+        raise ValueError("The AP confidence floor must be between zero and one.")
+    operating_threshold = threshold if operating_threshold is None else operating_threshold
+    if not threshold <= operating_threshold <= 1:
+        raise ValueError("The operating threshold must be at least the AP confidence floor.")
+    labels_path = annotation_file(resolve_path(data_dir), split)
+    payload = json.loads(labels_path.read_text(encoding="utf-8"))
+    normalize_coco(payload)
+    category_id = int(payload["categories"][0]["id"])
     checkpoint_path = checkpoint or f"models/{country}/detector/rtdetrv2_s/openvino"
-    detector = PlateDetector(checkpoint=checkpoint_path, model_id=model_id,
-                             conf=threshold, class_id=0, device="CPU")
+    # Evaluation must fail when this exact candidate is missing, without substituting weights.
+    detector = PlateDetector(checkpoint=checkpoint_path, model_id=model_id, conf=threshold,
+                             class_id=0, device="CPU", fallback_checkpoint=None)
     predictions = []
-    for record in dataset.images:
-        image_path = dataset._image_path(record["file_name"])
-        image = np.asarray(load_image(image_path.read_bytes()))
+    fingerprint = hashlib.sha256(labels_path.read_bytes())
+    for record in payload["images"]:
+        image_path = split_image_path(labels_path, record["file_name"])
+        image_bytes = image_path.read_bytes()
+        fingerprint.update(hashlib.sha256(image_bytes).digest())
+        # COCO coordinates refer to the stored pixels, without EXIF rotation or UI size limits.
+        with Image.open(io.BytesIO(image_bytes)) as image_file:
+            image = np.asarray(image_file.convert("RGB"))
         for detection in detector.detect(image, max_detections=300):
             x1, y1, x2, y2 = detection.box
-            predictions.append({
-                "image_id": int(record["id"]),
-                "category_id": category_id,
-                "bbox": [x1, y1, max(0.0, x2 - x1), max(0.0, y2 - y1)],
-                "score": detection.confidence,
-            })
-
-    result: dict[str, Any] = {
-        "country": country,
-        "detector": "RT-DETRv2-S",
-        "inference_runtime": "OpenVINO Runtime",
-        "checkpoint": detector.source,
-        "source_categories": source_category_count,
-        "evaluated_classes": ["license_plate"],
-        "split": split,
-        "images": len(dataset),
-        "imagenes": len(dataset),
-        "plates": sum(len(items) for items in dataset.annotations_by_image.values()),
-        "placas": sum(len(items) for items in dataset.annotations_by_image.values()),
-        "predictions": len(predictions),
-        "threshold_for_ap": threshold,
-        "map50_95": None,
-        "map50": None,
-        "map75": None,
-        "precision": None,
-        "recall": None,
-        "f1": None,
-    }
-    if predictions:
-        coco_dt = coco_gt.loadRes(predictions)
-        evaluator = COCOeval(coco_gt, coco_dt, "bbox")
-        evaluator.params.imgIds = [int(image["id"]) for image in dataset.images]
-        evaluator.params.catIds = [category_id]
-        evaluator.evaluate()
-        evaluator.accumulate()
-        evaluator.summarize()
-        precision_values = evaluator.eval["precision"][0, :, :, 0, -1]
-        recall_values = evaluator.eval["recall"][0, :, 0, -1]
-        valid_precision = precision_values[precision_values > -1]
-        valid_recall = recall_values[recall_values > -1]
-        precision = float(valid_precision.mean()) if valid_precision.size else 0.0
-        recall = float(valid_recall.mean()) if valid_recall.size else 0.0
-        stats = evaluator.stats
-        result.update({
-            "map50_95": float(stats[0]), "map50": float(stats[1]), "map75": float(stats[2]),
-            "map50_95_small": float(stats[3]), "map50_95_medium": float(stats[4]),
-            "map50_95_large": float(stats[5]), "precision": precision, "recall": recall,
-            "f1": f1_score(precision, recall),
-            "map50_95_pequenas": float(stats[3]), "map50_95_medianas": float(stats[4]),
-            "map50_95_grandes": float(stats[5]),
-        })
+            if x2 > x1 and y2 > y1:
+                predictions.append({"image_id": int(record["id"]), "category_id": category_id,
+                                    "bbox": [x1, y1, x2 - x1, y2 - y1],
+                                    "score": float(detection.confidence)})
+    result = coco_detection_metrics(payload, predictions, operating_threshold=operating_threshold)
+    model_path = Path(detector.model_path)
+    hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+              for p in (model_path, model_path.with_suffix(".bin"))}
+    result.update(country=country, detector="RT-DETRv2-S", inference_runtime="OpenVINO Runtime",
+                  checkpoint=detector.source, checkpoint_sha256=hashes,
+                  split=split, threshold_for_ap=threshold,
+                  split_sha256=fingerprint.hexdigest(), source_categories=len(payload["categories"]),
+                  evaluated_classes=["license_plate"], dataset_scope=payload.get("info", {}).get("scope", "unspecified"))
+    # Preserve keys used by existing reports.
+    result.update(imagenes=result["images"], placas=result["plates"],
+                  map50_95_pequenas=result["map50_95_small"],
+                  map50_95_medianas=result["map50_95_medium"],
+                  map50_95_grandes=result["map50_95_large"])
     output_path = result_path or f"results/metrics/detector_rtdetr_{country}_{split}.json"
     save_json(result, output_path)
     logger.info("Detector RT-DETRv2-S/OpenVINO (%s): %s", split, result)
@@ -178,16 +148,17 @@ def main() -> None:
     p_detector = sub.add_parser("detector")
     p_detector.add_argument("--data-dir", required=True, help="Raíz de un dataset COCO Detection")
     p_detector.add_argument("--country", choices=("ecuador", "usa"), default="ecuador")
-    p_detector.add_argument("--split", choices=("train", "val", "test"), default="test")
+    p_detector.add_argument("--split", choices=("train", "val", "valid", "test"), default="test")
     p_detector.add_argument("--checkpoint", default=None)
     p_detector.add_argument("--model-id", default=DEFAULT_MODEL_ID)
     p_detector.add_argument("--threshold", type=float, default=0.001)
+    p_detector.add_argument("--operating-threshold", type=float, default=None)
     p_e2e = sub.add_parser("e2e")
     p_e2e.add_argument("--csv", required=True)
     args = parser.parse_args()
     if args.cmd == "detector":
         evaluate_detector(args.data_dir, args.country, args.split, args.checkpoint,
-                          args.model_id, args.threshold)
+                          args.model_id, args.threshold, operating_threshold=args.operating_threshold)
     else:
         evaluate_end_to_end(args.csv)
 

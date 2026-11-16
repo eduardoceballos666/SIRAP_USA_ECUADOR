@@ -1,0 +1,147 @@
+{
+  "description": "Six user-provided Ecuador development photos, manually boxed on 2026-11-16.",
+  "source_url": "https://drive.google.com/drive/folders/1fEsgY7onlFo4ZkJmKBbHWaLbwl-WCyBp",
+  "scope": "development_only",
+  "annotation_type": "visible license-plate bounding boxes in pixel xywh; no OCR labels",
+  "split_policy": "Scene/vehicle groups stay in one split. Train 4, validation 1, held-out test 1.",
+  "images": [
+    {
+      "id": 1,
+      "source_file": "1.jpg",
+      "file_name": "images/ecuador_01.jpg",
+      "split": "train",
+      "source_group": "quito_pde1577",
+      "width": 1508,
+      "height": 1005,
+      "sha256": "f9b98570d8f5c1a0179240a54a6e580386b0d1c6e82d894841cc3b3f3ea66a47",
+      "boxes_xywh": [
+        [
+          669,
+          435,
+          358,
+          213
+        ],
+        [
+          128,
+          339,
+          65,
+          63
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "source_file": "2.jpg",
+      "file_name": "images/ecuador_03.jpg",
+      "split": "train",
+      "source_group": "quito_pde1577",
+      "width": 1566,
+      "height": 1005,
+      "sha256": "149cc5b32fbb436067e18421fccef24636c69902f5a3f0754206aea18ee47a1c",
+      "boxes_xywh": [
+        [
+          609,
+          764,
+          133,
+          54
+        ],
+        [
+          1402,
+          596,
+          72,
+          35
+        ],
+        [
+          504,
+          526,
+          36,
+          18
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "source_file": "2.jpeg",
+      "file_name": "images/ecuador_02.jpeg",
+      "split": "test",
+      "source_group": "pbd5650_hatchback",
+      "width": 500,
+      "height": 494,
+      "sha256": "1c52c27f0d9ca49d42ab6b5898ed3ecd7b62a5407ecb93aa2ddc3cc0273a93a9",
+      "boxes_xywh": [
+        [
+          190,
+          336,
+          141,
+          58
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "source_file": "3.jpeg",
+      "file_name": "images/ecuador_04.jpeg",
+      "split": "train",
+      "source_group": "toyota_hilux_scene",
+      "width": 1200,
+      "height": 648,
+      "sha256": "0713c81df355db08308052112e6c1356d4d9b4732a8ab61467245781f7f0cffb",
+      "boxes_xywh": [
+        [
+          672,
+          452,
+          141,
+          60
+        ],
+        [
+          1013,
+          254,
+          43,
+          33
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "source_file": "4.jpeg",
+      "file_name": "images/ecuador_05.jpeg",
+      "split": "valid",
+      "source_group": "pcq1834_roadside",
+      "width": 1200,
+      "height": 648,
+      "sha256": "deba6410946ee7678365eb65fd599677006a1f2b992d5c64b3b0c868cb95b113",
+      "boxes_xywh": [
+        [
+          350,
+          580,
+          126,
+          47
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "source_file": "5.jpeg",
+      "file_name": "images/ecuador_06.jpeg",
+      "split": "train",
+      "source_group": "gsp9693_gate",
+      "width": 1200,
+      "height": 648,
+      "sha256": "69770552a8ac5edd4c85b22b5a8d7264ccbab2889143741c32d42853b9434b9a",
+      "boxes_xywh": [
+        [
+          691,
+          558,
+          110,
+          44
+        ],
+        [
+          1141,
+          423,
+          59,
+          26
+        ]
+      ]
+    }
+  ]
+}
