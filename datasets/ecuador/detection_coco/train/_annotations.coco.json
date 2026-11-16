@@ -1,0 +1,170 @@
+{
+  "info": {
+    "description": "Six user-provided Ecuador development photos, manually boxed on 2026-11-16.",
+    "country": "ecuador",
+    "scope": "development_only",
+    "source_url": "https://drive.google.com/drive/folders/1fEsgY7onlFo4ZkJmKBbHWaLbwl-WCyBp",
+    "annotation_version": "2026-11-16"
+  },
+  "licenses": [],
+  "images": [
+    {
+      "id": 1,
+      "file_name": "images/ecuador_01.jpg",
+      "width": 1508,
+      "height": 1005,
+      "sha256": "f9b98570d8f5c1a0179240a54a6e580386b0d1c6e82d894841cc3b3f3ea66a47",
+      "source_group": "quito_pde1577"
+    },
+    {
+      "id": 3,
+      "file_name": "images/ecuador_03.jpg",
+      "width": 1566,
+      "height": 1005,
+      "sha256": "149cc5b32fbb436067e18421fccef24636c69902f5a3f0754206aea18ee47a1c",
+      "source_group": "quito_pde1577"
+    },
+    {
+      "id": 4,
+      "file_name": "images/ecuador_04.jpeg",
+      "width": 1200,
+      "height": 648,
+      "sha256": "0713c81df355db08308052112e6c1356d4d9b4732a8ab61467245781f7f0cffb",
+      "source_group": "toyota_hilux_scene"
+    },
+    {
+      "id": 6,
+      "file_name": "images/ecuador_06.jpeg",
+      "width": 1200,
+      "height": 648,
+      "sha256": "69770552a8ac5edd4c85b22b5a8d7264ccbab2889143741c32d42853b9434b9a",
+      "source_group": "gsp9693_gate"
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 1,
+      "bbox": [
+        669,
+        435,
+        358,
+        213
+      ],
+      "area": 76254,
+      "iscrowd": 0
+    },
+    {
+      "id": 2,
+      "image_id": 1,
+      "category_id": 1,
+      "bbox": [
+        128,
+        339,
+        65,
+        63
+      ],
+      "area": 4095,
+      "iscrowd": 0
+    },
+    {
+      "id": 3,
+      "image_id": 3,
+      "category_id": 1,
+      "bbox": [
+        609,
+        764,
+        133,
+        54
+      ],
+      "area": 7182,
+      "iscrowd": 0
+    },
+    {
+      "id": 4,
+      "image_id": 3,
+      "category_id": 1,
+      "bbox": [
+        1402,
+        596,
+        72,
+        35
+      ],
+      "area": 2520,
+      "iscrowd": 0
+    },
+    {
+      "id": 5,
+      "image_id": 3,
+      "category_id": 1,
+      "bbox": [
+        504,
+        526,
+        36,
+        18
+      ],
+      "area": 648,
+      "iscrowd": 0
+    },
+    {
+      "id": 6,
+      "image_id": 4,
+      "category_id": 1,
+      "bbox": [
+        672,
+        452,
+        141,
+        60
+      ],
+      "area": 8460,
+      "iscrowd": 0
+    },
+    {
+      "id": 7,
+      "image_id": 4,
+      "category_id": 1,
+      "bbox": [
+        1013,
+        254,
+        43,
+        33
+      ],
+      "area": 1419,
+      "iscrowd": 0
+    },
+    {
+      "id": 8,
+      "image_id": 6,
+      "category_id": 1,
+      "bbox": [
+        691,
+        558,
+        110,
+        44
+      ],
+      "area": 4840,
+      "iscrowd": 0
+    },
+    {
+      "id": 9,
+      "image_id": 6,
+      "category_id": 1,
+      "bbox": [
+        1141,
+        423,
+        59,
+        26
+      ],
+      "area": 1534,
+      "iscrowd": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "license_plate",
+      "supercategory": "license_plate"
+    }
+  ]
+}

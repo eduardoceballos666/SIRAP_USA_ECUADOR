@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-16",
+  "kind": "dataset_preparation_and_code_validation",
+  "country": "ecuador",
+  "scope": "six_photo_development",
+  "source": "Six user-supplied images from the public Drive folder recorded in sample_annotations.json",
+  "splits": [
+    {
+      "split": "train",
+      "images": 4,
+      "plates": 9
+    },
+    {
+      "split": "valid",
+      "images": 1,
+      "plates": 1
+    },
+    {
+      "split": "test",
+      "images": 1,
+      "plates": 1
+    }
+  ],
+  "dataset_sha256": "0484cc89af0b3d1b796472456603d09cea41ef99bf99494556020670306318a5",
+  "checks": {
+    "schema_dimensions_checksums_and_group_isolation": "passed",
+    "dataset_constructor_on_all_six_images": "passed",
+    "notebook_code_cells_compiled": 34,
+    "nbformat_validation": "passed",
+    "pytest": {
+      "command": "python -m pytest -q tests/test_coco_evaluation.py",
+      "passed": 18
+    }
+  },
+  "model_training_executed": false,
+  "model_inference_executed": false,
+  "accuracy_metrics": null,
+  "limitation": "Four training photos and one image per validation/test split are only a workflow development check. No negative scenes or field acceptance results are included."
+}
