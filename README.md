@@ -56,6 +56,8 @@ Al iniciar sesión se eligen **idioma y país**. Ecuador y Estados Unidos usan l
 
 USA permite la apertura normal mediante **Registrar y abrir barrera** cuando se cumplen los umbrales, la lista blanca vigente y dos cuadros con identificadores y hashes RGB distintos dentro de 7,5 segundos. El servidor emite una confirmación de un solo uso ligada al usuario, garita y sesión. Guarda la solicitud antes de accionar la barrera y vuelve a comprobar las autorizaciones. Una foto estática repetida no cumple esa confirmación. La barrera de la configuración publicada sigue siendo simulada.
 
+La [recuperación ante fallos](docs/recuperacion_fallos.md) conserva el identificador del intento al recargar o recuperar conexión y consulta su resultado sin reenviar la apertura. Una solicitud no aceptada puede reservarse como cancelada; las ya aceptadas con resultado incierto permanecen pendientes de revisión. Las pruebas incluyen reinicios abruptos y pérdida de confirmaciones, con datos y controlador simulados.
+
 Los registros de operación persisten en el repositorio privado configurado mediante secretos de Hugging Face; no subas datos operativos a este repo. Los cambios de `main` se sincronizan al Space mediante [GitHub Actions](.github/workflows/deploy-hf-space.yml).
 
 ## Resultados y limitaciones

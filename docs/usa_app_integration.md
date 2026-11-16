@@ -79,6 +79,13 @@ una acción explícita del usuario en Registro o Administración.
 
 ## Evidencia disponible
 
+La recuperación de aperturas para ambos países conserva el UUID del intento entre
+recargas y consultas de estado. El historial persistente rechaza ese UUID incluso
+después de reiniciar y perder los comprobantes temporales. No se reenvía una orden
+al reconectar. Las solicitudes no aceptadas pueden reservarse como canceladas;
+las aceptadas sin resultado definitivo requieren revisión. Consulta el
+[protocolo y las pruebas de recuperación](recuperacion_fallos.md).
+
 Las ocho fotos ya revisadas son un lote de desarrollo. En el diagnóstico previo,
 el flujo completo recuperó 9/10 matrículas legibles y 2/9 estados conocidos;
 los recortes manuales pasaron de 3/9 a 5/9 estados. En las 7 escenas con referencia

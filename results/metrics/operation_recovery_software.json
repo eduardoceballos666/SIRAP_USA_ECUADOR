@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-16",
+  "scope": "software fault injection with synthetic storage and actuator only",
+  "source_base_commit": "0478e1762dfae18170d80b7b2a62c9a2b27b0bd1",
+  "country_profiles": [
+    "ecuador",
+    "usa"
+  ],
+  "recovery_cases_passed": 19,
+  "python_suite": {
+    "total": 161,
+    "passed": 160,
+    "skipped": 1,
+    "failed": 0,
+    "skipped_reason": "Legacy external OCR download is unavailable while Internet sockets are blocked; not a recovery test."
+  },
+  "frontend_suite": {
+    "total": 22,
+    "passed": 22,
+    "failed": 0
+  },
+  "frontend_build": "passed",
+  "real_operational_registry_used": false,
+  "physical_barrier_used": false,
+  "production_connection_interrupted": false,
+  "model_retrained": false,
+  "detector_threshold": 0.7,
+  "ocr_threshold": 0.94,
+  "software_guarantee": "No second dispatch of an accepted durable UUID; recovery is read-only and unknown outcomes stay pending.",
+  "hardware_limit": "Device-side deduplication requires a controller implementing the supplied Idempotency-Key; no physical position test was performed.",
+  "checks": [
+    {
+      "name": "test_forced_process_restart_restores_history_and_never_replays[accepted-73-SOLICITADA-0]",
+      "passed": true
+    },
+    {
+      "name": "test_forced_process_restart_restores_history_and_never_replays[actuated-74-SOLICITADA-1]",
+      "passed": true
+    },
+    {
+      "name": "test_forced_process_restart_restores_history_and_never_replays[committed-75-CONFIRMADA-1]",
+      "passed": true
+    },
+    {
+      "name": "test_lost_http_response_is_recovered_by_read_only_status",
+      "passed": true
+    },
+    {
+      "name": "test_connection_failure_around_initial_commit_never_dispatches[before_put-False]",
+      "passed": true
+    },
+    {
+      "name": "test_connection_failure_around_initial_commit_never_dispatches[after_put-True]",
+      "passed": true
+    },
+    {
+      "name": "test_final_storage_failure_keeps_the_unknown_outcome_and_blocks_replay",
+      "passed": true
+    },
+    {
+      "name": "test_completed_commit_with_lost_final_ack_can_still_be_recovered",
+      "passed": true
+    },
+    {
+      "name": "test_cancellation_tombstone_prevents_a_late_original_request",
+      "passed": true
+    },
+    {
+      "name": "test_cancellation_wins_while_a_late_request_is_still_being_validated",
+      "passed": true
+    },
+    {
+      "name": "test_an_accepted_command_cannot_be_cancelled_or_dispatched_again",
+      "passed": true
+    },
+    {
+      "name": "test_concurrent_identical_requests_dispatch_once",
+      "passed": true
+    },
+    {
+      "name": "test_status_is_scoped_to_username_and_country_not_display_name",
+      "passed": true
+    },
+    {
+      "name": "test_offline_status_returns_service_unavailable_without_stale_history",
+      "passed": true
+    },
+    {
+      "name": "test_opening_requires_a_stable_id_before_any_write_or_command",
+      "passed": true
+    },
+    {
+      "name": "test_an_old_uuid_outside_the_history_page_still_blocks_an_opening",
+      "passed": true
+    },
+    {
+      "name": "test_local_cache_failure_after_remote_acceptance_does_not_lose_history_or_open",
+      "passed": true
+    },
+    {
+      "name": "test_http_controller_receives_the_same_id_and_timeout_never_retries",
+      "passed": true
+    },
+    {
+      "name": "test_controller_redirect_cannot_send_a_second_command_or_forward_credentials",
+      "passed": true
+    }
+  ],
+  "tested_runtime_sha256": {
+    "api/main.py": "b5784c8c875529d7a5801ee8375d3ba3af2f7081c542ade6c7b72ca8324fb8a5",
+    "api/schemas.py": "852c03eae283c8270fc702c1309338c04540c80c29f62a621fc41b9feb4729df",
+    "api/routers/recognition.py": "945525752fb503addc16b738e1a928d95acaa4fa5012aebc127d74cb78bce050",
+    "src/storage.py": "0db913344c4d77d6fdc8c768deae9245e716be2120f8cf4b0c667692e4ba78c0",
+    "src/access_control.py": "d88024131d4477c9797975d78bf15e82ad35a3cd7b69374a3f16d190e2dd4ede",
+    "frontend/src/lib/api.js": "615829c2b0312d738bb09d2e5705a33f3b0e3a43a0d405347c84675d99a3fe27",
+    "frontend/src/lib/operationRecovery.js": "8dd9c34e668c6a168363eef5e407cc76965924b102cf067392ffc3ed791f0489",
+    "frontend/src/views/RecognitionView.vue": "5e8bcbf09c7365e840d293a69beef499b740258884ff01dd933b6ab13e1048ab",
+    "frontend/src/countryMessages.js": "fb6f0a38606b47fc09628edca7182bbfc9ebbd842aa2871770b036bd014b5b59"
+  }
+}

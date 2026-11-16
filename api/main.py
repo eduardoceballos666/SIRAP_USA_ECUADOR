@@ -16,7 +16,7 @@ import json
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from api import __version__
@@ -24,6 +24,7 @@ from api.deps import get_store, get_pipeline
 from api.routers import admin, auth, recognition, reports
 from api.settings import settings
 from src.utils import ROOT_DIR, get_logger
+from src.storage import StorageError
 
 logger = get_logger("sirap.api")
 
@@ -53,6 +54,12 @@ app = FastAPI(
 )
 app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
+
+
+@app.exception_handler(StorageError)
+async def storage_unavailable(_request, _error):
+    return JSONResponse(status_code=503,headers={'Cache-Control':'no-store'},content={
+        'detail':'Almacenamiento temporalmente no disponible. Consulte el estado de la operación antes de reintentar.'})
 
 for module in (auth, recognition, reports, admin):
     app.include_router(module.router)
