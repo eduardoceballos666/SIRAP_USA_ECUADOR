@@ -1,56 +1,52 @@
-# USA RT-DETRv2-S notebook
+# USA notebook: frozen seed 2 and an eight-photo development check
 
-The USA workflow is consolidated in one notebook: [sirap_backend_usa.ipynb](sirap_backend_usa.ipynb). It replaces the former staged USA notebooks, whose versions remain available in Git history.
+The active English notebook is [sirap_backend_usa.ipynb](sirap_backend_usa.ipynb). Its diagnostic path reuses the application's **USA pipeline and `/api/recognize` handler**, with the private seed-2 model, detector confidence **0.70**, minimum OCR character probability **0.94**, and issuing **state + serial** identity. It does not retrain or choose a different checkpoint.
 
-The notebook is written in English and explains each executable section. It covers USA profile inspection, Roboflow download, COCO conversion, grouped data splitting, label review, hyperparameter search, three-seed fine-tuning, OpenVINO inference, threshold calibration, robustness and CPU latency checks, OCR evaluation, end-to-end scene evaluation, one-time detector testing, optional publishing, Cloudflare remote-camera testing, and a generated on-site edge inference runner.
+## Run the current diagnostic
 
-## Model and runtime
+1. Open the notebook in Colab and run sections 0–2. Setup installs the application's hashed runtime requirements and Tesseract English data. CPU is sufficient; optional training dependencies preserve Colab's CUDA PyTorch.
+2. Add `SIRAP_USA_MODEL_TOKEN` to Colab Secrets (or the environment) with read access to `eduardoceballos/SIRAP_USA_seed2`. Alternatively, supply the already verified artifact folders through `SIRAP_USA_DETECTOR_DIR` and `SIRAP_USA_OCR_DIR`. Credentials are never printed or embedded in the notebook.
+3. Extract the existing eight-photo package into a private folder containing `originales/` and `referencia_humana_8_fotos.json`; set `PILOT8_ROOT` accordingly. The photo-5 police-car replacement and the reviewed original hashes are retained.
+4. Set `RUN_8_IMAGE_PILOT=True` and `RUN_SOFTWARE_FLOW_CHECKS=True` in section 0. Run the remaining cells in order. Section 20 checks at most eight original photos; section 21 separately checks application behavior with synthetic data.
 
-- Detector: RT-DETRv2-S with a ResNet-18vd backbone.
-- Starting checkpoint: `merve/license-plates-rtdetrv2`, listed as Apache-2.0.
-- Fine-tuning: Transformers and PyTorch.
-- Inference and detector evaluation: native Python OpenVINO Runtime.
-- Input size: 640 pixels.
+Every original hash and reference box is checked before inference. A scene with an unresolved region is excluded from complete-scene detector counts; illegible real plates remain physical plates without invented text. No additional 400-image review is required for this path.
 
-The checkpoint's published metrics describe its original evaluation data. They are not SIRAP USA results. Dataset terms are separate from the checkpoint license.
+`RUN_RESEARCH_WORKFLOW=False` prevents automatic dataset downloads, internal holdout construction, Optuna and training. Camera, robustness, latency, manual-crop OCR, publishing and independent-test switches remain off. The saved output records one local execution of all 29 code cells in source order; setup was skipped in an already prepared environment, and Internet sockets were disabled during that validation. Training, cameras and the independent-test branches were not executed.
 
-## Current validation status (13 November 2026)
+## Frozen model and application rules
 
-The selected candidate is seed 1, chosen by grouped Roboflow validation at mAP50-95 = 0.8321. The current manual full-scene validation has 71 images: 41 with plates and 30 PKLot negatives. At the best observed confidence threshold (0.60), it produced 40 true positives, 3 false positives, and 1 false negative (precision 0.9302; recall 0.9756). This misses the 0.99 target, so the calibration report stores a null threshold and `usable_for_inference: false`. Do not use the checkpoint for live or access decisions.
+The immutable [selection record](../../models/usa/selected_checkpoint.json) pins repository revision `ceaf7b0c692df45f9692ac0817571ea006dd8c08` and SHA-256 hashes for the native OpenVINO detector, metadata and global serial OCR files. The provider checks them and refuses a mismatched local artifact; it has no seed-1 or general-detector fallback. A runtime profile records configuration availability, not independent performance qualification.
 
-The 30 PKLot scenes remain validation-only. PKLot is CC BY 4.0 and its official page requests citation; its images come from elevated fixed parking cameras in Brazil, and its dataset card says plates are not distinguishable. They are a limited background check, not evidence of USA gate-camera performance. Before retraining, add separately reviewed, group-disjoint negatives from the target camera to training and validation.
+The live and generated edge diagnostics use the same state reader and evidence rules as the application: two distinct frame IDs **and RGB hashes** within 7.5 seconds, fixed confidence settings, and full USA identity. Their confirmations are local diagnostics and cannot authorize a production opening. The edge runner does not upload to `/api/operations`. USA vehicle lookup is local to its registry and requires no browser or third-party lookup.
 
-Open Images V7 is a possible supplementary source: its metadata includes original URLs and per-image license fields, and its image-level annotations include verified presence/absence labels for supported classes. The class list includes vehicle registration plate. Google lists the images as CC BY 2.0 but explicitly says it does not warrant each image's license, so verify every original source and keep its attribution before using any image. No Open Images samples have been imported yet. MIO-TCD is closer in camera style and includes US/Canadian traffic scenes, but its official CC BY-NC-SA 4.0 terms require noncommercial use and share-alike; do not use it for SIRAP without confirming that those terms fit the intended use.
+Section 21 tests the actual HTTP handlers for current allowlists, state collisions, unknown-state abstention, confidence, frame uniqueness, receipt expiry/replay/ownership, revocation and persistence before actuation. Lists and barrier are synthetic; no operational registry or physical barrier is used.
 
-The repository already has `results/metrics/rtdetr_usa_independent_test.json`, but its model-selection record identifies a different seed-0 candidate. Treat it as a legacy artifact, not the final test for the selected seed-1 checkpoint. The selected checkpoint's independent test remains unrun. All training, evaluation, live-camera, metric-publishing, and Space-publishing switches are off by default.
+## Rechecked development results — 16 November 2026
 
-## Dataset and credentials
+| Check | Result | Scope |
+|---|---:|---|
+| Original photos / confirmed physical plates | 8 / 13 | Reused human reference; prior prediction exposure |
+| Detector true positives / misses / false positives | 8 / 3 / 0 | Seven complete scene references, IoU 0.50, confidence 0.70 |
+| Exact serial | 9 / 10 | Matched detections with known serials |
+| Exact issuing state | 2 / 9 | Matched detections with known states; seven abstentions, no wrong assigned state |
+| Exact state + serial meeting OCR 0.94 | 1 / 9 | Recognition check, not an authorized opening |
+| Access operations from the eight photos | 0 | Separate capture session for each still photo |
+| Application software flow | Passed | Synthetic tests, separate from model accuracy |
 
-The default source is Roboflow's **European + USA License plates**, workspace `plateblur`, project `european-usa-license-plates`, version 1, exported as COCO Segmentation. The notebook reads its boxes and maps the three plate labels to one detector class. Add `ROBOFLOW_API_KEY` to Colab Secrets; do not put the key in the notebook or Git.
+The [aggregate model report](../../results/metrics/usa_seed2_notebook_development.json) includes model hashes, field denominators, packages and descriptive Wilson/image-cluster bootstrap intervals. The [software report](../../results/metrics/usa_seed2_notebook_software_flow.json) describes the isolated rule checks. The local full Python suite passed 142 tests, including notebook and training-constructor compatibility checks. No detector or OCR weight changed.
 
-An earlier inspection reported 13,143 training images, 386 validation images, and 106 test images. The notebook reads the current counts from the downloaded annotation files. It builds a grouped held-out test with at least 400 images by combining held-out source groups with additional groups reserved from training. This is an internal holdout from the same export, not an external dataset. Without vehicle/session IDs in `source_group_manifest.csv`, grouping is limited to filename families and exact-file hashes.
+This small reused pilot does not measure empty-scene false alarms, independent accuracy or physical barrier performance. Serial scores on detected plates are not full-system recall. An independent recording/source with a completed human reference is still required; these eight photos do not supply it.
 
-For complete vehicle or access-lane scenes, the notebook also supports the repository's CSV annotation template and COCO converter. Cropped plate images in `datasets/usa/seg_and_ocr/` are for OCR evaluation; they are not a substitute for full-scene detection data.
+## Private outputs and independent evaluation
 
-## Recommended run
+`PILOT8_OUTPUT_DIR/usa_seed2_pilot_private_rows.csv` contains reference/prediction details, omissions and abstentions. It stays outside Git and may be copied to the configured private Drive evaluation folder. Only aggregate JSONs belong in public metrics. `usa_seed2_runtime_profile.json` is a local configuration record and is not a qualification report.
 
-Use a Colab GPU for training. The final recipe allows up to 50 epochs, early-stopping patience 8, and three seeds. Optuna uses at most eight screening trials of up to 12 epochs each. Expensive run switches are off by default.
+Section 22 stays off until a separate reviewed COCO source and `independence.json` declaration are supplied. Its declaration is not automatic proof of independence. When the eight-photo bundle is available, exact file overlap is rejected. Reports are keyed to this model revision and preserve an attempt marker; historical seed-0/seed-1 reports cannot qualify seed 2. AP uses a separate metric floor of 0.001; operational detection counts remain at 0.70.
 
-Train and select the checkpoint and calibrate the operational threshold using validation only. Record the selected checkpoint and validation evidence, then freeze the model. The notebook blocks the held-out detector evaluation unless the test has at least 400 images, the checkpoint and threshold records match, and no prior final report exists.
+## Optional future research
 
-## Optional remote-camera workflow
+Roboflow/COCO conversion, grouped internal holdout construction, Optuna and three-seed training remain available only after enabling the research switches. The internal 400-image builder is a research option, not the current eight-photo task or an external independent test. Add `ROBOFLOW_API_KEY` to Secrets only if downloading that source.
 
-Section 16 of the consolidated notebook can create a token-protected camera bridge for a PC that can reach the camera, then connect through Cloudflare Tunnel. Add CAMARA_URL and CAMARA_TOKEN to Colab Secrets; use CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET when Cloudflare Access service tokens are configured. The live session is disabled by default and does not make access decisions.
+USA training retains up to 50 epochs, patience 8 and 5% warmup. The training helper accommodates the installed Transformers API and evaluates loss without concatenating variable-length COCO targets. Constructor compatibility was tested without starting a training run. Candidate outputs go to timestamped experiment folders and never replace the frozen runtime automatically.
 
-Quick Tunnels are suitable for temporary experiments. Use a named tunnel with Cloudflare Access for a stable remote test. Section 16.5 generates a local runner that processes frames beside the camera and saves only confirmed OCR text and confidence metadata under the camera user's home folder. The current API has no dedicated machine-to-machine USA event route, so its optional uploader is disabled; do not send automated edge events to /api/operations. Implement a USA-aware event endpoint that checks authorization before enabling upload. The Colab test-mode CSV, JSON, and optional video remain in /content/SIRAP_workspace/live_camera/ and should not be committed.
-
-## Results
-
-Notebook outputs are not embedded in this README. Structured result files are stored under `results/metrics/`. The threshold-calibration JSON currently blocks inference because the 0.99 precision target was not met. The existing independent-test JSON is a legacy report for a different seed-0 candidate; do not report it as the selected seed-1 checkpoint's test result.
-
-## Candidate negative-image sources
-
-- [Open Images V7](https://storage.googleapis.com/openimages/web/factsfigures_v7.html) may provide verified plate-absent scenes; use only records with an image-level verified negative label for vehicle registration plate, inspect them manually, and verify each original image license and attribution at the source URL. [Download metadata](https://storage.googleapis.com/openimages/web/download_v7.html).
-- [MIO-TCD](https://tcd.miovision.com/challenge/dataset.html) includes fixed-camera US/Canadian traffic scenes, but its CC BY-NC-SA 4.0 license is not suitable for commercial use without a separate rights review.
-
-Neither source replaces negatives recorded at the target access camera. Keep any external-source negatives separate by source group and split them before training or calibration.
+Code and compact metrics publish through the existing GitHub-to-Space workflow. The notebook never copies private model binaries or credentials into public source.

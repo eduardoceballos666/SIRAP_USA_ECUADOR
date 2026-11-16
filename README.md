@@ -35,7 +35,7 @@ python -m src.train --country ecuador --data-dir /ruta/dataset-coco --epochs 30
 python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco --split test
 ```
 
-Configura `ROBOFLOW_API_KEY` como secreto del entorno si descargas datos desde Roboflow; no pegues llaves en notebooks ni las guardes en Git. El descargador usa `plateblur/european-usa-license-plates` v1 y exporta COCO Segmentation; el detector usa las cajas y unifica las tres etiquetas en una clase de placa. El notebook USA crea un test interno agrupado de al menos 400 imágenes a partir de la misma exportación; no es un conjunto externo. Sin IDs de vehículo o sesión, la separación se limita a familias de nombres y hashes exactos. También puede convertir escenas USA anotadas a COCO.
+El diagnóstico USA reutiliza como máximo **ocho fotos revisadas**, el proveedor de la aplicación y sus umbrales fijos. No descarga datos de entrenamiento ni requiere revisar 400 imágenes. El flujo de investigación queda apagado; solo al habilitarlo puede descargar Roboflow, convertir COCO, crear un holdout interno agrupado o entrenar candidatos separados. Ese holdout no es un test externo. Configura `ROBOFLOW_API_KEY` en Secrets únicamente si vas a descargar ese dataset; no guardes llaves en Git.
 
 En Colab con GPU, usa la celda de instalación del notebook y conserva el PyTorch con CUDA que ofrece Colab. `requirements.txt` contiene el runtime de la app (incluido OpenVINO); `requirements-training.txt` separa las dependencias de ajuste y exportación; `requirements-dev.txt` añade herramientas de desarrollo y pruebas.
 
@@ -46,9 +46,9 @@ Las corridas multisemilla y la búsqueda Optuna consumen GPU y están apagadas p
 | Perfil | Notebook activo | Flujo |
 |---|---|---|
 | Ecuador | [sirap_backend_ecuador.ipynb](notebooks/ecuador/sirap_backend_ecuador.ipynb) | Flujo unificado 0–9: COCO, SAVH, entrenamiento, OCR, OpenVINO, video, cámara, latencia y publicación opcional |
-| Estados Unidos | [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb) | Notebook unificado: COCO, entrenamiento, validación, OCR y OpenVINO |
+| Estados Unidos | [sirap_backend_usa.ipynb](notebooks/usa/sirap_backend_usa.ipynb) | Semilla 2 congelada, diagnóstico de ocho fotos, pruebas aisladas de acceso e investigación opcional |
 
-El notebook USA unificado incluye pruebas separadas de OCR y de extremo a extremo. Las pruebas del notebook no crean autorizaciones en la aplicación. La integración de ambos países está descrita en [flujo de aplicación](docs/usa_app_integration.md). Los notebooks USA por etapas fueron consolidados y sus versiones previas permanecen en el historial de Git.
+El notebook USA conserva salidas agregadas de una ejecución local de sus 29 celdas: [comprobación de las ocho fotos](results/metrics/usa_seed2_notebook_development.json) y [pruebas sintéticas del flujo de acceso](results/metrics/usa_seed2_notebook_software_flow.json). Usa registros temporales y no crea autorizaciones operativas. La [guía USA](notebooks/usa/README.md) explica cómo repetirlo. La integración de ambos países está descrita en [flujo de aplicación](docs/usa_app_integration.md). Los notebooks USA por etapas permanecen en el historial de Git.
 
 ## Aplicación web
 
@@ -81,3 +81,4 @@ Country is bound to the session token and to recognition, registry, allowlists a
 The immutable [model selection](models/usa/selected_checkpoint.json) references a private Hugging Face model repository. Deployment verifies access and hashes before updating the Space and stores the runtime model credential as a Space secret; model binaries are not copied into public Space source. A reused eight-photo diagnostic is [reported as development](results/metrics/usa_runtime_development.json), not as an independent final test. Historical YOLO/Ecuador results are not presented as validation of these weights.
 
 See [application integration](docs/usa_app_integration.md), [notebooks](notebooks/README.md), and the [Hugging Face Space](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF). Training remains separate from the deployed, pinned model selection.
+
