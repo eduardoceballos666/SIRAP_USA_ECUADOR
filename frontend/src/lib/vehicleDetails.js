@@ -11,6 +11,13 @@
 const text = (value) => (value === null || value === undefined ? '' : String(value).trim())
 const first = (...values) => values.map(text).find(Boolean) || ''
 
+// Status line under the panel once the server answered; `jdpower` is fuentes.jdpower of /api/plates/vehicle-data.
+export function usaLookupStatus(jdpower) {
+  if (jdpower === 'encontrado') return 'Datos de J.D. Power y del registro local de Estados Unidos.'
+  if (!jdpower || jdpower === 'desactivado') return 'Datos del registro local de Estados Unidos.'
+  return 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.'
+}
+
 export function usaVehicleDetails({ lookup, vehicle, jurisdiction, plate } = {}) {
   const empty = { yearModel: '', color: '', bodyType: '', state: '' }
   if (!text(plate)) return empty

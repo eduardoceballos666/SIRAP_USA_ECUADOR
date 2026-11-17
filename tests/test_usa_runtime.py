@@ -176,6 +176,11 @@ def test_only_one_parallel_claim_and_retry_after_failed_persistence(evidence):
     store.consume(third)
     with pytest.raises(ValueError): store.get(second.id,owner='operator',gate='Gate',claim=True)
 
+def jdpower_record(serial,state,**changes):
+    values=dict(lookup_status='found',vehicle_title='2013 Honda Civic',vehicle_body_type='Sedan 4D LX I4',specs_exterior='Taffeta White')
+    values.update(changes)
+    return recognition.usa_jdpower._record(serial,state,**values)
+
 @pytest.fixture
 def usa_app(tmp_path,monkeypatch):
     monkeypatch.delenv('SIRAP_DATA_GITHUB_TOKEN',raising=False)
@@ -213,12 +218,18 @@ def usa_app(tmp_path,monkeypatch):
     def forbidden(*args): raise AssertionError('USA must not query SRI')
     monkeypatch.setattr(recognition,'_query_sri',forbidden)
     monkeypatch.setattr(recognition,'enrich_detection',forbidden)
+    jdpower=SimpleNamespace(calls=[],record=None,error=None)
+    def fake_lookup(serial,state):
+        jdpower.calls.append((serial,state))
+        if jdpower.error: raise jdpower.error
+        return jdpower.record or jdpower_record(serial,state)
+    monkeypatch.setattr(recognition.usa_jdpower,'lookup',fake_lookup)
     from api.routers import admin
     monkeypatch.setattr(admin,'get_store',lambda:db)
     previous=dict(main.app.dependency_overrides)
     main.app.dependency_overrides[deps.current_user]=lambda:dict(current)
     with TestClient(main.app) as client:
-        yield SimpleNamespace(client=client,db=db,barrier=barrier,current=current,state=state,exported=exported)
+        yield SimpleNamespace(client=client,db=db,barrier=barrier,current=current,state=state,exported=exported,jdpower=jdpower)
     main.app.dependency_overrides.clear();main.app.dependency_overrides.update(previous)
 
 def frame(app,color,index):
@@ -315,6 +326,44 @@ def test_us_lookup_is_local_and_unknown_state_stays_manual(usa_app):
         accion='SOLO_REGISTRO',jurisdiction=None))
     assert response.status_code==201,response.text
     assert app.db.operations().iloc[0].country=='usa'
+
+def vehicle_data(app,plate,state='CA'):
+    started=app.client.post('/api/plates/vehicle-data',json={'placa':plate,'country':'usa','jurisdiction':state})
+    assert started.status_code==202
+    return started.json(),app.client.get('/api/plates/vehicle-data/'+started.json()['request_id']).json()
+
+def test_us_lookup_adds_jdpower_fields_for_an_unregistered_plate(usa_app):
+    started,lookup=vehicle_data(usa_app,'6ZGY984')
+    assert started['estado']=='consultando' and lookup['estado']=='completado'
+    assert usa_app.jdpower.calls==[('6ZGY984','CA')]
+    assert lookup['fuentes']=={'local':'consultado','sri':'no_aplica','jdpower':'encontrado'}
+    assert {k:lookup['vehiculo'][k] for k in ('state','vehicle_title','vehicle_body_type','specs_exterior')}=={
+        'state':'CA','vehicle_title':'2013 Honda Civic','vehicle_body_type':'Sedan 4D LX I4','specs_exterior':'Taffeta White'}
+    assert 'lookup_url' not in lookup['vehiculo'] and 'specs' not in lookup['vehiculo']
+
+def test_us_lookup_keeps_the_local_record_beside_jdpower_data(usa_app):
+    _,lookup=vehicle_data(usa_app,'DEMO123')
+    assert lookup['vehiculo']['identity_key']=='US:CA:DEMO123' and lookup['vehiculo']['marca']=='Example'
+    assert lookup['vehiculo']['vehicle_title']=='2013 Honda Civic'
+
+@pytest.mark.parametrize('status',['access_limited_403','access_limited_429','http_404','error','browser_unavailable'])
+def test_us_lookup_falls_back_to_local_data_when_jdpower_gives_none(usa_app,status):
+    usa_app.jdpower.record=jdpower_record('DEMO123','CA',lookup_status=status,vehicle_title='',vehicle_body_type='',specs_exterior='')
+    _,lookup=vehicle_data(usa_app,'DEMO123')
+    assert lookup['estado']=='completado' and lookup['fuentes']['jdpower']==status
+    assert lookup['vehiculo']['marca']=='Example' and 'vehicle_title' not in lookup['vehiculo']
+
+def test_us_lookup_survives_an_unexpected_provider_error(usa_app):
+    usa_app.jdpower.error=RuntimeError('boom')
+    _,lookup=vehicle_data(usa_app,'DEMO123')
+    assert lookup['estado']=='completado' and lookup['fuentes']['jdpower']=='error'
+    assert lookup['vehiculo']['identity_key']=='US:CA:DEMO123'
+
+def test_us_lookup_does_not_contact_jdpower_when_switched_off(usa_app,monkeypatch):
+    monkeypatch.setattr(recognition.usa_jdpower,'lookup_enabled',lambda config:False)
+    started,lookup=vehicle_data(usa_app,'DEMO123')
+    assert started['estado']=='completado' and usa_app.jdpower.calls==[]
+    assert lookup['fuentes']['jdpower']=='desactivado' and 'vehicle_title' not in lookup['vehiculo']
 
 def test_admin_lists_and_history_distinguish_same_serial_in_different_states(usa_app):
     app=usa_app

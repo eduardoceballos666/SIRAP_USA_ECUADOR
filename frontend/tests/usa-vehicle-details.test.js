@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { language, setLanguage, t } from '../src/i18n.js'
-import { usaVehicleDetails } from '../src/lib/vehicleDetails.js'
+import { usaLookupStatus, usaVehicleDetails } from '../src/lib/vehicleDetails.js'
 
 test('United States vehicle panel labels are translated in every language', () => {
   const initial = language.value
@@ -69,4 +69,31 @@ test('state comes from the confirmed state and nothing shows without a plate', (
     { yearModel: '', color: '', bodyType: '', state: '' },
   )
   assert.deepEqual(usaVehicleDetails(), { yearModel: '', color: '', bodyType: '', state: '' })
+})
+
+test('status line tells where the United States data came from', () => {
+  const initial = language.value
+  try {
+    assert.equal(usaLookupStatus('encontrado'), 'Datos de J.D. Power y del registro local de Estados Unidos.')
+    for (const local of [undefined, 'desactivado']) {
+      assert.equal(usaLookupStatus(local), 'Datos del registro local de Estados Unidos.')
+    }
+    for (const failed of ['access_limited_403', 'error', 'browser_unavailable', 'no_report_title']) {
+      assert.equal(usaLookupStatus(failed), 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.')
+    }
+    for (const [locale, found] of [
+      ['en', 'Data from J.D. Power and the local United States registry.'],
+      ['pt', 'Dados da J.D. Power e do registro local dos Estados Unidos.'],
+      ['fr', 'Données de J.D. Power et du registre local des États-Unis.'],
+      ['de', 'Daten von J.D. Power und aus dem lokalen US-Register.'],
+      ['it', 'Dati di J.D. Power e del registro locale degli Stati Uniti.'],
+    ]) {
+      setLanguage(locale)
+      assert.equal(t(usaLookupStatus('encontrado')), found, locale)
+      assert.notEqual(t('Consultando J.D. Power y el registro local…'), 'Consultando J.D. Power y el registro local…', locale)
+      assert.notEqual(t(usaLookupStatus('error')), usaLookupStatus('error'), locale)
+    }
+  } finally {
+    setLanguage(initial)
+  }
 })

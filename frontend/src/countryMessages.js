@@ -225,6 +225,9 @@ rows.push(...[
   ['Color', 'Color', 'Cor', 'Couleur', 'Farbe', 'Colore'],
   ['Tipo de carrocería', 'Body type', 'Tipo de carroceria', 'Type de carrosserie', 'Karosserieform', 'Tipo di carrozzeria'],
   ['Estado', 'State', 'Estado', 'État', 'Bundesstaat', 'Stato'],
+  ['Consultando J.D. Power y el registro local…', 'Checking J.D. Power and the local registry…', 'Consultando a J.D. Power e o registro local…', 'Consultation de J.D. Power et du registre local…', 'J.D. Power und das lokale Register werden abgefragt…', 'Consultazione di J.D. Power e del registro locale…'],
+  ['Datos de J.D. Power y del registro local de Estados Unidos.', 'Data from J.D. Power and the local United States registry.', 'Dados da J.D. Power e do registro local dos Estados Unidos.', 'Données de J.D. Power et du registre local des États-Unis.', 'Daten von J.D. Power und aus dem lokalen US-Register.', 'Dati di J.D. Power e del registro locale degli Stati Uniti.'],
+  ['J.D. Power no devolvió datos; se muestran los datos locales disponibles.', 'J.D. Power returned no data; the available local data is shown.', 'A J.D. Power não retornou dados; são exibidos os dados locais disponíveis.', 'J.D. Power n’a renvoyé aucune donnée ; les données locales disponibles sont affichées.', 'J.D. Power hat keine Daten geliefert; die verfügbaren lokalen Daten werden angezeigt.', 'J.D. Power non ha restituito dati; vengono mostrati i dati locali disponibili.'],
 ])
 export const countryMessages = Object.fromEntries(['en', 'pt', 'fr', 'de', 'it'].map((language, index) =>
   [language, Object.fromEntries(rows.map((row) => [row[0], row[index + 1]]))]))

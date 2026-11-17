@@ -34,7 +34,7 @@ plates:
 
 vehicle_lookup:
   provider: "jdpower"
-  enabled: false
+  enabled: true
   authorization_required: true
-  notes: "Enable only after an authorized API or written permission is available."
+  notes: "Enabled 2026-11-16 after the project owner confirmed authorized access. Set enabled to false to go back to local-registry lookups only."
 

@@ -10,7 +10,7 @@ import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
 import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
-import { usaVehicleDetails } from '@/lib/vehicleDetails'
+import { usaLookupStatus, usaVehicleDetails } from '@/lib/vehicleDetails'
 import { readPendingOperation, startPendingOperation, clearPendingOperation,
   recoverPendingOperation, cancelUnacceptedOperation, operationIsSettled } from '@/lib/operationRecovery'
 
@@ -567,7 +567,7 @@ async function loadVehicleDetails(plate) {
   }
   const generation = ++vehicleLookupGeneration
   vehicleLookup.value = null
-  vehicleLookupStatus.value = session.country === 'usa' ? 'Consultando el registro local…' : 'Consultando datos públicos del SRI…'
+  vehicleLookupStatus.value = session.country === 'usa' ? 'Consultando J.D. Power y el registro local…' : 'Consultando datos públicos del SRI…'
   try {
     const started = await api('/api/plates/vehicle-data', {
       method: 'POST',
@@ -580,7 +580,7 @@ async function loadVehicleDetails(plate) {
       if (result.estado === 'completado') {
         vehicleLookup.value = result.vehiculo || null
         const sriOk = result.fuentes?.sri === 'encontrado'
-        vehicleLookupStatus.value = session.country === 'usa' ? 'Datos del registro local de Estados Unidos.' : sriOk
+        vehicleLookupStatus.value = session.country === 'usa' ? usaLookupStatus(result.fuentes?.jdpower) : sriOk
           ? 'Marca, modelo y año cargados desde el SRI.'
           : 'El SRI no devolvió todos los datos; se muestran los valores locales disponibles.'
         return
