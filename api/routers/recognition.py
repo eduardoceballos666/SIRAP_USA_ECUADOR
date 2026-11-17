@@ -19,6 +19,7 @@ from api.deps import current_user, get_barrier, get_config, get_store, get_pipel
 from src.access_control import AccessDecision, decide_access, decide_usa_access
 from src.plate_identity import normalize_identity, public_plate_record
 from api.recognition_evidence import evidence_store
+from api.providers import usa_jdpower
 from src.data_processing import ImageLimits, ImageValidationError, load_image, normalize_plate
 from src.storage import StorageError
 from src.github_storage import durable_backup_configured
@@ -94,6 +95,33 @@ def _load_vehicle_details(request_id: str, plate: str) -> None:
     with _VEHICLE_LOOKUP_LOCK:
         result["_created_at"] = time.monotonic()
         _VEHICLE_LOOKUPS[request_id] = result
+
+def _store_lookup(request_id: str, value: dict) -> None:
+    """Guarda el estado de una consulta y descarta las que superan los 15 minutos."""
+    with _VEHICLE_LOOKUP_LOCK:
+        cutoff = time.monotonic() - 900
+        for old_id, old in list(_VEHICLE_LOOKUPS.items()):
+            if old.get("_created_at", 0) < cutoff:
+                _VEHICLE_LOOKUPS.pop(old_id, None)
+        _VEHICLE_LOOKUPS[request_id] = {**value, "_created_at": time.monotonic()}
+
+
+def _load_us_vehicle_details(request_id: str, serial: str, state: str, base: dict) -> None:
+    """Completa una consulta de EE. UU.: registro local (en ``base``) más J.D. Power si responde.
+
+    Si J.D. Power no responde o niega el acceso, se muestran solo los datos locales.
+    """
+    fuentes = dict(base["fuentes"])
+    vehiculo = dict(base["vehiculo"])
+    try:
+        record = usa_jdpower.lookup(serial, state)
+        fuentes["jdpower"] = "encontrado" if record["lookup_status"] == "found" else record["lookup_status"]
+        vehiculo.update(usa_jdpower.vehicle_fields(record))
+    except Exception:
+        logger.exception("No se pudo consultar J.D. Power (%s)", state)
+        fuentes["jdpower"] = "error"
+    _store_lookup(request_id, {**base, "estado": "completado", "vehiculo": vehiculo, "fuentes": fuentes})
+
 
 SAMPLE_LABELS = {
     "garita3_PBA-8901.jpg": "Garita 3 · PBA-8901 (lista blanca)",
@@ -206,17 +234,17 @@ def start_vehicle_data_lookup(body: schemas.VerifyIn, background_tasks: Backgrou
     identity=_identity(body.placa,body.country,body.jurisdiction)
     plate=identity.serial
     if body.country=='usa':
-        # No U.S. plate is sent to SRI or an external plate-lookup service.
+        # U.S. plates never go to SRI. They go to J.D. Power only when vehicle_lookup.enabled is true in
+        # config/countries/usa.yaml (authorized access); otherwise only the local registry is read.
         local=get_store().get_vehicle(identity.key)
         request_id=str(uuid.uuid4())
-        with _VEHICLE_LOOKUP_LOCK:
-            cutoff=time.monotonic()-900
-            for old_id,value in list(_VEHICLE_LOOKUPS.items()):
-                if value.get('_created_at',0)<cutoff:
-                    _VEHICLE_LOOKUPS.pop(old_id,None)
-            _VEHICLE_LOOKUPS[request_id]={'estado':'completado','placa':plate,**identity.as_dict(),
-                'vehiculo':public_plate_record(local) if local else {},'fuentes':{'local':'consultado','sri':'no_aplica'},
-                '_created_at':time.monotonic()}
+        base={'placa':plate,**identity.as_dict(),'vehiculo':public_plate_record(local) if local else {},
+              'fuentes':{'local':'consultado','sri':'no_aplica','jdpower':'desactivado'}}
+        if identity.jurisdiction and usa_jdpower.lookup_enabled(get_config('usa')):
+            _store_lookup(request_id,{**base,'estado':'consultando'})
+            background_tasks.add_task(_load_us_vehicle_details,request_id,plate,identity.jurisdiction,base)
+            return {'request_id':request_id,'estado':'consultando','placa':plate}
+        _store_lookup(request_id,{**base,'estado':'completado'})
         return {'request_id':request_id,'estado':'completado','placa':plate}
     request_id = str(uuid.uuid4())
     with _VEHICLE_LOOKUP_LOCK:
