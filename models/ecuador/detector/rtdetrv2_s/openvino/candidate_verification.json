@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "split": "val",
+  "images": 10,
+  "checkpoint_loading": {
+    "status": "passed"
+  },
+  "checkpoint_sha256": {
+    "openvino_model.xml": "4786e5a6ef15c31818a0d6dbb0feadf394787babb12fa4eaa793f6e6d78ea7a2",
+    "openvino_model.bin": "b5a2c96250612366ea272ffac6d9744aaf4b45aacd96aa7cfcb931ee3b558259",
+    "sirap_openvino.json": "a72cb8bb997f6f88225d0faceaade2c43722fef4ccecdbc7074d2943dbecba92"
+  }
+}
