@@ -72,8 +72,11 @@ y evidencia de los cuadros de una apertura. Dashboard cuenta identidades complet
 Vehículos, listas, propietarios e historial de demostración se filtran por país;
 usuarios, roles y garitas son comunes. Cambiar de país requiere volver al login.
 
-Las placas de EE. UU. solo consultan el registro local. No se envían al SRI, a
-J.D. Power ni a otro servicio externo de búsqueda. Registrar una matrícula para una
+Las placas de EE. UU. consultan el registro local y, con `vehicle_lookup.enabled: true`
+en `config/countries/usa.yaml`, el informe público de J.D. Power (año y modelo, color,
+tipo de carrocería; el estado es el confirmado). Solo se envían matrícula y estado
+confirmado, nunca al SRI. Si J.D. Power niega el acceso, se muestran los datos
+locales. Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
 prueba OCR no la añade a una lista blanca operativa; esa autorización sigue siendo
 una acción explícita del usuario en Registro o Administración.
 
