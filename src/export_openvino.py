@@ -21,14 +21,17 @@ def export_openvino_model(model_source: str | Path, output_dir: str | Path,
     """Convierte los logits y cajas de un checkpoint HF a OpenVINO IR."""
     import openvino as ov
     import torch
-    from transformers import AutoImageProcessor, RTDetrV2ForObjectDetection
+    from transformers import AutoImageProcessor
+    from src.checkpoint_verification import load_verified_checkpoint, infer_bbox_coordinate_space, infer_resize_rounding
 
     source = str(model_source)
     target = Path(output_dir)
     target.mkdir(parents=True, exist_ok=True)
     processor = AutoImageProcessor.from_pretrained(source, trust_remote_code=False, use_fast=False)
-    model = RTDetrV2ForObjectDetection.from_pretrained(source, trust_remote_code=False)
+    model, _ = load_verified_checkpoint(source, local_files_only=Path(source).is_dir())
     model.eval()
+    coordinate_space = infer_bbox_coordinate_space(processor, image_size)
+    resize_rounding = infer_resize_rounding(processor, image_size)
 
     class DetectionOutputs(torch.nn.Module):
         def __init__(self, wrapped: torch.nn.Module):
@@ -79,6 +82,10 @@ def export_openvino_model(model_source: str | Path, output_dir: str | Path,
         "resize_max_width": int(size.get("max_width", image_size)),
         "pad_value_after_normalization": 0.0,
         "compressed_to_fp16": bool(compress_to_fp16),
+        "bbox_coordinate_space": coordinate_space,
+        "resize_rounding": resize_rounding,
+        "checkpoint_loading_verified": True,
+        "inference_precision": "f32",
     }
     (target / "sirap_openvino.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return model_file

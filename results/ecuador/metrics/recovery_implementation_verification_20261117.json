@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-17",
+  "kind": "implementation_verification_with_public_reference_weights",
+  "reference_model": {
+    "repo": "merve/license-plates-rtdetrv2",
+    "revision": "ed6be0966b37eb0e78fe3680e6485c788a0d61f1",
+    "purpose": "public model roundtrip; not the user Ecuador candidate"
+  },
+  "user_ecuador_checkpoint_tested": false,
+  "app_model_changed": false,
+  "checkpoint_reload": {
+    "status": "passed",
+    "all_tensors_restored_exactly": true
+  },
+  "save_reload_roundtrip": "exact",
+  "openvino_parity": {
+    "status": "passed",
+    "split": "val",
+    "images": [
+      {
+        "image_id": 5,
+        "max_logit_error": 2.574920654296875e-05,
+        "max_box_error": 4.470348358154297e-06
+      }
+    ],
+    "checkpoint_loading": {
+      "status": "passed",
+      "source": "/tmp/sirap_reference_native",
+      "revision": null,
+      "loading_info": {
+        "missing_keys": [],
+        "unexpected_keys": [],
+        "mismatched_keys": [],
+        "error_msgs": []
+      },
+      "runtime": {
+        "torch": "2.6.0+cpu",
+        "torchvision": "0.21.0+cpu",
+        "transformers": "5.23.0",
+        "accelerate": "1.16.0",
+        "openvino": "2026.4.1",
+        "numpy": "2.3.5"
+      },
+      "checkpoint_sha256": {
+        "checkpoint_verification.json": "3363db9ba848c93045620b14dc283b8cb33921dfe7a835fc87e3ca7138cc93dc",
+        "config.json": "40174818eff12f8e8021fe58331ef0bec8f23d1581c2fbf1735aa41d02a057ba",
+        "model.safetensors": "5897f957826b80de24a9f57b223c803ec523a4a383a1740a1eda652bd24cbcd1",
+        "preprocessor_config.json": "075ae91e532095eb9a0a393fc4e0a64f599ac35ee67eb64f4071344df6c8409a"
+      },
+      "loader": "from_pretrained with key conversion"
+    },
+    "bbox_coordinate_space": "padded_input",
+    "checkpoint_sha256": {
+      "openvino_model.xml": "c194138944ab92e72ebf0cc45a652090bfbbac0e8c5487628d9a0918443e3ca5",
+      "openvino_model.bin": "34b12b1d840d6d228bc58c1ac7313f526dac299fcc23ca64e906335e36e59276",
+      "sirap_openvino.json": "8b683bf37543114713596cc3e68e67fb7e93e005e8a9de16a1eecc1951b73be8"
+    }
+  },
+  "runtime": {
+    "torch": "2.6.0+cpu",
+    "torchvision": "0.21.0+cpu",
+    "transformers": "5.23.0",
+    "accelerate": "1.16.0",
+    "openvino": "2026.4.1",
+    "numpy": "2.3.5"
+  },
+  "limitation": "Implementation verification only; the actual trained Ecuador checkpoint remains unavailable.",
+  "regression_checks": {
+    "passed": 93,
+    "skipped": 1,
+    "files": [
+      "tests/test_ecuador_recovery.py",
+      "tests/test_coco_evaluation.py",
+      "tests/test_usa_runtime.py",
+      "tests/test_training_compatibility.py",
+      "tests/test_model.py"
+    ],
+    "notebook_code_cells_compiled": 39,
+    "generated_scripts_compiled": [
+      "BRIDGE_SCRIPT",
+      "EDGE_RUNNER_SCRIPT"
+    ],
+    "full_repository_suite_claimed_passed": false,
+    "separate_preexisting_failure": "The untouched USA notebook contains a Colab !apt-get cell rejected by its plain ast.parse compilation test. This Ecuador change does not modify the USA notebook or relax its test."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "source_commit": "0b7bcb7739f43d1b41f0a1dbc5c58e3f9207f491",
+  "notebook_sha256": "cc8cb21d7ce8610d25aa7076c1e046cdb88bda0c24d764cc3863e526c80a9b10",
+  "kind": "archived_user_execution",
+  "new_execution": false,
+  "user_checkpoint_available": false,
+  "drive_candidate_found": {
+    "country": "usa",
+    "seed": 1,
+    "usable_as_ecuador": false
+  }
+}

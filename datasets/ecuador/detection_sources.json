@@ -1,0 +1,46 @@
+{
+  "country": "ecuador",
+  "status": "candidates_only_no_additional_export_imported",
+  "review_date": "2026-11-17",
+  "export_access": "Anonymous export request returned 403; use an authorized Colab Roboflow secret.",
+  "sources": [
+    {
+      "name": "plates_ecuadorian_v4",
+      "source_url": "https://universe.roboflow.com/stevens-workspace-unaqf/plates-ecuadorian",
+      "workspace": "stevens-workspace-unaqf",
+      "project": "plates-ecuadorian",
+      "version": 4,
+      "publisher_license": "CC BY 4.0",
+      "published_images": 1031,
+      "country_reviewed": false,
+      "groups_reviewed": false,
+      "negatives_reviewed": false,
+      "ambiguous_classes": [
+        "0",
+        "2"
+      ],
+      "status": "export_and_annotation_review_required"
+    },
+    {
+      "name": "placas_ec",
+      "source_url": "https://universe.roboflow.com/joses-workspace-fm7wj/placas_ec",
+      "publisher_license": "CC BY 4.0",
+      "status": "candidate_not_imported"
+    },
+    {
+      "name": "placas-ecuadorv1",
+      "source_url": "https://universe.roboflow.com/modelo-tuasu/placas-ecuadorv1",
+      "publisher_license": "Public Domain (publisher claim)",
+      "status": "candidate_not_imported"
+    }
+  ],
+  "required_review": [
+    "country",
+    "source license",
+    "all plate category names",
+    "complete plate annotations",
+    "real negative scenes",
+    "vehicle/session/scene grouping"
+  ],
+  "reserved_test_policy": "New independent scene groups; never tune a threshold on test or reuse the inspected six photos as fresh acceptance evidence."
+}

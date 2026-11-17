@@ -44,7 +44,8 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
                       checkpoint: str | Path | None = None, model_id: str = DEFAULT_MODEL_ID,
                       threshold: float = 0.001,
                       result_path: str | Path | None = None,
-                      operating_threshold: float | None = None) -> dict[str, Any]:
+                      operating_threshold: float | None = None,
+                      predictions_path: str | Path | None = None) -> dict[str, Any]:
     """Measure standard COCO AP and actual TP/FP/FN at a fixed confidence."""
     import hashlib
     import io
@@ -86,6 +87,15 @@ def evaluate_detector(data_dir: str | Path, country: str = "ecuador", split: str
     model_path = Path(detector.model_path)
     hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
               for p in (model_path, model_path.with_suffix(".bin"))}
+    runtime_manifest = model_path.parent / "sirap_openvino.json"
+    if runtime_manifest.is_file():
+        hashes[runtime_manifest.name] = hashlib.sha256(runtime_manifest.read_bytes()).hexdigest()
+    if predictions_path is not None:
+        save_json({"split": split, "score_floor": threshold, "predictions": predictions,
+                   "annotation_sha256": hashlib.sha256(labels_path.read_bytes()).hexdigest(),
+                   "split_sha256": fingerprint.hexdigest(), "checkpoint_sha256": hashes}, predictions_path)
+    result.update(max_prediction_confidence=max((p["score"] for p in predictions), default=None),
+                  predictions_at_operating_threshold=sum(p["score"] >= operating_threshold for p in predictions))
     result.update(country=country, detector="RT-DETRv2-S", inference_runtime="OpenVINO Runtime",
                   checkpoint=detector.source, checkpoint_sha256=hashes,
                   split=split, threshold_for_ap=threshold,
