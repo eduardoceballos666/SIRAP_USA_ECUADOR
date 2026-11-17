@@ -1,0 +1,43 @@
+{
+  "map50_95": 0.6999999999999998,
+  "map50": 0.9999999999999999,
+  "map75": 0.9999999999999999,
+  "map50_95_small": null,
+  "map50_95_medium": 0.6999999999999998,
+  "map50_95_large": null,
+  "images": 1,
+  "plates": 1,
+  "predictions": 300,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "ignored_predictions": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "operating_threshold": 0.7,
+  "operating_iou": 0.5,
+  "max_detections_per_image": 100,
+  "metric_note": "AP uses all supplied scores; P/R/F1 use matches at the stated confidence and IoU. Undefined AP/recall are null; precision with no predictions is zero.",
+  "country": "ecuador",
+  "detector": "RT-DETRv2-S",
+  "inference_runtime": "OpenVINO Runtime",
+  "checkpoint": "/content/SIRAP_workspace/ecuador/models/detector/rtdetrv2_s/seed_2/openvino/openvino_model.xml",
+  "checkpoint_sha256": {
+    "openvino_model.xml": "250c06386ee56437f54c563b4f501011dd655fb329932d5b99c58d274f81241b",
+    "openvino_model.bin": "264e3e8d9674294204ef3853cfa085baae162dad37a4e13bad53f288edcc1e45"
+  },
+  "split": "test",
+  "threshold_for_ap": 0.001,
+  "split_sha256": "f0b8369a3dfa266544173df26a98885e120063194056896fa06f30bfd9e0936c",
+  "source_categories": 1,
+  "evaluated_classes": [
+    "license_plate"
+  ],
+  "dataset_scope": "development_only",
+  "imagenes": 1,
+  "placas": 1,
+  "map50_95_pequenas": null,
+  "map50_95_medianas": 0.6999999999999998,
+  "map50_95_grandes": null
+}

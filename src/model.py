@@ -135,7 +135,6 @@ class PlateDetector:
         if not self.model_path.with_suffix(".bin").is_file():
             raise FileNotFoundError(f"Falta el archivo de pesos OpenVINO asociado: {self.model_path.with_suffix('.bin')}")
 
-        self.compiled_model = self.core.compile_model(str(self.model_path), self.device)
         self.manifest = {}
         manifest_path = self.model_path.parent / "sirap_openvino.json"
         if manifest_path.is_file():
@@ -144,6 +143,12 @@ class PlateDetector:
                 self.manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             except (OSError, ValueError) as exc:
                 raise ValueError(f"Manifest OpenVINO inválido: {manifest_path}") from exc
+        precision = self.manifest.get("inference_precision")
+        if precision is not None and precision not in {"f32", "f16", "bf16"}:
+            raise ValueError(f"Unsupported inference_precision: {precision!r}")
+        self.compiled_model = (self.core.compile_model(
+            str(self.model_path), self.device, {"INFERENCE_PRECISION_HINT": precision})
+            if precision else self.core.compile_model(str(self.model_path), self.device))
         if len(self.compiled_model.inputs) != 2:
             raise ValueError(
                 "El IR RT-DETRv2-S debe aceptar pixel_values y pixel_mask. "
@@ -159,13 +164,20 @@ class PlateDetector:
     def is_model(self) -> bool:
         return True
 
+    def _resize_dimensions(self, height: int, width: int) -> tuple[int, int]:
+        max_h = min(self.imgsz, int(self.manifest.get("resize_max_height", self.imgsz)))
+        max_w = min(self.imgsz, int(self.manifest.get("resize_max_width", self.imgsz)))
+        mode = self.manifest.get("resize_rounding", "round")
+        if mode not in {"floor", "round"}:
+            raise ValueError(f"Unsupported resize_rounding: {mode!r}")
+        scale = min(max_h / height, max_w / width)
+        resize = int if mode == "floor" else round
+        return (max(1, min(max_h, resize(height*scale))),
+                max(1, min(max_w, resize(width*scale))))
+
     def _preprocess(self, image: np.ndarray) -> tuple[np.ndarray, np.ndarray, tuple[int, int]]:
         height, width = image.shape[:2]
-        max_height = min(self.imgsz, int(self.manifest.get("resize_max_height", self.imgsz)))
-        max_width = min(self.imgsz, int(self.manifest.get("resize_max_width", self.imgsz)))
-        scale = min(max_height / height, max_width / width)
-        resized_h = max(1, min(max_height, int(round(height * scale))))
-        resized_w = max(1, min(max_width, int(round(width * scale))))
+        resized_h, resized_w = self._resize_dimensions(height, width)
         rgb = np.ascontiguousarray(image[..., :3], dtype=np.uint8)
         resample = self.manifest.get("resample", 2)
         try:
@@ -237,11 +249,7 @@ class PlateDetector:
             return float(width), float(height)
         if space != "padded_input":
             raise ValueError(f"Unsupported bbox_coordinate_space: {space!r}")
-        max_height = min(self.imgsz, int(self.manifest.get("resize_max_height", self.imgsz)))
-        max_width = min(self.imgsz, int(self.manifest.get("resize_max_width", self.imgsz)))
-        scale = min(max_height / height, max_width / width)
-        resized_h = max(1, min(max_height, int(round(height * scale))))
-        resized_w = max(1, min(max_width, int(round(width * scale))))
+        resized_h, resized_w = self._resize_dimensions(height, width)
         return self.imgsz * width / resized_w, self.imgsz * height / resized_h
 
 

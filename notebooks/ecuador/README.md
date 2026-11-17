@@ -1,47 +1,88 @@
 # Ecuador notebook
 
-The active file is [sirap_backend_ecuador.ipynb](sirap_backend_ecuador.ipynb).
-[Open it in Colab](https://colab.research.google.com/github/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/notebooks/ecuador/sirap_backend_ecuador.ipynb).
+Active file: [sirap_backend_ecuador.ipynb](sirap_backend_ecuador.ipynb).
+[Open in Colab](https://colab.research.google.com/github/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/notebooks/ecuador/sirap_backend_ecuador.ipynb).
 
-The six supplied Ecuador photos are annotated in
-`datasets/ecuador/detection_coco/`: four training images with nine boxes,
-one validation image with one box, and one held-out development test image with one box.
-The two views of the same truck stay together in training.
+Start with **0.0 in the original runtime**, before installing dependencies or updating Git.
+It preserves existing Ecuador weights and run files in a new checksum-verified Drive snapshot.
+A missing directory is reported; a metrics-only snapshot is not a saved model.
 
 | Section | Contents |
 |---|---|
-| 0 | Dependencies, Ecuador paths, execution flags and optional persistence. |
-| 1 | Labeled COCO scenes, image/box/group audit and SAVH Guayaquil crops. |
-| 2 | Ecuador plate normalization and reviewed SAVH OCR references. |
-| 3 | Optional training, candidate identity, CSV authorization list and experimental decision rule. |
-| 4 | Load a complete Ecuador OpenVINO IR without changing its training manifest. |
-| 5 | 5.1 smoke check; 5.2 COCO validation and candidate freeze; 5.3 held-out development test. |
+| 0 | Emergency preservation, pinned dependencies, controls and verified backups. |
+| 1 | COCO audit, SAVH OCR crops and reviewed additional Ecuador scene intake. |
+| 2 | Ecuador plate normalization and reviewed SAVH OCR reference. |
+| 3 | Optional training; model identity; CSV rule; 3.5 checkpoint recovery without training. |
+| 4 | Load an Ecuador IR bound to a successful conversion verification report. |
+| 5 | 5.1 smoke check; 5.2 validation; 5.3 threshold sweep and freeze; 5.4 held-out evaluation. |
 | 6 | Video demonstration and optional SRI/owner queries. |
-| 7 | Cloudflare bridge, camera reader, connection check, session and local executor. |
-| 8 | Detector CPU latency on validation images. |
-| 9 | Optional publication of a reviewed IR bundle. |
-| 10 | Ground-truth annotation preview for training and validation. |
+| 7 | Cloudflare bridge, connection check, live session and on-site runner. |
+| 8 | CPU latency on validation images. |
+| 9 | Optional reviewed IR publication. |
+| 10 | Training/validation ground-truth preview. |
 
-Run setup and the audit first. Enable `RUN_TRAIN_ECUADOR=True` in a GPU Colab runtime
-and run 3.1. Training starts from `merve/license-plates-rtdetrv2`, uses at most
-30 epochs, patience 8 and seed 2, and selects by validation loss.
-It saves Transformers weights and OpenVINO IR under
-`/content/SIRAP_workspace/ecuador/models/detector/rtdetrv2_s/seed_2/`.
-Enable optional Drive persistence before training to retain these artifacts across resets.
+## Recover the completed training
 
-Then enable `RUN_INFERENCE=True`, load the candidate in 4, and enable
-`RUN_COCO_VALIDATION=True` for 5.2. After selecting the candidate and threshold using
-validation only, enable `RUN_FINAL_TEST_EVALUATION=True` for 5.3.
-The held-out test checks the candidate's XML/BIN hashes, dataset fingerprint and thresholds
-against the frozen validation plan and preserves an existing report.
+The original execution's metrics, 30-epoch table and loading warnings are archived in
+[results/ecuador/metrics/archive/20261116_six_photo_user_run](../../results/ecuador/metrics/archive/20261116_six_photo_user_run/).
+The complete executed notebook remains in commit `0b7bcb7739f43d1b41f0a1dbc5c58e3f9207f491`.
+The active notebook clears outputs so historical results cannot appear to be a new run.
 
-COCO AP50–95/AP50/AP75 and threshold-specific TP/FP/FN, precision, recall and F1
-are computed separately. A blank-image smoke check is not an accuracy evaluation.
-Six positive images are a development check; field acceptance and negative-scene testing need more data.
-Preparing this notebook does not execute training or produce model metrics.
+1. Run 0.0 in the original runtime, then setup and the audit in 1.2.
+2. Set `RECOVERY_CHECKPOINT` to the real Ecuador Transformers folder, containing its config,
+   weights, processor config and original `sirap_training.json`.
+   An original manifest stored separately can be specified with `RECOVERY_MANIFEST_PATH`.
+3. Enable `RUN_CHECKPOINT_RECOVERY=True` and run 3.5. It restores through official key mappings,
+   checks save/reload tensor equality, exports a new IR and compares its raw outputs with
+   PyTorch on validation. It does not start training.
+4. Enable `RUN_INFERENCE=True`, load the verified candidate in 4 and run validation in 5.2.
+5. Inspect validation-only threshold diagnostics in 5.3. Freeze the selected candidate before
+   using a fresh held-out test in 5.4.
 
-Execution and publication flags start disabled. Existing model manifests are never relabeled
-as Ecuador. Camera sessions require an Ecuador calibration report bound to the exact IR;
-a single validation image does not provide that operational calibration.
-Section 9 publishes only `models/ecuador/detector/rtdetrv2_s/openvino/`.
-The application's configured checkpoint is managed separately.
+The candidate found in the Drive Ecuador-named directory identifies itself as **USA seed 1**.
+It is rejected as Ecuador. The actual trained Ecuador checkpoint was not available during
+this correction; implementation tests with public reference weights do not measure its accuracy.
+
+## What changed
+
+Transformers 5 can serialize checkpoint names differently from names expected by a direct
+`load_state_dict`. The mapping-aware Trainer restores the selected best model through
+`from_pretrained`, rejects missing/unexpected/mismatched parameters and copies tensors strictly.
+
+New IR exports declare the processor's actual resize rounding, padded box coordinate space
+and FP32 inference precision. This corrects rectangular-image preprocessing and padding
+inversion and makes CPU OpenVINO comparison reproducible. Older manifests retain their
+existing geometry until explicitly re-exported. Verification and calibration bind XML, BIN
+and runtime JSON bytes; model origin is never changed to match a directory name.
+
+Drive persistence is enabled by default. Snapshots use unique names, verify every file and
+never merge model directories. Restore requires a new destination. Owner, authorization and
+camera CSV directories are excluded from experiment backups.
+
+## Data and threshold limits
+
+The six supplied images have 11 plate boxes: **4 train / 1 validation / 1 development test**.
+The two views of the same truck remain in training. The original test image has already
+been inspected and cannot become a fresh independent acceptance test by renaming it.
+
+AP uses the low confidence floor, while TP/FP/FN use the stated operating threshold.
+AP50=1 on one image can coexist with zero accepted predictions at 0.70. Validation now records
+the maximum score and accepted count, and caches predictions with image, annotation and model hashes.
+
+The threshold sweep uses validation only, includes real-negative false-positive scenes and
+requires documented groups. Default support guards are 50 validation images, 25 positive,
+25 negative and 5 groups, with precision/recall/false-positive targets. These configurable
+counts are research safeguards, not statistical certification. The tiny positive-only set
+cannot enable operational calibration. A separate explicit development freeze flag can
+record a diagnostic test at the existing demonstration threshold.
+
+Additional-source candidates and their review status are in
+[detection_sources.json](../../datasets/ecuador/detection_sources.json).
+**No additional export has been imported.** Optional Roboflow download needs your Colab secret;
+classes, country, bounding boxes, real negatives and vehicle/session groups must be reviewed.
+The importer creates a separate grouped dataset, joins exact/near duplicates before splitting
+and excludes the known six photos from a fresh study. SAVH crops remain OCR data.
+
+Training, recovery, inference, calibration, test, camera and publication flags are initially
+false. New training retains the 30-epoch maximum, patience 8 and seed 2, in unique model/run
+directories. No application weights were activated or replaced by this correction.

@@ -1,0 +1,18 @@
+{
+  "sources": [
+    {
+      "root": "/content/SIRAP_workspace/ecuador/additional_exports/plates_ecuadorian_v4",
+      "source_url": "https://universe.roboflow.com/stevens-workspace-unaqf/plates-ecuadorian",
+      "license": "CC BY 4.0",
+      "country": "ecuador",
+      "country_reviewed": false,
+      "groups_reviewed": false,
+      "negatives_reviewed": false,
+      "groups_csv": "/content/SIRAP_workspace/ecuador/ecuador_group_review.csv",
+      "plate_category_names": [
+        "license_plate"
+      ]
+    }
+  ],
+  "note": "Set review flags only after inspecting the source. Map all actual class names explicitly; unknown 0/2 classes require annotation review."
+}
