@@ -38,7 +38,7 @@ El destino está configurado como `eduardoceballos/SIRAP_USA_ECUADOR_HF` en el w
 
 La exportación de detecciones usa la misma configuración privada: `SIRAP_DATA_GITHUB_TOKEN` y `SIRAP_DATA_GITHUB_REPO`. Los eventos enriquecidos se guardan en `data/processed/detecciones.csv`; no se usan las variables antiguas `GITHUB_TOKEN`, `GITHUB_DATA_REPOSITORY`, `GITHUB_DATA_BRANCH` ni `GITHUB_DATA_PATH`.
 
-Solo el perfil Ecuador consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. USA consulta exclusivamente su registro local, usando estado emisor más matrícula. SIRAP_USA_ECUADOR_HF no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
+Solo el perfil Ecuador consulta datos vehiculares públicos del SRI en segundo plano y guarda el resultado en el repositorio privado. USA consulta su registro local (estado emisor más matrícula) y el informe público de J.D. Power (año y modelo, color, tipo de carrocería y estado) con la matrícula y el estado confirmado; si J.D. Power no responde, se muestran solo los datos locales. SIRAP_USA_ECUADOR_HF no consulta EcuadorLegalOnline porque la información de propietario que ofrece ese servicio es de pago. El nombre del propietario, cuando aparece en la aplicación, procede del registro local.
 
 | Dato | Uso |
 |---|---|
@@ -74,7 +74,7 @@ SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, franc
 
 ## English
 
-This folder contains the Hugging Face Space deployment guide and synchronization script. Login selects country and language. Ecuador and USA share the same USA-trained seed-2 detector and global OCR weights; only country interpretation and validation rules differ. USA requires state plus serial and server-confirmed distinct frames for normal opening. Ecuador performance remains unvalidated. Both profiles use the existing private CSV storage; USA vehicle lookup is local only.
+This folder contains the Hugging Face Space deployment guide and synchronization script. Login selects country and language. Ecuador and USA share the same USA-trained seed-2 detector and global OCR weights; only country interpretation and validation rules differ. USA requires state plus serial and server-confirmed distinct frames for normal opening. Ecuador performance remains unvalidated. Both profiles use the existing private CSV storage; USA vehicle lookup uses the local registry plus J.D. Power's public report; if J.D. Power does not answer, only local data is shown.
 
 ## Licencia
 
