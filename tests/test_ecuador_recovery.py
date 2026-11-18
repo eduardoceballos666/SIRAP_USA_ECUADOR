@@ -2,6 +2,7 @@
 import ast
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -151,6 +152,21 @@ def test_import_requires_human_class_group_and_negative_review(tmp_path, problem
         prepare_ecuador_dataset(manifest, tmp_path/"rejected")
 
 
+def without_ipython_commands(source):
+    """Replace Colab/Jupyter shell escapes (``!find ...``) and line magics (``%cd ...``) by ``pass``.
+
+    They are valid in a notebook but not in plain Python, and they run nothing here. Each one keeps its line,
+    so line numbers in an error still point at the notebook cell.
+    """
+    return "\n".join(re.sub(r"^(\s*)(?:!|%{1,2}[A-Za-z]).*$", r"\1pass", line) for line in source.split("\n"))
+
+
+def test_ipython_commands_are_neutralized_before_compiling():
+    assert without_ipython_commands('!find /content -name "x.json"') == "pass"
+    assert without_ipython_commands("  %cd /content\nx = 1 % 2\n%%time") == "  pass\nx = 1 % 2\npass"
+    assert without_ipython_commands("y = (3\n     % 2)") == "y = (3\n     % 2)"  # a modulo continuation is code
+
+
 def test_notebook_and_generated_runners_compile_without_execution():
     root = Path(__file__).resolve().parents[1]
     import nbformat
@@ -161,8 +177,9 @@ def test_notebook_and_generated_runners_compile_without_execution():
         if cell.cell_type != "code":
             continue
         assert cell.execution_count is None and cell.outputs == []
-        sources.append(cell.source)
-        tree = ast.parse(cell.source)
+        source = without_ipython_commands(cell.source)
+        sources.append(source)
+        tree = ast.parse(source)
         compile(tree, f"ecuador-cell-{i}", "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
