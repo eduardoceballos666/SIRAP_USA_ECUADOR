@@ -54,6 +54,9 @@ SPEC_LABELS = {
     "towing capacity": "towing_capacity",
     "seating capacity": "seating_capacity",
 }
+# On the real report the <h1> is the plate line ("6ZGY984 - California License Plate Report:"); the vehicle
+# name is the first line that starts with a model year.
+VEHICLE_TITLE_PATTERN = re.compile(r"^(?:19|20)\d{2}\s+\S.{2,78}$")
 # Lines that can follow the report heading but are not the body type.
 NON_BODY_TYPE_PREFIXES = ("see what", "get a history report", "see all photos", "overview", "beenverified")
 
@@ -102,6 +105,20 @@ def parse_visible_specs(report_text: str) -> dict[str, str]:
                 if value:
                     specs[key] = value
     return specs
+
+
+def find_vehicle_title(heading: str, report_text: str) -> str:
+    """The vehicle name ("2013 Honda Civic"): the <h1> if it is one, else the first line starting with a year."""
+    heading = " ".join(str(heading).split())
+    if not heading:
+        return ""  # not a report page
+    if VEHICLE_TITLE_PATTERN.match(heading):
+        return heading
+    lines = [" ".join(line.split()) for line in str(report_text).splitlines()]
+    for line in [line for line in lines if line][:30]:
+        if VEHICLE_TITLE_PATTERN.match(line) and not line.endswith(":") and "report" not in line.casefold():
+            return line
+    return ""
 
 
 def parse_vehicle_body_type(report_text: str, vehicle_title: str) -> str:
@@ -192,7 +209,7 @@ def _read_report(serial: str, state: str, fetcher: Fetcher) -> dict:
         )
     if page.status != 200:
         return _record(serial, state, lookup_status=f"http_{page.status}", error=f"J.D. Power returned HTTP {page.status}.")
-    title = " ".join(page.title.split())
+    title = find_vehicle_title(page.title, page.report_text or page.body_text)
     if not title:
         return _record(serial, state, lookup_status="no_report_title")
     specs = parse_visible_specs(page.report_text)
