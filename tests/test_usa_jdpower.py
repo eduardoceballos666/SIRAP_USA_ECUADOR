@@ -89,6 +89,30 @@ def test_found_report_fills_the_four_interface_fields():
     }
 
 
+def test_real_page_heading_is_the_plate_line_so_the_vehicle_comes_from_the_text():
+    # J.D. Power's <h1> is "<plate> - <state> License Plate Report:"; "2013 Honda Civic" is a line below it.
+    heading = "6ZGY984 - California License Plate Report:"
+    record = run(fetcher=Recorder(found_page(title=heading)))
+    assert record["lookup_status"] == "found"
+    assert jd.vehicle_fields(record) == {
+        "state": "CA", "vehicle_title": TITLE, "vehicle_body_type": "Sedan 4D LX I4", "specs_exterior": "Taffeta White",
+    }
+
+
+def test_a_report_without_any_vehicle_line_is_not_shown_as_a_vehicle():
+    page = found_page(title="6ZGY984 - California License Plate Report:", report_text="Overview\nExterior\nTaffeta White\n", body_text="")
+    record = run(fetcher=Recorder(page))
+    assert record["lookup_status"] == "no_report_title" and jd.vehicle_fields(record) == {}
+
+
+def test_find_vehicle_title_ignores_report_lines_and_late_mentions():
+    assert jd.find_vehicle_title("2013 Honda Civic", "") == TITLE
+    assert jd.find_vehicle_title("Plate report", "2013 Honda Civic Report:\n" + REPORT_TEXT) == TITLE
+    assert jd.find_vehicle_title("", REPORT_TEXT) == ""
+    late = "\n".join(["filler"] * 40 + ["2024 Toyota Camry"])
+    assert jd.find_vehicle_title("Plate report", late) == ""
+
+
 def test_body_type_falls_back_to_the_whole_page_text():
     page = found_page(report_text="Overview\nExterior\nTaffeta White\n", body_text=REPORT_TEXT)
     assert run(fetcher=Recorder(page))["vehicle_body_type"] == "Sedan 4D LX I4"
@@ -188,14 +212,18 @@ PAGE = b"""<!doctype html><html><body><header><a>Back to License Plate Selection
 <h2>Overview</h2><div>Exterior</div><div>Taffeta White</div><div>Interior</div><div>Beige</div></main></body></html>"""
 
 
+PAGE_REAL = PAGE.replace(b"<h1>2013 Honda Civic</h1>", b"<h1>6ZGY984 - California License Plate Report:</h1><h2>2013 Honda Civic</h2>").replace(
+    b"<p>6ZGY984 - California License Plate Report:</p>", b"")
+
+
 class LocalSite(http.server.BaseHTTPRequestHandler):
     hits: list[str] = []
 
     def do_GET(self):  # noqa: N802 - http.server API
         type(self).hits.append(self.path)
-        status, body = {"/ok": (200, PAGE), "/denied": (403, b"no"), "/missing": (404, b"no")}.get(self.path, (200, b"png"))
+        status, body = {"/ok": (200, PAGE), "/real": (200, PAGE_REAL), "/denied": (403, b"no"), "/missing": (404, b"no")}.get(self.path, (200, b"png"))
         self.send_response(status)
-        self.send_header("Content-Type", "text/html" if body is PAGE else "text/plain")
+        self.send_header("Content-Type", "text/html" if body in (PAGE, PAGE_REAL) else "text/plain")
         self.end_headers()
         self.wfile.write(body)
 
@@ -228,6 +256,15 @@ def test_real_browser_reads_the_report_and_skips_images(browser_available, local
     assert jd.parse_vehicle_body_type(page.report_text, page.title) == "Sedan 4D LX I4"
     assert jd.parse_visible_specs(page.report_text)["exterior"] == "Taffeta White"
     assert "/car.png" not in LocalSite.hits  # images are blocked, as in the notebook
+
+
+def test_real_browser_with_the_real_heading_structure(browser_available, local_site):
+    assert PAGE_REAL != PAGE and b"<h1>6ZGY984" in PAGE_REAL
+    record = run(fetcher=lambda url: jd.fetch_report(local_site + "/real"))
+    assert record["lookup_status"] == "found"
+    assert jd.vehicle_fields(record) == {
+        "state": "CA", "vehicle_title": TITLE, "vehicle_body_type": "Sedan 4D LX I4", "specs_exterior": "Taffeta White",
+    }
 
 
 def test_real_browser_reports_denied_and_missing_pages(browser_available, local_site):
