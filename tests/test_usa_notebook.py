@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import ast
 import hashlib
 import json
+import re
 
 import numpy as np
 from PIL import Image
@@ -118,13 +119,28 @@ def test_incomplete_scenes_are_not_scored_as_complete_detector_references(tmp_pa
     assert report['counts']['serial_exact']==1
 
 
+def without_ipython_commands(source):
+    """Replace Colab/Jupyter shell escapes (``!pip ...``) and line magics (``%cd ...``) by ``pass``.
+
+    They are valid in a notebook but not in plain Python, and they run nothing here. Each one keeps its line,
+    so line numbers in an error still point at the notebook cell.
+    """
+    return '\n'.join(re.sub(r'^(\s*)(?:!|%{1,2}[A-Za-z]).*$',r'\1pass',line) for line in source.split('\n'))
+
+
+def test_ipython_commands_are_neutralized_before_compiling():
+    assert without_ipython_commands('!apt-get update && apt-get install -y x')=='pass'
+    assert without_ipython_commands('  %cd /content\nx = 1 % 2\n%%time')=='  pass\nx = 1 % 2\npass'
+    assert without_ipython_commands('y = (3\n     % 2)')=='y = (3\n     % 2)'  # a modulo continuation line is code
+
+
 def test_notebook_code_and_generated_scripts_compile_without_execution():
     path=Path(__file__).resolve().parents[1]/'notebooks/usa/sirap_backend_usa.ipynb'
     nb=json.loads(path.read_text())
     sources=[]
     for index,cell in enumerate(nb['cells']):
         if cell['cell_type']!='code':continue
-        source=''.join(cell['source']);sources.append(source)
+        source=without_ipython_commands(''.join(cell['source']));sources.append(source)
         tree=ast.parse(source,filename=f'usa-notebook-cell-{index}')
         compile(source,f'usa-notebook-cell-{index}','exec',flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
         for node in ast.walk(tree):
