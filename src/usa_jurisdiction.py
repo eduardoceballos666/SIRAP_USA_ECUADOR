@@ -54,6 +54,21 @@ def match_state_name(tokens, confidences):
                 if score >= LEXICAL_SIMILARITY_MIN:
                     candidates.append(dict(code=code,name=name,score=score,
                                            confidence=confidence,width=size,start=start))
+        # OCR often glues the words of a printed name together ("NORTHCAROLINA", "ANORTHCAROLINA").
+        # The whole multiword name spelled without spaces is still an exact reading of the printed text.
+        squashed = target.replace(' ','')
+        if len(name.split()) > 1:
+            for size in range(1,len(name.split())+1):
+                for start in range(len(tokens)-size+1):
+                    confidence = float(np.mean(confidences[start:start+size]))
+                    if confidence < TESSERACT_WORD_CONFIDENCE_MIN or squashed not in ''.join(tokens[start:start+size]):
+                        continue
+                    # Use the smallest window that holds the whole name, so a neighbouring word is never absorbed.
+                    if size > 1 and (squashed in ''.join(tokens[start:start+size-1])
+                                     or squashed in ''.join(tokens[start+1:start+size])):
+                        continue
+                    candidates.append(dict(code=code,name=name,score=1.0,
+                                           confidence=confidence,width=size,start=start))
     exact = [c for c in candidates if c['score']==1.0]
     if exact:
         exact = [c for c in exact if not any(
@@ -156,6 +171,43 @@ def _tesseract_data(view, psm, extra):
     return {'text': [row.get('text', '') for row in rows],
             'conf': [row.get('conf', '-1') for row in rows]}
 
+HEADER_BANDS=((0,.30),(.04,.26),(.05,.36))
+FOOTER_BANDS=((.68,.92),(.72,1.0))
+
+def _band_view(gray,top,bottom,kind):
+    """Crop a horizontal band, enlarge it to a readable height and make it dark text on a white ground."""
+    height,width=gray.shape
+    band=gray[int(height*top):max(int(height*top)+1,int(height*bottom)),
+              int(width*.03):max(int(width*.03)+1,int(width*.97))]
+    scale=max(2,min(10,80/max(1,band.shape[0])))
+    view=cv2.resize(band,None,fx=scale,fy=scale,interpolation=cv2.INTER_CUBIC)
+    if kind=='otsu':
+        view=cv2.threshold(view,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
+    if np.median(view)<127:
+        view=255-view
+    return cv2.copyMakeBorder(view,10,10,10,10,cv2.BORDER_CONSTANT,value=255)
+
+def _observe(views):
+    """Run Tesseract on every view and keep the cleaned words with their confidences."""
+    observations=[]
+    for name,view,psm,extra in views:
+        try:
+            data=_tesseract_data(view,psm,extra)
+        except RuntimeError:
+            observations.append(dict(view=name,text='',words=[],confidences=[],error='ocr_error_or_timeout'))
+            continue
+        words=[];confidences=[]
+        for token,conf in zip(data['text'],data['conf']):
+            word=normalize_ocr_word(token)
+            try:
+                confidence=float(conf)
+            except (TypeError,ValueError):
+                continue
+            if word and confidence>=0:
+                words.append(word);confidences.append(confidence)
+        observations.append(dict(view=name,text=' '.join(words),words=words,confidences=confidences))
+    return observations
+
 def read_usa_jurisdiction(crop_rgb):
     """Read all views with a bounded OCR timeout. No system installs at inference time."""
     if not shutil.which('tesseract'):
@@ -178,38 +230,20 @@ def read_usa_jurisdiction(crop_rgb):
         views.append((label,cv2.resize(view,None,fx=scale,fy=scale,interpolation=cv2.INTER_CUBIC),
                       psm,'-c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
     # Narrow headers isolate the printed state from the much larger serial characters.
-    for band_index,(top,bottom) in enumerate(((0,.30),(.04,.26),(.05,.36))):
-        band=gray[int(height*top):max(int(height*top)+1,int(height*bottom)),
-                  int(width*.03):max(int(width*.03)+1,int(width*.97))]
-        scale=max(2,min(10,80/max(1,band.shape[0])))
-        enlarged=cv2.resize(band,None,fx=scale,fy=scale,interpolation=cv2.INTER_CUBIC)
+    for band_index,(top,bottom) in enumerate(HEADER_BANDS):
         for kind in ('gray','otsu'):
-            view=enlarged.copy()
-            if kind=='otsu':
-                view=cv2.threshold(view,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
-            if np.median(view)<127:
-                view=255-view
-            view=cv2.copyMakeBorder(view,10,10,10,10,cv2.BORDER_CONSTANT,value=255)
+            view=_band_view(gray,top,bottom,kind)
             for psm in (7,11):
                 views.append((f'header_{band_index}_{kind}_psm{psm}',view,psm,''))
-    observations=[]
-    for name,view,psm,extra in views:
-        try:
-            data=_tesseract_data(view,psm,extra)
-        except RuntimeError:
-            observations.append(dict(view=name,text='',words=[],confidences=[],error='ocr_error_or_timeout'))
-            continue
-        words=[];confidences=[]
-        for token,conf in zip(data['text'],data['conf']):
-            word=normalize_ocr_word(token)
-            try:
-                confidence=float(conf)
-            except (TypeError,ValueError):
-                continue
-            if word and confidence>=0:
-                words.append(word);confidences.append(confidence)
-        observations.append(dict(view=name,text=' '.join(words),words=words,confidences=confidences))
+    observations=_observe(views)
     selected,status=select_evidence(observations)
+    if selected is None and status=='state_not_read':
+        # Many plates print the state at the bottom, below the serial. These views run only when the first
+        # pass read nothing, so plates that are already read keep their latency.
+        observations+=_observe([(f'footer_{band_index}_{kind}_psm{psm}',_band_view(gray,top,bottom,kind),psm,'')
+                                for band_index,(top,bottom) in enumerate(FOOTER_BANDS)
+                                for kind in ('gray','otsu') for psm in (7,11)])
+        selected,status=select_evidence(observations)
     result=dict(empty,jurisdiction_status=status,jurisdiction_evidence=observations,
                 jurisdiction_raw_ocr=' | '.join(f"{v['view']}: {v['text']}" for v in observations if v['text']))
     if selected:
