@@ -10,6 +10,10 @@ with a headless Chromium (Playwright, already part of the image) and returns the
     vehicle_body_type  "Body type"       e.g. "Sedan 4D LX I4"
     state              "State"           e.g. "CA"
 
+The report is opened by its direct URL first. If that does not show the report, the lookup page is used the way a
+person would: the plate is typed, the state is chosen and "Check Plate" is pressed. An access-denied or rate-limit
+answer at any step ends the lookup.
+
 Good-citizen rules, same as the notebook: one request at a time, at least two seconds between request
 starts, images/fonts/media and trackers are not downloaded, and an access-denied or rate-limit answer
 (401/403/429) is recorded and never retried or worked around. Results are cached so a plate that is read
@@ -26,6 +30,7 @@ import time
 from dataclasses import dataclass
 from typing import Callable
 
+from src.usa_jurisdiction import STATE_ABBR_TO_NAME
 from src.utils import get_logger
 
 logger = get_logger("sirap.api.jdpower")
@@ -33,6 +38,12 @@ logger = get_logger("sirap.api.jdpower")
 REPORT_BASE = "https://www.jdpower.com/cars/license-plate-lookup-and-decoder"
 PAGE_TIMEOUT_MS = 30_000
 REPORT_READY_TIMEOUT_MS = 12_000
+# Fallback when the direct report URL does not show the report: use the lookup form like a person would.
+LOOKUP_FORM_FALLBACK = True
+FORM_STEP_TIMEOUT_MS = 4_000       # for the form to appear
+FORM_CONTROL_TIMEOUT_MS = 1_000    # for each candidate control once the form is there
+FORM_REPORT_TIMEOUT_MS = 15_000    # for the report to appear after "Check Plate"
+FORM_FALLBACK_LATEST_SECONDS = 50  # the interface waits about two minutes in total; never start the form later
 MIN_SECONDS_BETWEEN_REQUESTS = 2.0
 CACHE_SECONDS_FOUND = 24 * 3600
 CACHE_SECONDS_OTHER = 10 * 60
@@ -55,6 +66,11 @@ SPEC_LABELS = {
     "towing capacity": "towing_capacity",
     "seating capacity": "seating_capacity",
 }
+# Words that make the submit button the lookup button and not, say, the site search or a category menu.
+SUBMIT_BUTTON_PATTERN = re.compile(
+    r"\b(check( plate)?|look ?up|search|submit|find|continue|decode|get report|view report)\b|^go$", re.IGNORECASE
+)
+CHECK_PLATE_BUTTON_PATTERN = re.compile(r"\bcheck (the )?plate\b", re.IGNORECASE)  # J.D. Power's own button
 # On the real report the <h1> is the plate line ("6ZGY984 - California License Plate Report:"); the vehicle
 # name is the first line that starts with a model year.
 VEHICLE_TITLE_PATTERN = re.compile(r"^(?:19|20)\d{2}\s+\S.{2,78}$")
@@ -82,6 +98,9 @@ class ReportPage:
     title: str = ""
     report_text: str = ""
     body_text: str = ""
+    path: str = ""            # "direct_url" or "form": how the page was reached
+    problem_status: str = ""  # set when the page is not the report and the reason is known
+    problem: str = ""
 
 
 Fetcher = Callable[[str], ReportPage]
@@ -161,12 +180,13 @@ def _intercept(route) -> None:
         route.continue_()
 
 
-def _wait_until_rendered(page) -> None:
-    """Wait for the Overview cards and for the page text to stop changing before reading it."""
+def _wait_until_rendered(page, timeout_ms: int | None = None) -> bool:
+    """Wait for the report, its Overview cards and a steady page text. False when the report never appeared."""
+    timeout_ms = REPORT_READY_TIMEOUT_MS if timeout_ms is None else timeout_ms
     try:
-        page.wait_for_function(REPORT_READY_JS, timeout=REPORT_READY_TIMEOUT_MS)
-    except Exception:  # noqa: BLE001 - read what is there; the parsers report a missing report
-        return
+        page.wait_for_function(REPORT_READY_JS, timeout=timeout_ms)
+    except Exception:  # noqa: BLE001 - what is on the page is read anyway; the parsers report a missing report
+        return False
     try:
         page.get_by_text("Overview", exact=True).first.wait_for(state="visible", timeout=5_000)
     except Exception:  # noqa: BLE001
@@ -182,12 +202,132 @@ def _wait_until_rendered(page) -> None:
         previous = length
         page.wait_for_timeout(300)
         waited += 300
+    return True
 
 
-def fetch_report(url: str) -> ReportPage:
-    """Open the report in headless Chromium. Raises if the browser is missing or the page misbehaves."""
+def _first_visible(candidates, timeout_ms: int):
+    """The first locator that becomes visible, or None."""
+    for locator in candidates:
+        try:
+            locator.first.wait_for(state="visible", timeout=timeout_ms)
+            return locator.first
+        except Exception:  # noqa: BLE001
+            continue
+    return None
+
+
+def _choose_state(page, state: str) -> None:
+    """Pick the state in the lookup form: a native <select> or a searchable dropdown."""
+    name = STATE_ABBR_TO_NAME.get(state, state)
+    native = page.locator("select").filter(has_text=name)
+    if native.count():
+        for option in ({"value": state}, {"label": name}, {"label": state}):
+            try:
+                native.first.select_option(timeout=FORM_CONTROL_TIMEOUT_MS, **option)
+                return
+            except Exception:  # noqa: BLE001
+                continue
+    box = _first_visible(
+        [
+            page.get_by_role("combobox"),
+            page.get_by_label(re.compile("state", re.IGNORECASE)),
+            page.get_by_placeholder(re.compile("state", re.IGNORECASE)),
+        ],
+        FORM_CONTROL_TIMEOUT_MS,
+    )
+    if box is None:
+        raise RuntimeError("The state field was not found on the lookup page.")
+    box.click()
+    try:
+        box.fill(name)
+    except Exception:  # noqa: BLE001 - a dropdown that cannot be typed into is clicked instead
+        pass
+    option = re.compile(rf"^({re.escape(name)}|{re.escape(state)})$", re.IGNORECASE)
+    page.get_by_role("option", name=option).first.click(timeout=FORM_STEP_TIMEOUT_MS)
+
+
+def _fill_and_submit_form(page, plate: str, state: str) -> None:
+    """Type the plate, choose the state and press the lookup button of the same form."""
+    page.wait_for_selector("input, select", state="visible", timeout=FORM_STEP_TIMEOUT_MS)
+    plate_input = _first_visible(
+        [
+            page.get_by_placeholder(re.compile("plate", re.IGNORECASE)),
+            page.get_by_label(re.compile("plate", re.IGNORECASE)),
+            page.locator("input[name*='plate' i], input[id*='plate' i]"),
+            page.locator("input[type='text']"),
+        ],
+        FORM_CONTROL_TIMEOUT_MS,
+    )
+    if plate_input is None:
+        raise RuntimeError("The license plate field was not found on the lookup page.")
+    plate_input.fill(plate)
+    _choose_state(page, state)
+    form = plate_input.locator("xpath=ancestor::form[1]")
+    submit = None
+    for scope in ([form, page] if form.count() else [page]):
+        submit = _first_visible(
+            [
+                scope.get_by_role("button", name=CHECK_PLATE_BUTTON_PATTERN),
+                scope.get_by_role("button", name=SUBMIT_BUTTON_PATTERN),
+                scope.locator("button[type='submit'], input[type='submit']"),
+            ],
+            FORM_CONTROL_TIMEOUT_MS,
+        )
+        if submit is not None:
+            break
+    if submit is None:
+        plate_input.press("Enter")
+    else:
+        submit.click()
+
+
+def _snapshot(page, path: str) -> ReportPage:
+    """Read the heading and the visible text of the page the browser is on."""
+    title = page.evaluate("() => { const h = document.querySelector('h1'); return h ? (h.textContent || '') : ''; }")
+    main = page.locator("main")
+    has_main = main.count() > 0
+    report_text = main.inner_text(timeout=5_000) if has_main else page.locator("body").inner_text(timeout=5_000)
+    body_text = page.locator("body").inner_text(timeout=5_000) if has_main else report_text
+    return ReportPage(status=200, title=title.strip(), report_text=report_text, body_text=body_text, path=path)
+
+
+def _open_report_via_form(page, plate: str, state: str, lookup_url: str) -> ReportPage:
+    """Open the lookup page, enter the plate and the state, and read the page that follows."""
+    response = page.goto(lookup_url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
+    status = response.status if response is not None else 0
+    if status != 200:
+        return ReportPage(status=status, path="form")  # includes 401/403/429: recorded by the caller, not worked around
+    try:
+        _fill_and_submit_form(page, plate, state)
+    except Exception as error:  # noqa: BLE001 - the form was not what was expected
+        shot = _snapshot(page, "form")
+        shot.problem_status, shot.problem = "form_failed", f"{type(error).__name__}: {error}"
+        return shot
+    ready = _wait_until_rendered(page, FORM_REPORT_TIMEOUT_MS)
+    shot = _snapshot(page, "form")
+    if not ready:
+        shot.problem_status = "report_not_ready"
+        shot.problem = "The report did not appear after the state and the plate were entered."
+    return shot
+
+
+def fetch_report(
+    url: str,
+    *,
+    plate: str = "",
+    state: str = "",
+    lookup_url: str = REPORT_BASE,
+    form_fallback: bool | None = None,
+) -> ReportPage:
+    """Open the report in headless Chromium. Raises if the browser is missing or the page misbehaves.
+
+    ``url`` is the direct report URL. When it does not show the report and ``plate`` and ``state`` are given, the
+    lookup form at ``lookup_url`` is used instead. 401/403/429 is returned as it is and nothing else is tried.
+    """
     from playwright.sync_api import sync_playwright
 
+    use_form = (LOOKUP_FORM_FALLBACK if form_fallback is None else form_fallback) and bool(plate) and len(state) == 2
+    started = time.monotonic()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
@@ -197,17 +337,15 @@ def fetch_report(url: str) -> ReportPage:
             response = page.goto(url, wait_until="domcontentloaded", timeout=PAGE_TIMEOUT_MS)
             if response is None:
                 return ReportPage(status=0)
-            if response.status != 200:
-                return ReportPage(status=response.status)
-            heading = page.locator("h1").first
-            heading.wait_for(state="visible", timeout=10_000)
-            _wait_until_rendered(page)
-            title = (heading.text_content() or "").strip()
-            main = page.locator("main")
-            has_main = main.count() > 0
-            report_text = main.inner_text(timeout=5_000) if has_main else page.locator("body").inner_text(timeout=5_000)
-            body_text = page.locator("body").inner_text(timeout=5_000) if has_main else report_text
-            return ReportPage(status=200, title=title, report_text=report_text, body_text=body_text)
+            status = response.status
+            if status in (401, 403, 429):
+                return ReportPage(status=status)
+            if status == 200 and _wait_until_rendered(page):
+                return _snapshot(page, "direct_url")
+            if not use_form or status not in (200, 404) or time.monotonic() - started > FORM_FALLBACK_LATEST_SECONDS:
+                return _snapshot(page, "direct_url") if status == 200 else ReportPage(status=status)
+            page.wait_for_timeout(int(MIN_SECONDS_BETWEEN_REQUESTS * 1000))  # same pace as between two lookups
+            return _open_report_via_form(page, plate, state, lookup_url)
         finally:
             browser.close()
 
@@ -219,6 +357,7 @@ def _record(serial: str, state: str, **changes) -> dict:
         "lookup_key": f"{state}:{serial}" if state and serial else "",
         "lookup_url": report_url(serial, state) if serial and len(state) == 2 else "",
         "lookup_status": "not_started",
+        "lookup_path": "",
         "vehicle_title": "",
         "vehicle_body_type": "",
         "specs": {},
@@ -248,12 +387,14 @@ def _read_report(serial: str, state: str, fetcher: Fetcher) -> dict:
         return _record(serial, state, lookup_status=f"http_{page.status}", error=f"J.D. Power returned HTTP {page.status}.")
     title = find_vehicle_title(page.title, page.report_text or page.body_text)
     if not title:
-        return _record(serial, state, lookup_status="no_report_title")
+        return _record(
+            serial, state, lookup_status=page.problem_status or "no_report_title", lookup_path=page.path, error=page.problem,
+        )
     specs = parse_visible_specs(page.report_text)
     body_type = parse_vehicle_body_type(page.report_text, title) or parse_vehicle_body_type(page.body_text, title)
     return _record(
-        serial, state, lookup_status="found", vehicle_title=title, vehicle_body_type=body_type,
-        specs=specs, specs_exterior=specs.get("exterior", ""),
+        serial, state, lookup_status="found", lookup_path=page.path, vehicle_title=title,
+        vehicle_body_type=body_type, specs=specs, specs_exterior=specs.get("exterior", ""),
     )
 
 
@@ -318,7 +459,9 @@ def lookup(
         if delay > 0:
             sleep(delay)
         _SCHEDULE["next_start"] = clock() + MIN_SECONDS_BETWEEN_REQUESTS
-        record = _read_report(serial, state, fetcher or fetch_report)
+        record = _read_report(
+            serial, state, fetcher or (lambda url: fetch_report(url, plate=serial, state=state))
+        )
     _cache_put(key, record, clock)
     logger.info("J.D. Power lookup %s:%s -> %s", state, serial, record["lookup_status"])
     return dict(record)

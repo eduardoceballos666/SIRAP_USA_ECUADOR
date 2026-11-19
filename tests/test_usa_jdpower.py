@@ -226,14 +226,56 @@ PAGE_LATE = b"""<!doctype html><html><body><main><a>Back to License Plate Select
 </body></html>"""
 
 
+# The lookup page of the real site: a plate field, a searchable State dropdown and "Check Plate". The first button
+# on the page is a decoy that must not be pressed. Pressing "Check Plate" opens the report after a short delay.
+LOOKUP_COMBOBOX = b"""<!doctype html><html><body><header><ul><li>Vehicles for Sale</li></ul></header>
+<div><h1>License Plate Lookup &amp; Decoder</h1>
+<div><label for="lp">License Plate*</label><input id="lp" name="licensePlate" type="text"></div>
+<div><label for="st">State*</label><input id="st" role="combobox" aria-label="State*" type="text" autocomplete="off">
+<ul id="opts" role="listbox" hidden><li role="option">California</li><li role="option">Texas</li><li role="option">New York</li></ul></div>
+<button id="vin" onclick="location.href='/decoy'">Vehicles for Sale</button>
+<button id="chk">Check Plate</button></div>
+<script>
+const st=document.getElementById('st'), opts=document.getElementById('opts'); let chosen='';
+const codes={California:'ca',Texas:'tx','New York':'ny'};
+st.addEventListener('click',()=>{opts.hidden=false}); st.addEventListener('input',()=>{opts.hidden=false});
+opts.addEventListener('click',(e)=>{if(e.target.tagName==='LI'){chosen=e.target.textContent;st.value=chosen;opts.hidden=true}});
+document.getElementById('chk').addEventListener('click',()=>{
+  const p=document.getElementById('lp').value.toLowerCase(); if(!p||!chosen) return;
+  setTimeout(()=>{location.href='/report-form?plate='+p+'&state='+codes[chosen]},300);});
+</script></body></html>"""
+
+LOOKUP_SELECT = b"""<!doctype html><html><body><main><h1>License Plate Lookup</h1>
+<form id="f" onsubmit="return go(event)">
+ <label>License plate <input id="plate" type="text" placeholder="Enter license plate"></label>
+ <label>State <select id="state"><option value="">Select state</option><option value="CA">California</option>
+ <option value="TX">Texas</option></select></label><button type="submit">Look up</button></form></main>
+<script>
+function go(e){e.preventDefault();
+ const p=document.getElementById('plate').value.toLowerCase(), s=document.getElementById('state').value.toLowerCase();
+ if(!p||!s) return false; setTimeout(()=>{location.href='/report-form?plate='+p+'&state='+s},300); return false;}
+</script></body></html>"""
+
+LOOKUP_DEAD = LOOKUP_SELECT.replace(b"if(!p||!s) return false;", b"return false;")
+GENERIC_PAGE = b"<!doctype html><html><body><main><h1>License Plate Lookup</h1><p>Enter a plate.</p></main></body></html>"
+
+
 class LocalSite(http.server.BaseHTTPRequestHandler):
     hits: list[str] = []
 
     def do_GET(self):  # noqa: N802 - http.server API
         type(self).hits.append(self.path)
-        status, body = {"/ok": (200, PAGE), "/real": (200, PAGE_REAL), "/late": (200, PAGE_LATE), "/denied": (403, b"no"), "/missing": (404, b"no")}.get(self.path, (200, b"png"))
+        routes = {
+            "/ok": (200, PAGE), "/real": (200, PAGE_REAL), "/late": (200, PAGE_LATE), "/denied": (403, b"no"),
+            "/missing": (404, b"no"), "/direct-miss": (200, GENERIC_PAGE), "/lookup": (200, LOOKUP_COMBOBOX),
+            "/lookup-select": (200, LOOKUP_SELECT), "/lookup-dead": (200, LOOKUP_DEAD),
+            "/lookup-denied": (429, b"slow down"), "/decoy": (200, GENERIC_PAGE),
+        }
+        path = self.path.split("?")[0]
+        status, body = (200, PAGE_LATE) if path == "/report-form" else routes.get(path, (200, b"png"))
         self.send_response(status)
-        self.send_header("Content-Type", "text/html" if body in (PAGE, PAGE_REAL, PAGE_LATE) else "text/plain")
+        html = body.startswith(b"<!doctype html>")
+        self.send_header("Content-Type", "text/html" if html else "text/plain")
         self.end_headers()
         self.wfile.write(body)
 
@@ -293,3 +335,89 @@ def test_real_browser_reports_denied_and_missing_pages(browser_available, local_
     record = run(fetcher=lambda url: jd.fetch_report(local_site + "/denied"))
     assert record["lookup_status"] == "access_limited_403"
     assert LocalSite.hits.count("/denied") == 2  # one request per call; nothing retried inside a call
+
+
+# --- the lookup form as a fallback ---------------------------------------------------------------
+FOUR_FIELDS = {"state": "CA", "vehicle_title": TITLE, "vehicle_body_type": "Sedan 4D LX I4", "specs_exterior": "Taffeta White"}
+
+
+@pytest.fixture
+def quick(monkeypatch):
+    """Short waits so the tests do not sit through the real timeouts."""
+    monkeypatch.setattr(jd, "REPORT_READY_TIMEOUT_MS", 1_500)
+    monkeypatch.setattr(jd, "FORM_REPORT_TIMEOUT_MS", 3_000)
+    monkeypatch.setattr(jd, "MIN_SECONDS_BETWEEN_REQUESTS", 0.2)
+
+
+def form_fetch(site, direct, lookup, plate="6ZGY984", state="CA"):
+    return jd.fetch_report(site + direct, plate=plate, state=state, lookup_url=site + lookup)
+
+
+@pytest.mark.parametrize("direct", ["/direct-miss", "/missing"])
+def test_real_browser_uses_the_lookup_form_when_the_direct_url_shows_no_report(browser_available, local_site, quick, direct):
+    page = form_fetch(local_site, direct, "/lookup")
+    assert page.path == "form" and page.status == 200 and not page.problem
+    record = run(fetcher=lambda url: page)
+    assert record["lookup_status"] == "found" and record["lookup_path"] == "form"
+    assert jd.vehicle_fields(record) == FOUR_FIELDS
+    assert "/report-form?plate=6zgy984&state=ca" in LocalSite.hits  # the plate typed and the state chosen
+    assert "/decoy" not in LocalSite.hits  # the first button of the page is not the lookup button
+
+
+def test_real_browser_form_with_a_native_state_select(browser_available, local_site, quick):
+    page = form_fetch(local_site, "/direct-miss", "/lookup-select", plate="CX9S159", state="TX")
+    assert page.path == "form" and not page.problem and page.title.startswith("6ZGY984")
+    assert "/report-form?plate=cx9s159&state=tx" in LocalSite.hits
+
+
+def test_real_browser_does_not_open_the_form_when_the_direct_url_works(browser_available, local_site, quick):
+    page = form_fetch(local_site, "/late", "/lookup")
+    assert page.path == "direct_url" and "Taffeta White" in page.report_text
+    assert not any(path.startswith("/lookup") for path in LocalSite.hits)
+
+
+def test_real_browser_form_can_be_switched_off(browser_available, local_site, quick):
+    page = jd.fetch_report(local_site + "/direct-miss", plate="6ZGY984", state="CA",
+                           lookup_url=local_site + "/lookup", form_fallback=False)
+    assert page.path == "direct_url" and jd.find_vehicle_title(page.title, page.report_text) == ""
+    assert "/lookup" not in LocalSite.hits
+
+
+@pytest.mark.parametrize("lookup,expected_hits", [("/lookup", ["/denied"]), ("/lookup-denied", ["/direct-miss", "/lookup-denied"])])
+def test_real_browser_access_limits_stop_every_path(browser_available, local_site, quick, lookup, expected_hits):
+    direct = "/denied" if lookup == "/lookup" else "/direct-miss"
+    page = form_fetch(local_site, direct, lookup)
+    assert page.status in (403, 429)
+    assert LocalSite.hits == expected_hits  # no form after a 403, nothing after a 429 on the form page
+    record = run(fetcher=lambda url: page)
+    assert record["lookup_status"] == f"access_limited_{page.status}" and jd.vehicle_fields(record) == {}
+
+
+def test_real_browser_form_that_does_nothing_is_reported_without_data(browser_available, local_site, quick):
+    page = form_fetch(local_site, "/direct-miss", "/lookup-dead")
+    assert (page.problem_status, page.path) == ("report_not_ready", "form")
+    record = run(fetcher=lambda url: page)
+    assert record["lookup_status"] == "report_not_ready" and record["lookup_path"] == "form"
+    assert "did not appear" in record["error"] and jd.vehicle_fields(record) == {}
+
+
+def test_real_browser_page_without_a_plate_field_is_form_failed(browser_available, local_site, quick):
+    page = form_fetch(local_site, "/direct-miss", "/direct-miss")  # the "lookup page" has no form at all
+    assert page.problem_status == "form_failed" and page.problem
+
+
+def test_known_problems_become_the_record_status_and_the_default_fetcher_gets_the_plate(monkeypatch):
+    shot = jd.ReportPage(status=200, title="License Plate Lookup", report_text="Enter a plate", path="form",
+                         problem_status="form_failed", problem="RuntimeError: no field")
+    record = run(fetcher=Recorder(shot))
+    assert (record["lookup_status"], record["lookup_path"], record["error"]) == ("form_failed", "form", "RuntimeError: no field")
+    assert run("ABC1234", "NY", Recorder(found_page(path="direct_url")))["lookup_path"] == "direct_url"
+    seen = {}
+
+    def fake(url, **kwargs):
+        seen.update(url=url, **kwargs)
+        return found_page()
+
+    monkeypatch.setattr(jd, "fetch_report", fake)
+    jd.lookup("zzz-1111", "tx", sleep=lambda seconds: None)
+    assert (seen["plate"], seen["state"]) == ("ZZZ1111", "TX") and seen["url"] == jd.report_url("ZZZ1111", "TX")
