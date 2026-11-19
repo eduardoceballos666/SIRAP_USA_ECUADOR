@@ -216,14 +216,24 @@ PAGE_REAL = PAGE.replace(b"<h1>2013 Honda Civic</h1>", b"<h1>6ZGY984 - Californi
     b"<p>6ZGY984 - California License Plate Report:</p>", b"")
 
 
+# The heading, the vehicle lines and the Overview arrive at different moments: the Overview cards are drawn by a
+# script 800 ms after the page loads, as on the real report.
+PAGE_LATE = b"""<!doctype html><html><body><main><a>Back to License Plate Selection</a>
+<h1>6ZGY984 - California License Plate Report:</h1><h2>2013 Honda Civic</h2><div>Sedan 4D LX I4</div>
+<div id="slot"></div></main>
+<script>setTimeout(function(){document.getElementById('slot').innerHTML =
+ '<h2>Overview</h2><div><div>Exterior</div><div>Taffeta White</div></div><div><div>Interior</div><div>Beige</div></div>';},800);</script>
+</body></html>"""
+
+
 class LocalSite(http.server.BaseHTTPRequestHandler):
     hits: list[str] = []
 
     def do_GET(self):  # noqa: N802 - http.server API
         type(self).hits.append(self.path)
-        status, body = {"/ok": (200, PAGE), "/real": (200, PAGE_REAL), "/denied": (403, b"no"), "/missing": (404, b"no")}.get(self.path, (200, b"png"))
+        status, body = {"/ok": (200, PAGE), "/real": (200, PAGE_REAL), "/late": (200, PAGE_LATE), "/denied": (403, b"no"), "/missing": (404, b"no")}.get(self.path, (200, b"png"))
         self.send_response(status)
-        self.send_header("Content-Type", "text/html" if body in (PAGE, PAGE_REAL) else "text/plain")
+        self.send_header("Content-Type", "text/html" if body in (PAGE, PAGE_REAL, PAGE_LATE) else "text/plain")
         self.end_headers()
         self.wfile.write(body)
 
@@ -261,6 +271,16 @@ def test_real_browser_reads_the_report_and_skips_images(browser_available, local
 def test_real_browser_with_the_real_heading_structure(browser_available, local_site):
     assert PAGE_REAL != PAGE and b"<h1>6ZGY984" in PAGE_REAL
     record = run(fetcher=lambda url: jd.fetch_report(local_site + "/real"))
+    assert record["lookup_status"] == "found"
+    assert jd.vehicle_fields(record) == {
+        "state": "CA", "vehicle_title": TITLE, "vehicle_body_type": "Sedan 4D LX I4", "specs_exterior": "Taffeta White",
+    }
+
+
+def test_real_browser_waits_for_the_overview_that_a_script_draws_late(browser_available, local_site):
+    page = jd.fetch_report(local_site + "/late")
+    assert page.status == 200 and "Taffeta White" in page.report_text
+    record = run(fetcher=lambda url: page)
     assert record["lookup_status"] == "found"
     assert jd.vehicle_fields(record) == {
         "state": "CA", "vehicle_title": TITLE, "vehicle_body_type": "Sedan 4D LX I4", "specs_exterior": "Taffeta White",

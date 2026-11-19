@@ -15,7 +15,7 @@ from api.recognition_evidence import EvidenceStore
 from api.routers import recognition, reports
 from src.model import Recognition, PlateDetector
 from src.plate_identity import normalize_identity, identity_from_key
-from src.usa_jurisdiction import STATE_ABBR_TO_NAME, match_state_name, select_evidence
+from src.usa_jurisdiction import STATE_ABBR_TO_NAME, match_printed_dc, match_state_name, select_evidence
 from src.access_control import decide_usa_access
 from src.storage import CsvStore, StorageError
 
@@ -111,6 +111,30 @@ def test_all_states_and_dc_have_consistent_names():
     assert match_state_name(['NEW','YORK','VIRGINIA'],[95.]*3) is None
     assert select_evidence([dict(view='one',words=['TEXAS'],confidences=[95.]),
                             dict(view='two',words=['CALIFORNIA'],confidences=[95.])])[0] is None
+
+def obs(view,*words):
+    return dict(view=view,words=list(words),confidences=[95.]*len(words))
+
+def test_district_of_columbia_is_not_read_as_washington_state():
+    # Word lists copied from the real OCR of U.S. plate crops: D.C. plates print "WASHINGTON, D.C.".
+    dc=[obs('header_0_gray_psm7','FI','WASHINGTON','DC','A'),
+        obs('full_plate','WASHINGTONDC','DPLBO','TAXATIONWITHOUTREPRESENTATION'),
+        obs('header_1_otsu_psm7','RIE','WASHINGTON')]
+    selected,status=select_evidence(dc)
+    assert (selected['code'],status)==('DC','name_read')
+    assert select_evidence([obs('full_plate','SWASHINGTONDC','DD')])[0]['code']=='DC'
+    assert select_evidence([obs('header_0_gray_psm7','WASHINGTON','D','C')])[0]['code']=='DC'
+    assert match_printed_dc(['WASHINGTON'],[95.]) is None
+
+def test_washington_state_is_still_read_and_a_dc_slogan_vetoes_it():
+    wa=[obs('header_0_gray_psm7','WASHINGTON'),obs('full_plate','WASHINGTON','AK','EVERGREENSTATEE')]
+    selected,status=select_evidence(wa)
+    assert (selected['code'],status)==('WA','name_read')
+    # "DC" not read at all but the District's slogan is: abstain instead of assigning the wrong state.
+    veto=[obs('header_0_gray_psm7','WASHINGTON'),obs('full_plate','WASHINGTON','TAXATIONWITHOUTREPRESENTATION')]
+    assert select_evidence(veto)==(None,'state_not_read')
+    # The slogan never assigns a state by itself.
+    assert select_evidence([obs('full_plate','TAXATIONWITHOUTREPRESENTATION')])[0] is None
 
 @pytest.mark.parametrize('shape',[(360,640),(640,480)])
 def test_padded_model_restores_native_box(shape):
