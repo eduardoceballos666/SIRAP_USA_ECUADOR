@@ -15,7 +15,8 @@ from api.recognition_evidence import EvidenceStore
 from api.routers import recognition, reports
 from src.model import Recognition, PlateDetector
 from src.plate_identity import normalize_identity, identity_from_key
-from src.usa_jurisdiction import STATE_ABBR_TO_NAME, match_printed_dc, match_state_name, select_evidence
+from src import usa_jurisdiction
+from src.usa_jurisdiction import STATE_ABBR_TO_NAME, match_printed_dc, match_state_name, read_usa_jurisdiction, select_evidence
 from src.access_control import decide_usa_access
 from src.storage import CsvStore, StorageError
 
@@ -113,7 +114,7 @@ def test_all_states_and_dc_have_consistent_names():
                             dict(view='two',words=['CALIFORNIA'],confidences=[95.])])[0] is None
 
 def obs(view,*words):
-    return dict(view=view,words=list(words),confidences=[95.]*len(words))
+    return dict(view=view,text=' '.join(words),words=list(words),confidences=[95.]*len(words))
 
 def test_district_of_columbia_is_not_read_as_washington_state():
     # Word lists copied from the real OCR of U.S. plate crops: D.C. plates print "WASHINGTON, D.C.".
@@ -135,6 +136,51 @@ def test_washington_state_is_still_read_and_a_dc_slogan_vetoes_it():
     assert select_evidence(veto)==(None,'state_not_read')
     # The slogan never assigns a state by itself.
     assert select_evidence([obs('full_plate','TAXATIONWITHOUTREPRESENTATION')])[0] is None
+
+def test_glued_multiword_names_are_exact_readings():
+    # Real OCR glues the words of a printed name together, or attaches a stray letter to it.
+    for token,code in (('NORTHCAROLINA','NC'),('ANORTHCAROLINA','NC'),('SOUTHCAROLINA','SC'),
+                       ('NEWMEXICO','NM'),('WESTVIRGINIA','WV'),('NEWYORKST','NY')):
+        match=match_state_name([token],[90.])
+        assert (match['code'],match['score'])==(code,1.0),token
+    # Words split over several tokens still work, and single-word names are not matched inside longer words.
+    assert match_state_name(['NORTH','CAROLINA'],[90.,90.])['code']=='NC'
+    assert match_state_name(['ARKANSAS'],[90.])['code']=='AR'
+    assert match_state_name(['TEXASRANGERS'],[90.]) is None
+    # The window is the smallest one holding the name: a neighbouring word is not absorbed into it.
+    assert match_state_name(['NEW','YORK','VIRGINIA'],[95.]*3) is None
+    assert match_state_name(['NEWYORK','VIRGINIA'],[95.]*2) is None
+    # A glued name that Tesseract is not confident about is ignored.
+    assert match_state_name(['NORTHCAROLINA'],[10.]) is None
+    # One glued reading in one view is now enough (it is an exact match, like a spaced one).
+    assert select_evidence([obs('footer_0_gray_psm7','ANORTHCAROLINA')])[0]['code']=='NC'
+
+def test_footer_views_run_only_when_the_first_pass_reads_nothing(monkeypatch):
+    monkeypatch.setattr(usa_jurisdiction.shutil,'which',lambda name:'/usr/bin/tesseract')
+    plate=np.full((120,200,3),255,np.uint8)
+    calls=[]
+    def fake(first_pass_words,footer_words):
+        def observe(views):
+            names=[view[0] for view in views]; calls.append(names)
+            words=footer_words if names[0].startswith('footer_') else first_pass_words
+            return [obs(name,*words) for name in names]
+        return observe
+    # Nothing readable in the first pass: the bottom bands are read and name the state.
+    monkeypatch.setattr(usa_jurisdiction,'_observe',fake(['XQZ'],['ANORTHCAROLINA']))
+    result=read_usa_jurisdiction(plate)
+    assert result['jurisdiction_abbreviation']=='NC' and result['jurisdiction_status']=='name_read'
+    assert result['jurisdiction_ocr_source'].startswith('footer_')
+    assert len(calls)==2 and len(calls[1])==8 and not any(n.startswith('footer_') for n in calls[0])
+    # Already read in the first pass: no second pass, same latency as before.
+    calls.clear()
+    monkeypatch.setattr(usa_jurisdiction,'_observe',fake(['TEXAS'],['ANORTHCAROLINA']))
+    result=read_usa_jurisdiction(plate)
+    assert result['jurisdiction_abbreviation']=='TX' and len(calls)==1
+    # Nothing anywhere: abstain.
+    calls.clear()
+    monkeypatch.setattr(usa_jurisdiction,'_observe',fake(['XQZ'],['XQZ']))
+    result=read_usa_jurisdiction(plate)
+    assert (result['jurisdiction_abbreviation'],result['jurisdiction_status'])==('','state_not_read') and len(calls)==2
 
 @pytest.mark.parametrize('shape',[(360,640),(640,480)])
 def test_padded_model_restores_native_box(shape):
