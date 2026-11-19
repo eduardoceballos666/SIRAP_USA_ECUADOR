@@ -32,6 +32,7 @@ logger = get_logger("sirap.api.jdpower")
 
 REPORT_BASE = "https://www.jdpower.com/cars/license-plate-lookup-and-decoder"
 PAGE_TIMEOUT_MS = 30_000
+REPORT_READY_TIMEOUT_MS = 12_000
 MIN_SECONDS_BETWEEN_REQUESTS = 2.0
 CACHE_SECONDS_FOUND = 24 * 3600
 CACHE_SECONDS_OTHER = 10 * 60
@@ -59,6 +60,18 @@ SPEC_LABELS = {
 VEHICLE_TITLE_PATTERN = re.compile(r"^(?:19|20)\d{2}\s+\S.{2,78}$")
 # Lines that can follow the report heading but are not the body type.
 NON_BODY_TYPE_PREFIXES = ("see what", "get a history report", "see all photos", "overview", "beenverified")
+
+
+# True once the results page has been drawn: the heading is "<year> <make> <model>" or an "Overview" section
+# exists. The report is filled in by scripts after the first HTML, so the heading alone is not enough.
+REPORT_READY_JS = r"""() => {
+  const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  const h1 = document.querySelector('h1');
+  const title = h1 ? clean(h1.innerText) : '';
+  const hasOverview = Array.from(document.querySelectorAll('h2, h3'))
+    .some((h) => clean(h.innerText).toLowerCase() === 'overview');
+  return /^(19|20)\d{2}\s+\S/.test(title) || (title !== '' && hasOverview);
+}"""
 
 
 @dataclass
@@ -148,6 +161,29 @@ def _intercept(route) -> None:
         route.continue_()
 
 
+def _wait_until_rendered(page) -> None:
+    """Wait for the Overview cards and for the page text to stop changing before reading it."""
+    try:
+        page.wait_for_function(REPORT_READY_JS, timeout=REPORT_READY_TIMEOUT_MS)
+    except Exception:  # noqa: BLE001 - read what is there; the parsers report a missing report
+        return
+    try:
+        page.get_by_text("Overview", exact=True).first.wait_for(state="visible", timeout=5_000)
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        page.wait_for_load_state("networkidle", timeout=4_000)
+    except Exception:  # noqa: BLE001
+        pass
+    previous, stable, waited = -1, 0, 0
+    while stable < 2 and waited < 4_000:
+        length = page.evaluate("() => ((document.querySelector('main') || document.body).innerText || '').length")
+        stable = stable + 1 if length == previous else 0
+        previous = length
+        page.wait_for_timeout(300)
+        waited += 300
+
+
 def fetch_report(url: str) -> ReportPage:
     """Open the report in headless Chromium. Raises if the browser is missing or the page misbehaves."""
     from playwright.sync_api import sync_playwright
@@ -165,6 +201,7 @@ def fetch_report(url: str) -> ReportPage:
                 return ReportPage(status=response.status)
             heading = page.locator("h1").first
             heading.wait_for(state="visible", timeout=10_000)
+            _wait_until_rendered(page)
             title = (heading.text_content() or "").strip()
             main = page.locator("main")
             has_main = main.count() > 0

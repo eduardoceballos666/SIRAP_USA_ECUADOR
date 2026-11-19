@@ -32,6 +32,10 @@ STATE_ABBR_TO_NAME = {
 LEXICAL_SIMILARITY_MIN = 0.84
 LEXICAL_MARGIN_MIN = 0.08
 TESSERACT_WORD_CONFIDENCE_MIN = 30.0
+# District of Columbia plates print "WASHINGTON, D.C." and never "District of Columbia"; "Washington" alone is the
+# state. The slogan words only veto a Washington reading (a D.C. plate whose "DC" was not read); they never
+# assign a state, because no inference from the plate design is allowed here.
+DC_SLOGAN_PARTS = ('TAXATION', 'REPRESENT', 'WITHOUTREP')
 
 def normalize_ocr_word(value):
     return re.sub('[^A-Z]', '', str(value).upper())
@@ -68,13 +72,50 @@ def match_state_name(tokens, confidences):
         return None
     return ranked[0]
 
+def match_printed_dc(tokens, confidences):
+    """Match the printed "WASHINGTON DC" (also "WASHINGTONDC" and "WASHINGTON D C"); the state alone is WA."""
+    for index, token in enumerate(tokens):
+        if confidences[index] < TESSERACT_WORD_CONFIDENCE_MIN:
+            continue
+        if 'WASHINGTONDC' in token:
+            return dict(code='DC', name=STATE_ABBR_TO_NAME['DC'], score=1.0,
+                        confidence=float(confidences[index]), width=1, start=index)
+        score = SequenceMatcher(None, token, 'WASHINGTON').ratio()
+        if score < LEXICAL_SIMILARITY_MIN:
+            continue
+        for width, expected in ((2, ('DC',)), (3, ('D', 'C'))):
+            following = tokens[index + 1:index + width]
+            if len(following) == width - 1 and tuple(following) == expected and all(
+                    c >= TESSERACT_WORD_CONFIDENCE_MIN for c in confidences[index:index + width]):
+                return dict(code='DC', name=STATE_ABBR_TO_NAME['DC'], score=score,
+                            confidence=float(np.mean(confidences[index:index + width])),
+                            width=width, start=index)
+    return None
+
+def has_dc_slogan(words):
+    joined = ''.join(words)
+    return any(part in joined for part in DC_SLOGAN_PARTS)
+
 def select_evidence(observations):
+    """Pick the printed state, then drop a Washington reading that is really a D.C. plate."""
+    selected, status = _select_evidence(observations)
+    if selected and selected['code'] == 'WA' and any(has_dc_slogan(o['words']) for o in observations):
+        return None, 'state_not_read'
+    return selected, status
+
+def _select_evidence(observations):
     """Abstain on conflicting names; fuzzy names need agreement in two views."""
     matches=[]
     for observation in observations:
         m=match_state_name(observation['words'],observation['confidences'])
         if m is not None:
             matches.append(dict(m,source=observation['view']))
+        dc=match_printed_dc(observation['words'],observation['confidences'])
+        if dc is not None:
+            matches.append(dict(dc,source=observation['view']))
+    if any(m['code']=='DC' for m in matches):
+        # "WASHINGTON DC" contains the state name; the District wins over the state it is spelled with.
+        matches=[m for m in matches if m['code']!='WA']
     codes={m['code'] for m in matches}
     if len(codes)>1:
         return None,'conflicting_state_names'
