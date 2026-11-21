@@ -1,3 +1,3 @@
 # models/shared/detector
 
-Esta carpeta no contiene un detector activo. Los pesos se guardan en carpetas específicas por país: `models/ecuador/detector/ecuador_best.*` y, cuando exista un modelo estadounidense validado, `models/usa/detector/usa_best.*`.
+Carpeta de destino del detector verificado: la aplicación descarga aquí `rtdetrv2_s/seed_2/openvino/` al iniciar. No contiene pesos en Git. Ver [models/README.md](../../README.md).

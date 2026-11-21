@@ -67,7 +67,7 @@ Los identificadores son los de R1.
 - **Cobertura.** La referencia cubre 20 de las 22 pasadas con placa. Las lecturas del pipeline en los cuadros 0–247 y 1142–1488 quedan sin referencia y 7.2 no las puntúa.
 - **Clip duplicado.** Las filas `PZF-0329` de 4775–4899 y 16474–16598 corresponden al mismo clip repetido en la edición del video. Se anotan dos veces porque el pipeline lo procesa dos veces.
 - **Límites conservadores.** La regla del tramo común puede acortar algunos intervalos frente al rango en que una de las revisiones ya leía la placa.
-- **Privacidad.** El CSV contiene placas reales. Se publica intencionalmente como artefacto del proyecto, igual que [`data/authorized_plates.csv`](../data/authorized_plates.csv).
+- **Privacidad.** El CSV contiene placas reales. Se publica intencionalmente como artefacto del proyecto, igual que [`data/authorized_plates.csv`](../../../data/authorized_plates.csv).
 
 ## Archivos anteriores (históricos)
 
@@ -79,4 +79,4 @@ Los identificadores son los de R1.
 
 ## Métricas
 
-Las cifras de 7.2 de 11/18 lecturas exactas y 9/16 placas recuperadas son históricas: se calcularon con una referencia puntual anterior. En la corrida final, 6.9 procesó 18.115 cuadros y registró 34 lecturas; 7.2 comparó 24 con esta referencia: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre las 24 lecturas clasificables. Las otras 10 lecturas no tienen referencia y quedan sin clasificar; la tasa de falsas autorizaciones para todo el video no es estimable. La referencia contiene 20 pasadas (17 placas únicas) de 22 pasadas con placa identificadas; dos pasadas dudosas se excluyeron. Consulta el [informe de la corrida final](../results/metrics/video_e2e_intervalos_final.md).
+Las cifras de 7.2 de 11/18 lecturas exactas y 9/16 placas recuperadas son históricas: se calcularon con una referencia puntual anterior. En la corrida final, 6.9 procesó 18.115 cuadros y registró 34 lecturas; 7.2 comparó 24 con esta referencia: EMR 17/24 (70,83 %), recall de placas únicas 15/17 (88,24 %) y 0 falsas autorizaciones entre las 24 lecturas clasificables. Las otras 10 lecturas no tienen referencia y quedan sin clasificar; la tasa de falsas autorizaciones para todo el video no es estimable. La referencia contiene 20 pasadas (17 placas únicas) de 22 pasadas con placa identificadas; dos pasadas dudosas se excluyeron. Consulta el [informe de la corrida final](../../../results/metrics/video_e2e_intervalos_final.md).
