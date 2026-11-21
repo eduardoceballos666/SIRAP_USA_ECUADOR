@@ -1,3 +1,5 @@
+> **Nota / Note:** este manual en Markdown fue sustituido por los PDF actualizados con capturas de ambos perfiles: [Español](manual/SIRAP_Manual_ES.pdf) · [English](manual/SIRAP_Manual_EN.pdf).
+
 **SIRAP**
 
 ![](img/manual_usuario_image0.jpg)

@@ -826,7 +826,7 @@ onMounted(async () => {
           <option disabled value="">{{ $t("Seleccionar imagen de ejemplo…") }}</option><option v-for="s in samples" :key="s.nombre" :value="s.nombre">{{ $t(s.etiqueta) }}</option>
         </select>
         <div v-else-if="source === 'subir'" class="media-source-tools">
-          <label class="upload-compact"><AppIcon name="upload" :size="17" /><span>{{ $t(mediaKind === 'video' ? 'Cambiar archivo' : 'Elegir imagen o video') }} {{ $t("· JPG, PNG, WEBP, MP4 o WEBM") }}</span><input type="file" accept="image/jpeg,image/png,image/webp,video/*" class="hidden" @change="onUpload" /></label>
+          <label class="upload-compact"><AppIcon name="upload" :size="17" /><span>{{ $t(mediaKind === 'video' ? 'Cambiar archivo' : 'Elegir imagen o video') }} · {{ $t("JPG, PNG, WEBP, MP4 o WEBM") }}</span><input type="file" accept="image/jpeg,image/png,image/webp,video/*" class="hidden" @change="onUpload" /></label>
           <div v-if="mediaKind === 'video'" class="live-camera-tools">
             <button class="btn-primary" :disabled="!mediaReady || loading" @click="captureFrame({ freeze: true })"><AppIcon name="scan" :size="16" /> {{ $t("Analizar fotograma") }}</button>
             <button class="btn-ghost" :disabled="!mediaReady || loading" @click="toggleContinuousAnalysis">{{ $t(continuousAnalysis ? 'Detener análisis' : 'Analizar cada 2,5 s') }}</button>
