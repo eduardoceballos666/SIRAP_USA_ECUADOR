@@ -243,7 +243,7 @@ python -m src.evaluate detector --country ecuador --data-dir /path/to/coco-datas
 | Ecuador | [`sirap_backend_ecuador.ipynb`](notebooks/ecuador/sirap_backend_ecuador.ipynb) | Unified flow 0–9: COCO, SAVH, training, OCR, OpenVINO, video, camera, latency and optional publishing |
 | United States | [`sirap_backend_usa.ipynb`](notebooks/usa/sirap_backend_usa.ipynb) | Frozen seed 2, development check on reviewed photos, isolated access tests, optional research |
 
-`requirements.txt` is the app runtime; `requirements-training.txt` holds the fine-tuning extras. Multi-seed runs and Optuna searches use GPU time and are off by default in the notebooks (see [optimization](docs/optimizacion.md) and the [multi-seed protocol](docs/validacion_savh_multisemilla.md)).
+`requirements.txt` is the app runtime; `requirements-training.txt` holds the fine-tuning extras. Multi-seed runs and Optuna searches use GPU time and are off by default in the notebooks (see [training, evaluation and the multi-seed protocol](docs/optimizacion.md)).
 
 ## Results and limitations
 
@@ -259,11 +259,14 @@ python -m src.evaluate detector --country ecuador --data-dir /path/to/coco-datas
 |---|---|
 | [**User manual (EN)**](docs/manual/SIRAP_Manual_EN.pdf) · [**Manual de usuario (ES)**](docs/manual/SIRAP_Manual_ES.pdf) | Every screen for both profiles, with screenshots (41 pages each) |
 | [`docs/manual/`](docs/manual/) | Source of the manuals and how to rebuild them: `python docs/manual/build_manual.py` (needs `playwright` + Chromium and `pypdf`) |
+| [`docs/README.md`](docs/README.md) | Index of the documentation folder |
 | [`docs/arquitectura.md`](docs/arquitectura.md) | Architecture |
 | [`docs/usa_app_integration.md`](docs/usa_app_integration.md) | US integration, state + serial identity, confirmation |
 | [`docs/recuperacion_fallos.md`](docs/recuperacion_fallos.md) | Recovery of operations after cuts and restarts |
+| [`docs/optimizacion.md`](docs/optimizacion.md) | Detector training, OpenVINO export, evaluation and protocol for testing candidates |
+| [`docs/analisis_datos.md`](docs/analisis_datos.md) | Data sources, preparation and limits |
 | [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md) | Ethical considerations |
-| [`docs/manual_usuario.md`](docs/manual_usuario.md) | Earlier Spanish manual (superseded by the PDFs) |
+| [`docs/CONFIGURACION_GITHUB_ACTIONS.md`](docs/CONFIGURACION_GITHUB_ACTIONS.md) | Workflows, secrets and deployment to the Hugging Face Space |
 | [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) · [`NOTICE`](NOTICE) | Third-party notices and attribution |
 
 ## Authors and license
@@ -497,7 +500,7 @@ python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco 
 | Ecuador | [`sirap_backend_ecuador.ipynb`](notebooks/ecuador/sirap_backend_ecuador.ipynb) | Flujo unificado 0–9: COCO, SAVH, entrenamiento, OCR, OpenVINO, video, cámara, latencia y publicación opcional |
 | Estados Unidos | [`sirap_backend_usa.ipynb`](notebooks/usa/sirap_backend_usa.ipynb) | Semilla 2 congelada, comprobación de desarrollo con fotos revisadas, pruebas aisladas de acceso, investigación opcional |
 
-`requirements.txt` es el runtime de la app; `requirements-training.txt` reúne los extras de ajuste fino. Las corridas multisemilla y las búsquedas Optuna consumen GPU y están apagadas por defecto en los notebooks (véanse [optimización](docs/optimizacion.md) y el [protocolo multisemilla](docs/validacion_savh_multisemilla.md)).
+`requirements.txt` es el runtime de la app; `requirements-training.txt` reúne los extras de ajuste fino. Las corridas multisemilla y las búsquedas Optuna consumen GPU y están apagadas por defecto en los notebooks (véase [entrenamiento, evaluación y protocolo multisemilla](docs/optimizacion.md)).
 
 ## Resultados y limitaciones
 
@@ -514,11 +517,14 @@ python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco 
 |---|---|
 | [**Manual de usuario (ES)**](docs/manual/SIRAP_Manual_ES.pdf) · [**User manual (EN)**](docs/manual/SIRAP_Manual_EN.pdf) | Todas las pantallas de ambos perfiles, con capturas (41 páginas cada uno) |
 | [`docs/manual/`](docs/manual/) | Fuente de los manuales y cómo regenerarlos: `python docs/manual/build_manual.py` (requiere `playwright` + Chromium y `pypdf`) |
+| [`docs/README.md`](docs/README.md) | Índice de la carpeta de documentación |
 | [`docs/arquitectura.md`](docs/arquitectura.md) | Arquitectura |
 | [`docs/usa_app_integration.md`](docs/usa_app_integration.md) | Integración de EE. UU., identidad estado + matrícula, confirmación |
 | [`docs/recuperacion_fallos.md`](docs/recuperacion_fallos.md) | Recuperación de operaciones tras cortes y reinicios |
+| [`docs/optimizacion.md`](docs/optimizacion.md) | Entrenamiento del detector, exportación a OpenVINO, evaluación y protocolo para probar candidatos |
+| [`docs/analisis_datos.md`](docs/analisis_datos.md) | Fuentes de datos, preparación y límites |
 | [`docs/consideraciones_eticas.md`](docs/consideraciones_eticas.md) | Consideraciones éticas |
-| [`docs/manual_usuario.md`](docs/manual_usuario.md) | Manual anterior en español (sustituido por los PDF) |
+| [`docs/CONFIGURACION_GITHUB_ACTIONS.md`](docs/CONFIGURACION_GITHUB_ACTIONS.md) | Workflows, secretos y despliegue al Space de Hugging Face |
 | [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) · [`NOTICE`](NOTICE) | Avisos de terceros y atribución |
 
 ## Autores y licencia
