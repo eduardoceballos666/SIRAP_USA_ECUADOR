@@ -249,7 +249,6 @@ python -m src.evaluate detector --country ecuador --data-dir /path/to/coco-datas
 
 - **Ecuador performance has not been evaluated yet.** The shared checkpoint was trained and checked with United States plates; changing OCR rules does not train a model for another country. The *About the model* screen says so.
 - **United States state reading** (development measurement, 751 crops with a known state): 523 read (69.6 %), all 523 correct, 0 wrong; stylized or italic state names (e.g. California, Tennessee, South Dakota, Ohio) are not read and the app abstains. Same-state plates share a design, so the held-out half is not independent. This is a **development diagnostic, not an independent test**; see [`models/usa/selected_checkpoint.json`](models/usa/selected_checkpoint.json) (`evaluation_scope`) and [`results/README.md`](results/README.md).
-- Older files with `yolo11` in the name and the SAVH reports describe earlier experiments; they do not validate the current checkpoint or its adoption in Ecuador.
 - Software tests use synthetic lists, images and a simulated barrier; they check rules and persistence, not real-world accuracy.
 - Light, glare, dirt, motion blur and small or distant plates reduce accuracy; low confidence always goes to manual review.
 - The J.D. Power lookup depends on an external page and may stop working if that page changes; the app then falls back to local-registry data.
