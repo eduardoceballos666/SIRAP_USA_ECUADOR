@@ -36,4 +36,4 @@ La versión desplegada de la interfaz se encuentra en [SIRAP en Hugging Face](ht
 
 ## English
 
-This is the shared Vue frontend. It presents country-specific vehicle fields using the selected profile, while the API handles the corresponding vehicle lookup. Ecuador is the current operational profile; the U.S. profile is preparatory.
+This is the shared Vue frontend. It presents country-specific vehicle fields using the selected profile, while the API handles the corresponding vehicle lookup. Ecuador and the United States are both operational profiles served by the same interface (country is chosen at sign-in); the user manual with screenshots is in [`docs/manual/`](../docs/manual/).
