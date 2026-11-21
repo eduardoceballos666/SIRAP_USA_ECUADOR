@@ -523,6 +523,6 @@ python -m src.evaluate detector --country ecuador --data-dir /ruta/dataset-coco 
 
 ## Autores y licencia
 
-Desarrollado por **Eduardo Alejandro Ceballos Jijón** y **Christian Xavier Valle Marideña** como proyecto integrador de una maestría en Inteligencia Artificial.
+Desarrollado por **Eduardo Alejandro Ceballos Jijón** y **Christian Xavier Valle Marideña**.
 
 El código original se distribuye bajo la [Apache License 2.0](LICENSE) (véase [NOTICE](NOTICE)). El checkpoint RT-DETRv2 de placas y OpenVINO declaran Apache-2.0; Transformers, PyTorch, los modelos OCR y los conjuntos de datos conservan sus licencias ([avisos de terceros](THIRD_PARTY_NOTICES.md)).
