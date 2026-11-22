@@ -22,5 +22,6 @@ Todo lo que hay en esta carpeta describe la aplicación vigente: FastAPI + Vue 3
 | [`analisis_datos.md`](analisis_datos.md) | Fuentes de datos, preparación y límites de cada una |
 | [`consideraciones_eticas.md`](consideraciones_eticas.md) | Sesgos, equidad, privacidad, transparencia, responsabilidad, uso dual y limitaciones |
 | [`CONFIGURACION_GITHUB_ACTIONS.md`](CONFIGURACION_GITHUB_ACTIONS.md) | Workflows, secretos y despliegue al Space de Hugging Face |
+| [`auditoria_licencias.md`](auditoria_licencias.md) | Revisión de licencias (Apache-2.0 y terceros): hallazgos corregidos, riesgos abiertos y lo que no se pudo verificar |
 
 Las métricas están en [`../results/README.md`](../results/README.md) y los avisos de terceros en [`../THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
