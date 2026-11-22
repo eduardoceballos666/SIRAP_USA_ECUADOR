@@ -1,3 +1,5 @@
 # Modelo Ecuador
 
-El detector RT-DETRv2-S de Ecuador se entrena con datos COCO específicos y se guarda bajo `detector/rtdetrv2_s/`: los pesos de entrenamiento en `transformers/` y el IR de producción en `openvino/`. La app carga el IR con OpenVINO Runtime. Si todavía no hay un IR ecuatoriano, el Space usa el modelo compartido de placas Apache-2.0, que no está validado específicamente para Ecuador. El OCR configurado es `fast-plate-ocr` y permanece independiente del detector.
+Ecuador **no tiene un detector propio**: usa el mismo RT-DETRv2-S/OpenVINO de la semilla 2 que Estados Unidos, descargado y verificado al iniciar (ver [models/README.md](../README.md)). Para Ecuador solo cambian la normalización de la matrícula (`XXX-0000`) y las reglas de acceso. El desempeño del detector con placas ecuatorianas **todavía no se ha evaluado**.
+
+La carpeta `detector/rtdetrv2_s/openvino/` contiene solo archivos de relleno de una publicación de prueba y la aplicación no los carga. El OCR es `cct-s-v2-global-model` de `fast-plate-ocr`, el mismo que usa Estados Unidos; `ocr/archive/` conserva un OCR afinado anterior que no se usa.

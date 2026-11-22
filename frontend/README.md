@@ -31,7 +31,7 @@ La aplicación usa un umbral de confianza OCR de **94 %**, según [`config/count
 
 ## Aplicación y repositorio
 
-La versión desplegada de la interfaz se encuentra en [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) y en https://eduardoceballos-sirap-usa-ecuador-hf.hf.space. El [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) contiene el frontend, la API y la configuración del despliegue. Consulta la [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs), el [manual](../docs/manual_usuario.md) y los videos del [README principal](../README.md).
+La versión desplegada de la interfaz se encuentra en [SIRAP en Hugging Face](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF) y en https://eduardoceballos-sirap-usa-ecuador-hf.hf.space. El [repositorio SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR) contiene el frontend, la API y la configuración del despliegue. Consulta la [API interactiva](https://eduardoceballos-sirap-usa-ecuador-hf.hf.space/docs), el manual de usuario ([español](../docs/manual/SIRAP_Manual_ES.pdf) · [English](../docs/manual/SIRAP_Manual_EN.pdf)) y el [README principal](../README.md).
 
 
 ## English

@@ -65,9 +65,8 @@ Las lecturas incompletas, bajas confianzas y estados desconocidos requieren revi
 - **Aplicación:** [Abrir SIRAP_USA_ECUADOR_HF](https://huggingface.co/spaces/eduardoceballos/SIRAP_USA_ECUADOR_HF)
 - **API interactiva:** ruta `/docs` de la aplicación desplegada
 - **Código fuente:** [GitHub SIRAP_USA_ECUADOR](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR)
-- **Manual de usuario:** [docs/manual_usuario.md](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual_usuario.md)
+- **Manual de usuario (PDF):** [español](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual/SIRAP_Manual_ES.pdf) · [English](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/docs/manual/SIRAP_Manual_EN.pdf)
 - **Notebook Ecuador:** [sirap_backend_ecuador.ipynb](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR/blob/main/notebooks/ecuador/sirap_backend_ecuador.ipynb)
-- **Videos de presentación:** [README principal](https://github.com/eduardoceballos666/SIRAP_USA_ECUADOR#videos-de-entrega)
 
 SIRAP_USA_ECUADOR_HF 1.0 ofrece interfaz en español, inglés, portugués, francés, alemán e italiano. La configuración del Space y su despliegue se administran desde este repositorio.
 
