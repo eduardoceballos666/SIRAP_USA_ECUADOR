@@ -2,7 +2,7 @@
 
 Este directorio separa los datos para OCR de los datos requeridos para detección.
 
-- seg_and_ocr/: recortes de matrículas USA y groundtruth.csv para evaluación OCR.
+- seg_and_ocr/: instrucciones para obtener los recortes de matrículas de EE. UU. con los que se evaluó el OCR; **los archivos no se redistribuyen** (AGPL-3.0, ver su README).
 - detection_coco/: preparación de escenas completas y cajas COCO para ajustar RT-DETRv2-S.
 
 Para entrenar detección, sigue la [guía del dataset COCO](detection_coco/README.md). Los recortes de seg_and_ocr no reemplazan las escenas completas anotadas.

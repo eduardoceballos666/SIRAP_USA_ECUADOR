@@ -125,7 +125,7 @@ def plate_distance(a: str | None, b: str | None) -> int:
     """
     x, y = clean_text(a), clean_text(b)
     try:
-        import Levenshtein  # type: ignore
+        from rapidfuzz.distance import Levenshtein  # MIT; no usar el paquete GPL «Levenshtein»
 
         return int(Levenshtein.distance(x, y))
     except ImportError:  # implementación de respaldo O(n·m)
