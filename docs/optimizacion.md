@@ -11,19 +11,22 @@ Este documento explica cómo se obtuvo el detector que usa SIRAP y cómo se debe
 
 Cómo se carga y se verifica en el servidor: [arquitectura.md](arquitectura.md).
 
-## Registro del entrenamiento de la semilla 2
+## Registro del entrenamiento del checkpoint desplegado (semilla 2)
 
-Fuente: [`results/metrics/entrenamiento_rtdetr.json`](../results/metrics/entrenamiento_rtdetr.json).
+Fuente: `sirap_training.json` del repositorio privado del checkpoint, cuyas huellas fija [`selected_checkpoint.json`](../models/usa/selected_checkpoint.json).
 
 | Parámetro | Valor |
 |---|---|
-| Datos | European + USA License Plates (Roboflow), divisiones reagrupadas por fuente de origen antes de separarlas; 9 068 imágenes de entrenamiento y 534 de validación |
+| Datos | Conjunto de recuperación `recovery_coco_20261114` (COCO Detection, una clase de matrícula): **249 imágenes de entrenamiento y 79 de validación**. Su procedencia no está documentada en este repositorio |
+| Punto de partida | Checkpoint Transformers de EE. UU. anterior, derivado de [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2) |
+| Corrida | `20261114T210050Z`, semilla 2; mejor checkpoint: `checkpoint-288` |
 | Épocas | máximo 50, parada temprana con paciencia 8 |
 | Lote / tasa de aprendizaje / decaimiento | 8 / 5e-5 / 1e-4 (AdamW con el `Trainer` de Transformers) |
-| Semilla | 2 |
-| Salida | checkpoint Transformers y OpenVINO IR (`openvino_model.xml/.bin`, `sirap_openvino.json`, `sirap_training.json`) |
+| Salida | OpenVINO IR (`openvino_model.xml/.bin`) con `sirap_openvino.json` y `sirap_training.json` |
 
-**Comparación de tres semillas en validación** ([`rtdetr_usa_three_seed_validation.json`](../results/metrics/rtdetr_usa_three_seed_validation.json)): mAP@0,5:0,95 de 0,827 (semilla 0), 0,832 (semilla 1) y 0,828 (semilla 2) sobre la misma validación agrupada. Las diferencias son pequeñas y no se presentan como significativas. Ese informe marcó la semilla 1 como la mejor en validación, mientras que la aplicación fija la semilla 2: **la fuente de verdad del modelo desplegado es `selected_checkpoint.json`**, y el informe no certifica por sí solo ese checkpoint.
+**Experimento de tres semillas (otra serie de corridas)** ([`rtdetr_usa_three_seed_validation.json`](../results/metrics/rtdetr_usa_three_seed_validation.json) y [`entrenamiento_rtdetr.json`](../results/metrics/entrenamiento_rtdetr.json)): se entrenaron las semillas 0, 1 y 2 con European + USA License Plates (Roboflow), con las divisiones reagrupadas por fuente de origen antes de separarlas (9 068 imágenes de entrenamiento y 534 de validación). El mAP@0,5:0,95 en validación fue 0,827 (semilla 0), 0,832 (semilla 1) y 0,828 (semilla 2); las diferencias son pequeñas y no se presentan como significativas, y el informe marcó la semilla 1 como la mejor.
+
+**Esas corridas no son el checkpoint desplegado.** La «semilla 2» de la aplicación es la del conjunto de recuperación de arriba, con otros datos y otro punto de partida, de modo que las cifras de las tres semillas no describen su rendimiento. La fuente de verdad del modelo desplegado es `selected_checkpoint.json`.
 
 **Búsqueda Optuna** ([`rtdetr_usa_optuna_summary.json`](../results/metrics/rtdetr_usa_optuna_summary.json)): ocho pruebas de hasta 12 épocas (tasa de aprendizaje, decaimiento y lote). Su mAP@0,5:0,95 de validación quedó cerca de cero (el mejor valor fue 0,0001), así que no se usó para elegir hiperparámetros: el entrenamiento final conservó los valores por defecto de la tabla anterior.
 

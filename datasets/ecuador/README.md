@@ -1,10 +1,10 @@
-# Datasets de Estados Unidos
+# Datasets de Ecuador
 
-Este directorio separa los datos para OCR de los datos requeridos para detección.
+| Carpeta | Contenido | Licencia / procedencia |
+|---|---|---|
+| `detection_coco/` | Seis fotografías de desarrollo con cajas de matrícula en formato COCO | Fotografías aportadas por el equipo; confirme los derechos y el consentimiento antes de redistribuir ([guía](detection_coco/README.md)) |
+| `gate/` | Imágenes de garita y `ground_truth.csv` para la evaluación punta a punta | Material del equipo; contiene matrículas reales, ver las notas de privacidad |
+| `savh/` | Recortes y evidencia de revisión del conjunto **SAVH Guayaquil** (OCR) | [CC BY 4.0](https://zenodo.org/records/21120307) (Reyes, G., Zenodo, 2026): se exige atribución |
+| `detection_sources*.json` | Descripción de las fuentes de detección | — |
 
-- seg_and_ocr/: recortes de matrículas USA y groundtruth.csv para evaluación OCR.
-- detection_coco/: preparación de escenas completas y cajas COCO para ajustar RT-DETRv2-S.
-
-Para entrenar detección, sigue la [guía del dataset COCO](detection_coco/README.md). Los recortes de seg_and_ocr no reemplazan las escenas completas anotadas.
-
-El conjunto de escenas y sus cajas debe contener splits independientes train, valid y test; conserva juntas las imágenes de la misma secuencia, cámara o vehículo.
+Los recortes de matrículas de EE. UU. no se incluyen aquí: ver [`../usa/seg_and_ocr/README.md`](../usa/seg_and_ocr/README.md). Inventario de licencias: [docs/auditoria_licencias.md](../../docs/auditoria_licencias.md).
