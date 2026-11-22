@@ -4,7 +4,7 @@ Este directorio prepara el dataset de escenas completas USA que necesita el dete
 
 ## Diferencia entre detección y OCR
 
-Las imágenes de datasets/usa/seg_and_ocr/usimages son recortes de matrículas con texto real en groundtruth.csv. Sirven para medir OCR; no contienen vehículos completos ni cajas de matrícula dentro de una escena. No las uses como sustituto de escenas para entrenar el detector.
+Las imágenes del conjunto `seg_and_ocr` (que deben descargarse aparte, ver `datasets/usa/seg_and_ocr/README.md`) son recortes de matrículas con texto real en groundtruth.csv. Sirven para medir OCR; no contienen vehículos completos ni cajas de matrícula dentro de una escena. No las uses como sustituto de escenas para entrenar el detector.
 
 ## Preparación
 
