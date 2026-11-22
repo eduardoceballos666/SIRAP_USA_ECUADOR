@@ -10,7 +10,7 @@ El resultado de la última revisión (2026-11-22), con lo verificado y lo pendie
 |---|---|---|---|
 | [`PekingU/rtdetr_v2_r18vd`](https://huggingface.co/PekingU/rtdetr_v2_r18vd) | Checkpoint base RT-DETRv2 (ResNet-18vd), entrenado con COCO | Apache-2.0 | Artículo: [arXiv 2407.17140](https://arxiv.org/abs/2407.17140) |
 | [`merve/license-plates-rtdetrv2`](https://huggingface.co/merve/license-plates-rtdetrv2) | Punto de partida del detector de placas | Apache-2.0 (ficha del modelo) | Deriva del anterior. **No se verificó** con qué datos fue ajustado. |
-| Checkpoint desplegado (semilla 2), repositorio privado `eduardoceballos/SIRAP_USA_seed2` | Único detector para Ecuador y EE. UU. | Apache-2.0 (declarado por el propietario) | Entrenado con un conjunto de recuperación de 249 imágenes de entrenamiento y 79 de validación cuya procedencia **no está documentada en este repositorio**. |
+| Checkpoint desplegado (semilla 2), repositorio privado `eduardoceballos/SIRAP_USA_seed2` | Único detector para Ecuador y EE. UU. | Apache-2.0 (declarado por el propietario) | Entrenado con un conjunto de recuperación de 249 imágenes de entrenamiento y 79 de validación (grabaciones de una cámara objetivo y un paquete de negativos) cuya procedencia y permisos **no están documentados en este repositorio**. |
 | `cct-s-v2-global-model` de [`fast-plate-ocr`](https://github.com/ankandrew/fast-plate-ocr) | OCR de matrículas (ONNX Runtime) | El código es MIT. **La licencia de los pesos y de sus datos de entrenamiento no se verificó.** | Se descarga al construir la imagen. |
 
 Los checkpoints derivados de un modelo Apache-2.0 deben conservar los avisos de sus fuentes. Las métricas históricas con YOLO no describen RT-DETRv2-S.
