@@ -62,11 +62,17 @@ def test_shipped_code_does_not_import_copyleft_modules():
     assert not offenders, f"Importan módulos con copyleft: {offenders}"
 
 
-@pytest.mark.parametrize("country", ["usa", "ecuador"])
-def test_openalpr_agpl_dataset_is_not_in_the_tree(country: str):
-    folder = ROOT / "datasets" / country / "seg_and_ocr"
+@pytest.mark.parametrize("relative", ["datasets/usa/seg_and_ocr", "datasets/ecuador/seg_and_ocr", "USA_plates/seg_and_ocr"])
+def test_openalpr_agpl_dataset_is_not_in_the_tree(relative: str):
+    folder = ROOT / relative
     extra = [p.name for p in folder.rglob("*") if p.is_file() and p.name not in {"README.md", ".gitkeep"}]
-    assert not extra, f"{folder.relative_to(ROOT)} contiene archivos AGPL de openalpr/benchmarks: {extra[:5]}"
+    assert not extra, f"{relative} contiene archivos AGPL de openalpr/benchmarks: {extra[:5]}"
+
+
+def test_no_loose_openalpr_crops_in_the_repository_root():
+    # Las imágenes de seg_and_ocr se llaman <estado><número>.png (p. ej. «va82.png»); una vez se subieron sueltas a la raíz.
+    loose = [p.name for p in ROOT.glob("*.png") if re.fullmatch(r"[a-z]{2}[0-9]+\.png", p.name)]
+    assert not loose, f"Imágenes sueltas con el patrón de OpenALPR en la raíz: {loose[:5]}"
 
 
 def test_space_sync_does_not_publish_the_agpl_dataset():
