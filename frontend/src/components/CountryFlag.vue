@@ -3,7 +3,7 @@ let nextFlagId = 0
 </script>
 
 <script setup>
-// Flag of the active country profile. `waving` draws it on a pole and animates it (the sidebar); without it the
+// Flag of the active country profile. `waving` animates it with no pole (the sidebar); without it the
 // flag is a plain still picture (the control strip). Drawn as inline SVG, so it needs no image files.
 import { computed } from 'vue'
 import { FLAG_COLORS as C, FLAG_SIZES, USA_FLAG, USA_STAR_RADIUS, starPoints, usaStarCenters } from '@/lib/flags'
@@ -20,7 +20,7 @@ const size = computed(() => FLAG_SIZES[isEcuador.value ? 'ecuador' : 'usa'])
 const label = computed(() => (isEcuador.value ? 'Bandera de Ecuador' : 'Bandera de Estados Unidos'))
 const viewBox = computed(() => {
   const { width, height } = size.value
-  return props.waving ? `-6 -10 ${width + 9} ${height + 20}` : `0 0 ${width} ${height}`
+  return props.waving ? `-1 -10 ${width + 2} ${height + 20}` : `0 0 ${width} ${height}`
 })
 const stripeHeight = USA_FLAG.height / USA_FLAG.stripes
 const redStripes = Array.from({ length: 7 }, (_, i) => i * 2 * stripeHeight)
@@ -32,7 +32,7 @@ const waves = computed(() => {
     i,
     x: i * width,
     width: width + 0.7, // a little overlap, so no hairline shows between neighbours
-    amplitude: (0.7 + (2.5 * i) / (count - 1)).toFixed(2), // calm at the pole, wider towards the free end
+    amplitude: (0.7 + (2.5 * i) / (count - 1)).toFixed(2), // calm at the hoist edge, wider towards the free end
     phase: ((i / count) * 1.35).toFixed(3), // 1.35 waves along the flag
   }))
 })
@@ -97,9 +97,6 @@ const waves = computed(() => {
         </template>
       </g>
       <clipPath :id="`${uid}-shield`"><ellipse cx="50" cy="70" rx="23.5" ry="30.5" /></clipPath>
-      <linearGradient :id="`${uid}-pole`" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0" stop-color="#9aa4b2" /><stop offset=".45" stop-color="#f3f6fa" /><stop offset="1" stop-color="#7d8896" />
-      </linearGradient>
       <clipPath v-for="strip in waves" :key="strip.i" :id="`${uid}-c${strip.i}`">
         <rect :x="strip.x" y="-20" :width="strip.width" :height="size.height + 40" />
       </clipPath>
@@ -115,8 +112,6 @@ const waves = computed(() => {
           <rect class="flag-shade" :x="strip.x" y="0" :width="strip.width" :height="size.height" fill="#000" />
         </g>
       </g>
-      <rect x="-5.2" y="-9" width="3.2" :height="size.height + 19" rx="1.6" :fill="`url(#${uid}-pole)`" />
-      <circle cx="-3.6" cy="-8.6" r="2.4" fill="#f2c230" />
     </template>
     <template v-else>
       <use :href="`#${uid}-art`" />
