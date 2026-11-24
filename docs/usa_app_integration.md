@@ -78,7 +78,11 @@ tipo de carrocería; el estado es el confirmado). Solo se envían matrícula y e
 confirmado, nunca al SRI. El OCR llena las casillas de placa y de estado y la consulta sale sola;
 si no leyó el estado y la persona lo elige en la casilla, la consulta sale en ese momento con la placa y el estado que
 muestran las casillas, sin esperar a «Verificar». Si J.D. Power niega el acceso, se muestran los datos
-locales. Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
+locales y la línea de estado bajo «Detalles del vehículo» dice por qué: acceso denegado
+(HTTP 401/403, no se reintenta ni se evita), límite de consultas (429), navegador no
+disponible en el servidor, sin respuesta o error HTTP, informe no mostrado para esa
+matrícula y estado, o error del servidor. Esa línea sale de `fuentes.jdpower` (valores de
+`api/providers/usa_jdpower.py`). Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
 prueba OCR no la añade a una lista blanca operativa; esa autorización sigue siendo
 una acción explícita del usuario en Registro o Administración.
 
