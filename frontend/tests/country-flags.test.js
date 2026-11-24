@@ -91,3 +91,18 @@ test('the login screen shows a small flag beside the country selector from the f
   assert.match(login, /const country = ref\(\['usa', 'ecuador'\]\.includes\(route\.query\.country\) \? route\.query\.country : session\.country\)/)
   assert.doesNotMatch(row[0], /v-if|onMounted|nextTick/)
 })
+
+test('a browser with no saved choice starts in the United States, in English; a saved Ecuador is kept', async () => {
+  const { COUNTRY_KEY, initialCountry } = await import('../src/lib/defaultCountry.js')
+  const storage = (value) => ({ getItem: (key) => (key === COUNTRY_KEY ? value : null) })
+  assert.equal(initialCountry(storage(null)), 'usa')
+  assert.equal(initialCountry(storage('usa')), 'usa')
+  assert.equal(initialCountry(storage('ecuador')), 'ecuador')
+  assert.equal(initialCountry(storage('brasil')), 'usa')
+  assert.equal(initialCountry({ getItem() { throw new Error('blocked') } }), 'usa')
+  assert.equal(initialCountry(), 'usa') // Node has no localStorage: it falls back to the United States
+  // English is already the language of a browser with nothing saved (i18n.js), and the store uses this default.
+  assert.equal(language.value, 'en')
+  assert.match(source('../src/stores/session.js'), /country: initialCountry\(\)/)
+  assert.match(source('../src/stores/session.js'), /import \{ COUNTRY_KEY, initialCountry \} from '@\/lib\/defaultCountry'/)
+})

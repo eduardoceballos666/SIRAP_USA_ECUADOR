@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/lib/api'
 import { localeTag } from '@/i18n'
+import { COUNTRY_KEY, initialCountry } from '@/lib/defaultCountry'
 
 const THEME_KEY = 'sirap_theme'
 
@@ -13,16 +14,12 @@ function initialTheme() {
   return 'light'
 }
 
-function initialCountry() {
-  try { return localStorage.getItem('sirap_country') === 'usa' ? 'usa' : 'ecuador' } catch { return 'ecuador' }
-}
-
 // Estado del puesto de control: garita y movimiento elegidos, datos del sistema, tema, avisos y
 // las lecturas hechas en esta sesión (para compararlas; no se guardan en el servidor hasta que se registran).
 export const useSessionStore = defineStore('session', {
   state: () => ({
     system: null,
-    country: initialCountry(),
+    country: initialCountry(), // EE. UU. por defecto; Ecuador solo si ya se eligió en este navegador
     garita: null,
     movimiento: 'ENTRADA',
     toasts: [],
@@ -42,7 +39,7 @@ export const useSessionStore = defineStore('session', {
       return this.system
     },
     rememberCountry() {
-      try { localStorage.setItem('sirap_country', this.country) } catch { /* sin almacenamiento */ }
+      try { localStorage.setItem(COUNTRY_KEY, this.country) } catch { /* sin almacenamiento */ }
     },
     notify(message, kind = 'ok') {
       const id = Date.now() + Math.random()
