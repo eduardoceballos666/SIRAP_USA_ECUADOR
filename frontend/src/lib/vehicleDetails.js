@@ -8,6 +8,8 @@
 //   "State"          <- state               (issuing state code, e.g. "CA")
 // The local registry (anio + marca + modelo, color) is only a fallback for the first two.
 
+import { US_STATES } from './plateIdentity.js'
+
 const text = (value) => (value === null || value === undefined ? '' : String(value).trim())
 const first = (...values) => values.map(text).find(Boolean) || ''
 
@@ -42,4 +44,13 @@ export function usaVehicleDetails({ lookup, vehicle, jurisdiction, plate } = {})
     bodyType: pick('vehicle_body_type'),
     state: (pick('state', 'jurisdiction') || text(jurisdiction)).toUpperCase(),
   }
+}
+
+// Public J.D. Power report page for a plate and state. The person opens it in their own browser tab to read it
+// themselves; the server never uses this link. Same address as `report_url` in api/providers/usa_jdpower.py.
+export function jdPowerReportUrl(plate, jurisdiction) {
+  const serial = text(plate).toUpperCase().replace(/[^A-Z0-9]/g, '')
+  const state = text(jurisdiction).toUpperCase()
+  if (!serial || !Object.hasOwn(US_STATES, state)) return ''
+  return `https://www.jdpower.com/cars/license-plate-lookup-and-decoder/${serial.toLowerCase()}-${state.toLowerCase()}-license-plate-report`
 }

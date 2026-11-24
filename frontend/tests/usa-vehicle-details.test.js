@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { language, setLanguage, t } from '../src/i18n.js'
-import { usaLookupStatus, usaVehicleDetails } from '../src/lib/vehicleDetails.js'
+import { readFileSync } from 'node:fs'
+import { jdPowerReportUrl, usaLookupStatus, usaVehicleDetails } from '../src/lib/vehicleDetails.js'
 
 test('United States vehicle panel labels are translated in every language', () => {
   const initial = language.value
@@ -132,6 +133,41 @@ test('each J.D. Power failure names its own cause and is translated', () => {
       }
       // 401/403 share one text, 500/no_response one, the three "no report" statuses one: 7 causes in total.
       assert.equal(seen.size, 7, locale)
+    }
+  } finally {
+    setLanguage(initial)
+  }
+})
+
+test('the J.D. Power report link carries the plate and the state and rejects anything else', () => {
+  assert.equal(
+    jdPowerReportUrl('6zgy-984', 'ca'),
+    'https://www.jdpower.com/cars/license-plate-lookup-and-decoder/6zgy984-ca-license-plate-report',
+  )
+  assert.equal(jdPowerReportUrl(' ab 123 ', 'MA'), 'https://www.jdpower.com/cars/license-plate-lookup-and-decoder/ab123-ma-license-plate-report')
+  for (const [plate, state] of [['', 'CA'], ['6ZGY984', ''], ['6ZGY984', 'ZZ'], ['6ZGY984', '../x'], ['---', 'CA'], [null, null]]) {
+    assert.equal(jdPowerReportUrl(plate, state), '', `${plate}/${state}`)
+  }
+  // Only letters and digits reach the address, so nothing typed in the plate box can change the path or the host.
+  assert.equal(
+    jdPowerReportUrl('A/../B?x=1#', 'TX'),
+    'https://www.jdpower.com/cars/license-plate-lookup-and-decoder/abx1-tx-license-plate-report',
+  )
+})
+
+test('the report link opens in a new tab, only in the United States profile, and is translated', () => {
+  const view = readFileSync(new URL('../src/views/RecognitionView.vue', import.meta.url), 'utf8')
+  const link = view.match(/<a v-if="jdPowerUrl"[^>]*>/)
+  assert.ok(link, 'link missing')
+  assert.match(link[0], /:href="jdPowerUrl"/)
+  assert.match(link[0], /target="_blank"/)
+  assert.match(link[0], /rel="noopener noreferrer"/)
+  assert.match(view, /const jdPowerUrl = computed\(\(\) => \(isUSA\.value \? jdPowerReportUrl\(plateShown\.value, manualJurisdiction\.value\) : ''\)\)/)
+  const initial = language.value
+  try {
+    for (const locale of ['en', 'pt', 'fr', 'de', 'it']) {
+      setLanguage(locale)
+      assert.notEqual(t('Abrir informe en J.D. Power'), 'Abrir informe en J.D. Power', locale)
     }
   } finally {
     setLanguage(initial)
