@@ -5,6 +5,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import SirapLogo from '@/components/SirapLogo.vue'
 import ToastStack from '@/components/ToastStack.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import CountryFlag from '@/components/CountryFlag.vue'
 import { language, localeTag, t } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
@@ -56,6 +57,7 @@ function switchCountry() {
       <nav class="top-navigation" :aria-label='$t("Módulos")'>
         <RouterLink v-for="i in items" :key="i.name" :to="i.to" active-class="selected"><AppIcon :name="i.icon" :size="19" /><span>{{ $t(i.label) }}</span></RouterLink>
       </nav>
+      <div class="sidebar-flag"><CountryFlag :country="session.country" waving /></div>
       <div class="sidebar-bottom">
         <RouterLink :to="{ name: 'about', params: { country: session.country } }" class="about-link" active-class="selected"><AppIcon name="info" :size="19" /><span>{{ $t("Acerca del modelo") }}</span></RouterLink>
         <div class="top-user">
