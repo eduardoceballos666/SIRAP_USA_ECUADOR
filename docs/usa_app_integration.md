@@ -80,7 +80,9 @@ locales y la línea de estado bajo «Detalles del vehículo» dice por qué: acc
 (HTTP 401/403, no se reintenta ni se evita), límite de consultas (429), navegador no
 disponible en el servidor, sin respuesta o error HTTP, informe no mostrado para esa
 matrícula y estado, o error del servidor. Esa línea sale de `fuentes.jdpower` (valores de
-`api/providers/usa_jdpower.py`). Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
+`api/providers/usa_jdpower.py`). Bajo los datos del vehículo, el enlace «Abrir informe en J.D. Power» abre en una
+pestaña nueva la página pública del informe con la matrícula y el estado de las casillas, para que la persona lo lea
+ella misma; lo abre su navegador, el servidor no lo usa. Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
 prueba OCR no la añade a una lista blanca operativa; esa autorización sigue siendo
 una acción explícita del usuario en Registro o Administración.
 

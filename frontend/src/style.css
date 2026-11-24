@@ -245,6 +245,7 @@
 .vehicle-rows.vehicle-rows-usa dt { font-size:16px; line-height:1.15; }
 .vehicle-rows dt { color:var(--color-ink); font-size:18px; font-weight:400; }
 .vehicle-rows dd { min-width:0; margin:0; overflow-wrap:anywhere; color:var(--color-ink); font-weight:700; }
+.vehicle-panel .jdpower-link { align-self:flex-start; font-size:14px; font-weight:700; text-decoration:underline; }
 .registered-note { margin:0; color:var(--color-ok-dark); font-size:10px; font-weight:700; }
 .registration-prompt { display:grid; gap:6px; padding:8px; border:1px solid color-mix(in srgb,var(--color-warn) 48%,var(--color-line)); border-radius:8px; background:linear-gradient(110deg,var(--color-warn-soft),color-mix(in srgb,var(--color-sirap-yellow) 18%,var(--color-surface))); }
 .registration-prompt > div:first-child { display:grid; gap:2px; }
