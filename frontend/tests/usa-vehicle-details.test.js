@@ -78,9 +78,7 @@ test('status line tells where the United States data came from', () => {
     for (const local of [undefined, 'desactivado']) {
       assert.equal(usaLookupStatus(local), 'Datos del registro local de Estados Unidos.')
     }
-    for (const failed of ['access_limited_403', 'error', 'browser_unavailable', 'no_report_title']) {
-      assert.equal(usaLookupStatus(failed), 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.')
-    }
+    assert.equal(usaLookupStatus('algo_nuevo'), 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.')
     for (const [locale, found] of [
       ['en', 'Data from J.D. Power and the local United States registry.'],
       ['pt', 'Dados da J.D. Power e do registro local dos Estados Unidos.'],
@@ -92,6 +90,48 @@ test('status line tells where the United States data came from', () => {
       assert.equal(t(usaLookupStatus('encontrado')), found, locale)
       assert.notEqual(t('Consultando J.D. Power y el registro local…'), 'Consultando J.D. Power y el registro local…', locale)
       assert.notEqual(t(usaLookupStatus('error')), usaLookupStatus('error'), locale)
+    }
+  } finally {
+    setLanguage(initial)
+  }
+})
+
+test('each J.D. Power failure names its own cause and is translated', () => {
+  const causes = {
+    access_limited_401: /no permite el acceso/,
+    access_limited_403: /no permite el acceso/,
+    access_limited_429: /limitó las consultas/,
+    browser_unavailable: /navegador .* no está disponible/,
+    no_response: /no respondió o devolvió un error/,
+    http_500: /no respondió o devolvió un error/,
+    form_failed: /no mostró un informe para esta placa y este estado/,
+    report_not_ready: /no mostró un informe para esta placa y este estado/,
+    no_report_title: /no mostró un informe para esta placa y este estado/,
+    error: /falló por un error del servidor/,
+    invalid_input: /no son válidos/,
+  }
+  const initial = language.value
+  try {
+    for (const [status, cause] of Object.entries(causes)) {
+      const message = usaLookupStatus(status)
+      assert.match(message, cause, status)
+      assert.match(message, /datos locales disponibles/, status)
+      assert.notEqual(message, usaLookupStatus('algo_nuevo'), status)
+    }
+    // A blocked answer is reported as it is: the text never promises a retry or a workaround.
+    assert.match(usaLookupStatus('access_limited_403'), /No se reintenta ni se evita/)
+    assert.match(usaLookupStatus('access_limited_429'), /No se reintenta/)
+    for (const locale of ['en', 'pt', 'fr', 'de', 'it']) {
+      setLanguage(locale)
+      const seen = new Set()
+      for (const status of Object.keys(causes)) {
+        const message = usaLookupStatus(status)
+        const translated = t(message)
+        assert.notEqual(translated, message, `${locale} ${status}`)
+        seen.add(translated)
+      }
+      // 401/403 share one text, 500/no_response one, the three "no report" statuses one: 7 causes in total.
+      assert.equal(seen.size, 7, locale)
     }
   } finally {
     setLanguage(initial)
