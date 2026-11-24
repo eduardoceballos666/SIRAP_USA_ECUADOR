@@ -76,7 +76,11 @@ Las placas de EE. UU. consultan el registro local y, con `vehicle_lookup.enabled
 en `config/countries/usa.yaml`, el informe público de J.D. Power (año y modelo, color,
 tipo de carrocería; el estado es el confirmado). Solo se envían matrícula y estado
 confirmado, nunca al SRI. Si J.D. Power niega el acceso, se muestran los datos
-locales. Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
+locales y la línea de estado bajo «Detalles del vehículo» dice por qué: acceso denegado
+(HTTP 401/403, no se reintenta ni se evita), límite de consultas (429), navegador no
+disponible en el servidor, sin respuesta o error HTTP, informe no mostrado para esa
+matrícula y estado, o error del servidor. Esa línea sale de `fuentes.jdpower` (valores de
+`api/providers/usa_jdpower.py`). Con `enabled: false` solo se consulta el registro local. Registrar una matrícula para una
 prueba OCR no la añade a una lista blanca operativa; esa autorización sigue siendo
 una acción explícita del usuario en Registro o Administración.
 

@@ -11,11 +11,24 @@
 const text = (value) => (value === null || value === undefined ? '' : String(value).trim())
 const first = (...values) => values.map(text).find(Boolean) || ''
 
+// Why J.D. Power gave no data, by `fuentes.jdpower` of /api/plates/vehicle-data (statuses of api/providers/usa_jdpower.py).
+// Every message ends by saying that the local data is shown; the first sentence names the cause so it can be acted on.
+const LOOKUP_FAILURES = [
+  [/^access_limited_(401|403)$/, 'J.D. Power no permite el acceso desde este servidor (acceso denegado). No se reintenta ni se evita; se muestran los datos locales disponibles.'],
+  [/^access_limited_429$/, 'J.D. Power limitó las consultas (demasiadas solicitudes). No se reintenta; inténtelo más tarde. Se muestran los datos locales disponibles.'],
+  [/^browser_unavailable$/, 'El navegador que consulta a J.D. Power no está disponible en el servidor; se muestran los datos locales disponibles.'],
+  [/^(no_response|http_\d+)$/, 'J.D. Power no respondió o devolvió un error; se muestran los datos locales disponibles.'],
+  [/^(form_failed|report_not_ready|no_report_title)$/, 'J.D. Power no mostró un informe para esta placa y este estado; revise que ambos sean correctos. Se muestran los datos locales disponibles.'],
+  [/^error$/, 'La consulta a J.D. Power falló por un error del servidor; se muestran los datos locales disponibles.'],
+  [/^invalid_input$/, 'La placa o el estado no son válidos para consultar a J.D. Power; se muestran los datos locales disponibles.'],
+]
+
 // Status line under the panel once the server answered; `jdpower` is fuentes.jdpower of /api/plates/vehicle-data.
 export function usaLookupStatus(jdpower) {
   if (jdpower === 'encontrado') return 'Datos de J.D. Power y del registro local de Estados Unidos.'
   if (!jdpower || jdpower === 'desactivado') return 'Datos del registro local de Estados Unidos.'
-  return 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.'
+  const failure = LOOKUP_FAILURES.find(([pattern]) => pattern.test(String(jdpower)))
+  return failure ? failure[1] : 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.'
 }
 
 export function usaVehicleDetails({ lookup, vehicle, jurisdiction, plate } = {}) {
