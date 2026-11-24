@@ -14,6 +14,15 @@ export function profilePayload(country, jurisdiction) {
   return { country, jurisdiction: country === 'usa' ? String(jurisdiction || '').toUpperCase() || null : null }
 }
 
+// Plate and state exactly as the two boxes show them: these are the two fields sent to J.D. Power.
+// Returns null while either one is missing, so no lookup is started with half of the identity.
+export function usaLookupInputs(country, plate, jurisdiction) {
+  const serial = String(plate || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+  const state = String(jurisdiction || '').toUpperCase()
+  if (country !== 'usa' || !serial || !Object.hasOwn(US_STATES, state)) return null
+  return { plate: serial, jurisdiction: state }
+}
+
 export function plateKey(plate, country = 'ecuador', jurisdiction = null) {
   const serial = String(plate || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
   if (!serial) return ''

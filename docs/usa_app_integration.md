@@ -75,7 +75,9 @@ usuarios, roles y garitas son comunes. Cambiar de país requiere volver al login
 Las placas de EE. UU. consultan el registro local y, con `vehicle_lookup.enabled: true`
 en `config/countries/usa.yaml`, el informe público de J.D. Power (año y modelo, color,
 tipo de carrocería; el estado es el confirmado). Solo se envían matrícula y estado
-confirmado, nunca al SRI. Si J.D. Power niega el acceso, se muestran los datos
+confirmado, nunca al SRI. El OCR llena las casillas de placa y de estado y la consulta sale sola;
+si no leyó el estado y la persona lo elige en la casilla, la consulta sale en ese momento con la placa y el estado que
+muestran las casillas, sin esperar a «Verificar». Si J.D. Power niega el acceso, se muestran los datos
 locales y la línea de estado bajo «Detalles del vehículo» dice por qué: acceso denegado
 (HTTP 401/403, no se reintenta ni se evita), límite de consultas (429), navegador no
 disponible en el servidor, sin respuesta o error HTTP, informe no mostrado para esa
