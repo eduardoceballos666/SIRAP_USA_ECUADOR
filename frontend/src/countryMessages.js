@@ -237,6 +237,7 @@ rows.push(...[
   ['La placa o el estado no son válidos para consultar a J.D. Power; se muestran los datos locales disponibles.', 'The plate or the state is not valid for a J.D. Power lookup; the available local data is shown.', 'A placa ou o estado não são válidos para consultar a J.D. Power; são exibidos os dados locais disponíveis.', 'La plaque ou l’État n’est pas valide pour interroger J.D. Power ; les données locales disponibles sont affichées.', 'Kennzeichen oder Bundesstaat sind für eine Abfrage bei J.D. Power nicht gültig; die verfügbaren lokalen Daten werden angezeigt.', 'La targa o lo stato non sono validi per consultare J.D. Power; vengono mostrati i dati locali disponibili.'],
   ['Bandera de Ecuador', 'Flag of Ecuador', 'Bandeira do Equador', 'Drapeau de l’Équateur', 'Flagge von Ecuador', 'Bandiera dell’Ecuador'],
   ['Bandera de Estados Unidos', 'Flag of the United States', 'Bandeira dos Estados Unidos', 'Drapeau des États-Unis', 'Flagge der Vereinigten Staaten', 'Bandiera degli Stati Uniti'],
+  ['Abrir informe en J.D. Power', 'Open report on J.D. Power', 'Abrir relatório na J.D. Power', 'Ouvrir le rapport sur J.D. Power', 'Bericht bei J.D. Power öffnen', 'Apri il rapporto su J.D. Power'],
 ])
 export const countryMessages = Object.fromEntries(['en', 'pt', 'fr', 'de', 'it'].map((language, index) =>
   [language, Object.fromEntries(rows.map((row) => [row[0], row[index + 1]]))]))
