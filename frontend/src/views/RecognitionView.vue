@@ -945,20 +945,20 @@ onMounted(async () => {
             <div><strong>{{ $t("Esta placa no está registrada.") }}</strong><span>{{ $t("¿Desea guardar el camión en la base de datos?") }}</span></div>
             <div class="registration-prompt-actions"><button class="btn-primary" :disabled="busy" @click="startVehicleRegistration">{{ $t("Sí, registrar") }}</button><button class="btn-ghost" @click="registrationPromptDismissed = true">{{ $t("No, continuar") }}</button></div>
           </div>
-          <dl v-if="isUSA" class="vehicle-rows vehicle-rows-usa">
-            <div><dt>{{ $t("Año y modelo") }}</dt><dd :title="usaDetails.yearModel">{{ usaDetails.yearModel || '—' }}</dd></div>
-            <div><dt>{{ $t("Color") }}</dt><dd :title="usaDetails.color">{{ usaDetails.color || '—' }}</dd></div>
-            <div><dt>{{ $t("Tipo de carrocería") }}</dt><dd :title="usaDetails.bodyType">{{ usaDetails.bodyType || '—' }}</dd></div>
-            <div><dt>{{ $t("Estado") }}</dt><dd :title="usaDetails.state">{{ usaDetails.state || '—' }}</dd></div>
-          </dl>
-          <a v-if="jdPowerUrl" class="text-link jdpower-link" :href="jdPowerUrl" target="_blank" rel="noopener noreferrer">{{ $t("Abrir informe en J.D. Power") }}</a>
-          <dl v-else class="vehicle-rows">
+          <a
+            v-if="jdPowerUrl" class="jdpower-button" :href="jdPowerUrl" target="_blank" rel="noopener noreferrer"
+            :aria-label="$t('Ver detalles del vehículo en J.D. Power (se abre en una pestaña nueva)')"
+          >
+            <span>{{ $t("Ver detalles del vehículo en J.D. Power") }}</span>
+            <svg class="jdpower-button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M17 7H8M17 7V16" /></svg>
+          </a>
+          <dl v-if="!isUSA" class="vehicle-rows">
             <div><dt>{{ $t("Marca") }}</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
             <div><dt>{{ $t("Modelo") }}</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
             <div><dt>{{ $t("Año") }}</dt><dd :title="vehicleDisplay.anio">{{ vehicleDisplay.anio || '—' }}</dd></div>
             <div class="vehicle-carrier-row"><dt>{{ $t("Cia. de transporte") }}</dt><dd :title="vehicleDisplay.transportista">{{ vehicleDisplay.transportista || '—' }}</dd></div>
           </dl>
-          <p v-if="vehicleLookupStatus" class="registered-note" role="status" aria-live="polite">{{ $t(vehicleLookupStatus) }}</p>
+          <p v-if="vehicleLookupStatus && !isUSA" class="registered-note" role="status" aria-live="polite">{{ $t(vehicleLookupStatus) }}</p>
           <p v-if="done" class="registered-note" role="status">{{ $t("✓ Lectura registrada en el historial.") }}</p>
         </section>
         <div class="access-action-bar" :aria-label="$t('Acciones de acceso')">

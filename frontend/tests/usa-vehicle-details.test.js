@@ -155,19 +155,45 @@ test('the J.D. Power report link carries the plate and the state and rejects any
   )
 })
 
-test('the report link opens in a new tab, only in the United States profile, and is translated', () => {
+test('the J.D. Power button opens the report in a new tab, only in the United States profile', () => {
   const view = readFileSync(new URL('../src/views/RecognitionView.vue', import.meta.url), 'utf8')
-  const link = view.match(/<a v-if="jdPowerUrl"[^>]*>/)
-  assert.ok(link, 'link missing')
-  assert.match(link[0], /:href="jdPowerUrl"/)
-  assert.match(link[0], /target="_blank"/)
-  assert.match(link[0], /rel="noopener noreferrer"/)
+  const button = view.match(/<a\s[^>]*v-if="jdPowerUrl"[^>]*>/)
+  assert.ok(button, 'button missing')
+  assert.match(button[0], /class="jdpower-button"/)
+  assert.match(button[0], /:href="jdPowerUrl"/)
+  assert.match(button[0], /target="_blank"/)
+  assert.match(button[0], /rel="noopener noreferrer"/)
+  assert.match(button[0], /:aria-label="\$t\('Ver detalles del vehículo en J\.D\. Power \(se abre en una pestaña nueva\)'\)"/)
+  assert.match(view, /\{\{ \$t\("Ver detalles del vehículo en J\.D\. Power"\) \}\}/)
   assert.match(view, /const jdPowerUrl = computed\(\(\) => \(isUSA\.value \? jdPowerReportUrl\(plateShown\.value, manualJurisdiction\.value\) : ''\)\)/)
+})
+
+test('the United States panel no longer shows the vehicle grid or the lookup status; Ecuador keeps its rows', () => {
+  const view = readFileSync(new URL('../src/views/RecognitionView.vue', import.meta.url), 'utf8')
+  const panel = view.slice(view.indexOf('<section class="card vehicle-panel"'), view.indexOf('<div class="access-action-bar"'))
+  assert.doesNotMatch(panel, /vehicle-rows-usa|usaDetails/)
+  for (const row of ['Año y modelo', 'Color', 'Tipo de carrocería']) assert.ok(!panel.includes(`$t("${row}")`), row)
+  assert.match(panel, /<dl v-if="!isUSA" class="vehicle-rows">/)
+  assert.match(panel, /<p v-if="vehicleLookupStatus && !isUSA" class="registered-note"/)
+  for (const row of ['Marca', 'Modelo', 'Año', 'Cia. de transporte']) assert.ok(panel.includes(`$t("${row}")`), row)
+})
+
+test('the J.D. Power button text and its screen-reader label exist in the six interface languages', () => {
+  const labels = {
+    es: ['Ver detalles del vehículo en J.D. Power', 'Ver detalles del vehículo en J.D. Power (se abre en una pestaña nueva)'],
+    en: ['See Vehicle Details on J.D. Power', 'See Vehicle Details on J.D. Power (opens in a new tab)'],
+    fr: ['Voir les détails du véhicule sur J.D. Power', 'Voir les détails du véhicule sur J.D. Power (s’ouvre dans un nouvel onglet)'],
+    de: ['Fahrzeugdetails auf J.D. Power ansehen', 'Fahrzeugdetails auf J.D. Power ansehen (wird in einem neuen Tab geöffnet)'],
+    it: ['Vedi i dettagli del veicolo su J.D. Power', 'Vedi i dettagli del veicolo su J.D. Power (si apre in una nuova scheda)'],
+    pt: ['Ver detalhes do veículo no J.D. Power', 'Ver detalhes do veículo no J.D. Power (abre em uma nova aba)'],
+  }
+  const [text, aria] = labels.es
   const initial = language.value
   try {
-    for (const locale of ['en', 'pt', 'fr', 'de', 'it']) {
+    for (const [locale, [expectedText, expectedAria]] of Object.entries(labels)) {
       setLanguage(locale)
-      assert.notEqual(t('Abrir informe en J.D. Power'), 'Abrir informe en J.D. Power', locale)
+      assert.equal(t(text), expectedText, `${locale} text`)
+      assert.equal(t(aria), expectedAria, `${locale} aria-label`)
     }
   } finally {
     setLanguage(initial)
