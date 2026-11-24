@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import AppIcon from '@/components/AppIcon.vue'
+import CountryFlag from '@/components/CountryFlag.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import ModalDialog from '@/components/ModalDialog.vue'
 import ResultCard from '@/components/ResultCard.vue'
@@ -809,7 +810,7 @@ onMounted(async () => {
   <div class="access-workspace">
     <div class="control-strip">
       <div class="control-field"><span>{{ $t("Punto de control") }}</span><strong><AppIcon name="pin" :size="17" /> {{ $t("Garita de acceso") }}</strong></div>
-      <div id="country" class="control-field"><span>{{ $t('País') }}</span><strong>{{ $t(session.country) }}</strong></div>
+      <div id="country" class="control-field"><span>{{ $t('País') }}</span><strong>{{ $t(session.country) }} <CountryFlag class="country-flag-simple" :country="session.country" /></strong></div>
       <label class="control-field" for="garita"><span>{{ $t("Garita") }}</span><select id="garita" v-model="session.garita" class="field" :disabled="loading || busy"><option v-for="g in session.system?.garitas || []" :key="g">{{ g }}</option></select></label>
       <div class="control-field"><span>{{ $t("Operador") }}</span><strong><AppIcon name="user" :size="17" /> {{ auth.user?.nombre || '—' }}</strong></div>
       <label class="control-field" for="mov"><span>{{ $t("Operación") }}</span><select id="mov" v-model="session.movimiento" class="field"><option value="ENTRADA">{{ $t("Entrada") }}</option><option value="SALIDA">{{ $t("Salida") }}</option></select></label>
