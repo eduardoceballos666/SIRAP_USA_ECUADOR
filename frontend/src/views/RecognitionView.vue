@@ -9,7 +9,7 @@ import { ACTION, RESULT, TONE_PILL, pct } from '@/lib/format'
 import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
-import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
+import { US_STATES, profilePayload, automaticUSAReadingAllowed, usaLookupInputs } from '@/lib/plateIdentity'
 import { usaLookupStatus, usaVehicleDetails } from '@/lib/vehicleDetails'
 import { readPendingOperation, startPendingOperation, clearPendingOperation,
   recoverPendingOperation, cancelUnacceptedOperation, operationIsSettled } from '@/lib/operationRecovery'
@@ -596,6 +596,14 @@ async function loadVehicleDetails(plate) {
   }
 }
 
+// Si el OCR no leyó el estado y el operador lo elige, la consulta sale ya con lo que muestran las dos casillas
+// (placa y estado), sin esperar a «Verificar». Solo cambios hechos por la persona: lo que lee el OCR ya consulta solo.
+function onStateChosen() {
+  const query = usaLookupInputs(session.country, manualPlate.value || plateShown.value, manualJurisdiction.value)
+  if (!query || loading.value || busy.value) return
+  void loadVehicleDetails(query.plate)
+}
+
 async function verifyManual() {
   if (!manualPlate.value) return
   busy.value = true
@@ -897,7 +905,7 @@ onMounted(async () => {
           <div class="plate-line"><div class="compact-plate">{{ plateShown || '———-————' }}</div></div>
           <div v-if="session.country === 'usa'" class="state-reading">
             <label class="field-label" for="manual-jurisdiction">{{ $t('Estado emisor') }}</label>
-            <select id="manual-jurisdiction" v-model="manualJurisdiction" class="field" :disabled="busy || loading">
+            <select id="manual-jurisdiction" v-model="manualJurisdiction" class="field" :disabled="busy || loading" @change="onStateChosen">
               <option value="">{{ $t('Estado desconocido: verificar manualmente') }}</option>
               <option v-for="(name, code) in US_STATES" :key="code" :value="code">{{ code }} · {{ name }}</option>
             </select>
