@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SirapLogo from '@/components/SirapLogo.vue'
+import CountryFlag from '@/components/CountryFlag.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useSessionStore } from '@/stores/session'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
@@ -37,12 +38,15 @@ async function submit() {
       <SirapLogo class="mb-6" />
       <form class="card space-y-4" @submit.prevent="submit">
         <h1 class="text-xl font-bold">{{ $t("Iniciar sesión") }}</h1>
-        <div class="login-profile-fields grid grid-cols-2 gap-3">
+        <div class="login-profile-fields grid grid-cols-[minmax(0,4fr)_minmax(0,6fr)] gap-3">
           <LanguageSwitcher />
           <div><label class="field-label" for="login-country">{{ $t('País') }}</label>
-            <select id="login-country" v-model="country" class="field" :disabled="loading" required>
-              <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ $t('Estados Unidos') }}</option>
-            </select>
+            <div class="login-country-row">
+              <select id="login-country" v-model="country" class="field" :disabled="loading" required>
+                <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ $t('Estados Unidos') }}</option>
+              </select>
+              <CountryFlag class="login-country-flag" :country="country" />
+            </div>
           </div>
         </div>
         <div>

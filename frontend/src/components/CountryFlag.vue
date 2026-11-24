@@ -122,7 +122,7 @@ const waves = computed(() => {
 
 <style scoped>
 .country-flag { display:block; overflow:visible; }
-.flag-outline { stroke:rgb(255 255 255 / .55); stroke-width:1; vector-effect:non-scaling-stroke; }
+.flag-outline { stroke:var(--flag-outline, rgb(255 255 255 / .55)); stroke-width:1; vector-effect:non-scaling-stroke; }
 .is-waving { --period:3.2s; }
 .flag-strip {
   transform:translateY(calc(var(--amp) * -1px));
