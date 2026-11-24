@@ -10,7 +10,7 @@ import { useSessionStore } from '@/stores/session'
 import { useAuthStore } from '@/stores/auth'
 import { localeTag } from '@/i18n'
 import { US_STATES, profilePayload, automaticUSAReadingAllowed } from '@/lib/plateIdentity'
-import { usaLookupStatus, usaVehicleDetails } from '@/lib/vehicleDetails'
+import { jdPowerReportUrl, usaLookupStatus, usaVehicleDetails } from '@/lib/vehicleDetails'
 import { readPendingOperation, startPendingOperation, clearPendingOperation,
   recoverPendingOperation, cancelUnacceptedOperation, operationIsSettled } from '@/lib/operationRecovery'
 
@@ -635,6 +635,7 @@ const vehicleDisplay = computed(() => ({
 }))
 // United States: Year and model / Color / Body type / State (see lib/vehicleDetails.js for the source of each value).
 const isUSA = computed(() => session.country === 'usa')
+const jdPowerUrl = computed(() => (isUSA.value ? jdPowerReportUrl(plateShown.value, manualJurisdiction.value) : ''))
 const usaDetails = computed(() => usaVehicleDetails({
   lookup: vehicleLookup.value, vehicle: vehicle.value, jurisdiction: manualJurisdiction.value, plate: plateShown.value,
 }))
@@ -941,6 +942,7 @@ onMounted(async () => {
             <div><dt>{{ $t("Tipo de carrocería") }}</dt><dd :title="usaDetails.bodyType">{{ usaDetails.bodyType || '—' }}</dd></div>
             <div><dt>{{ $t("Estado") }}</dt><dd :title="usaDetails.state">{{ usaDetails.state || '—' }}</dd></div>
           </dl>
+          <a v-if="jdPowerUrl" class="text-link jdpower-link" :href="jdPowerUrl" target="_blank" rel="noopener noreferrer">{{ $t("Abrir informe en J.D. Power") }}</a>
           <dl v-else class="vehicle-rows">
             <div><dt>{{ $t("Marca") }}</dt><dd :title="vehicleDisplay.marca">{{ vehicleDisplay.marca || '—' }}</dd></div>
             <div><dt>{{ $t("Modelo") }}</dt><dd :title="vehicleDisplay.modelo">{{ vehicleDisplay.modelo || '—' }}</dd></div>
