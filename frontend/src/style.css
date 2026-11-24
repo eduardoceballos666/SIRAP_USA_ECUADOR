@@ -247,10 +247,12 @@
 .vehicle-rows > .vehicle-carrier-row dt { font-size:16px; line-height:1.15; }
 .vehicle-rows dt { color:var(--color-ink); font-size:18px; font-weight:400; }
 .vehicle-rows dd { min-width:0; margin:0; overflow-wrap:anywhere; color:var(--color-ink); font-weight:700; }
-.vehicle-panel .jdpower-button { display:inline-flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px; padding:9px 16px; border:1px solid var(--color-line); border-radius:12px; background:var(--color-surface); color:var(--color-ink); font-size:14px; font-weight:600; line-height:1.2; text-align:center; text-decoration:none; transition:border-color .2s, background-color .2s, box-shadow .2s; }
-.vehicle-panel .jdpower-button:hover { border-color:var(--color-brand-600); background:var(--color-subtle); box-shadow:0 3px 10px rgb(33 86 232 / .14); }
-.vehicle-panel .jdpower-button:focus-visible { outline:2px solid var(--color-brand-600); outline-offset:2px; }
-.vehicle-panel .jdpower-button-icon { flex:none; width:16px; height:16px; color:var(--color-brand-600); transition:transform .2s; }
+.vehicle-panel .jdpower-button { display:inline-flex; flex-wrap:nowrap; align-items:center; justify-content:center; gap:10px; min-height:52px; margin-top:4px; padding:12px 20px; border:0; border-radius:12px; background:linear-gradient(135deg,#2156e8,#0891b2); color:#fff; font-size:19px; font-weight:800; line-height:1.2; text-align:center; text-decoration:none; box-shadow:0 6px 16px rgb(33 86 232 / .38); transition:transform .2s, box-shadow .2s, filter .2s; }
+.vehicle-panel .jdpower-button > span { min-width:0; }
+.vehicle-panel .jdpower-button:hover { transform:translateY(-1px); filter:brightness(1.1); box-shadow:0 9px 22px rgb(33 86 232 / .5); }
+.vehicle-panel .jdpower-button:active { transform:translateY(0); box-shadow:0 3px 9px rgb(33 86 232 / .4); }
+.vehicle-panel .jdpower-button:focus-visible { outline:3px solid var(--color-sirap-yellow); outline-offset:2px; }
+.vehicle-panel .jdpower-button-icon { flex:none; width:22px; height:22px; transition:transform .2s; }
 .vehicle-panel .jdpower-button:hover .jdpower-button-icon { transform:translate(2px,-2px); }
 .registered-note { margin:0; color:var(--color-ok-dark); font-size:10px; font-weight:700; }
 .registration-prompt { display:grid; gap:6px; padding:8px; border:1px solid color-mix(in srgb,var(--color-warn) 48%,var(--color-line)); border-radius:8px; background:linear-gradient(110deg,var(--color-warn-soft),color-mix(in srgb,var(--color-sirap-yellow) 18%,var(--color-surface))); }
