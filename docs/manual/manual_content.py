@@ -31,8 +31,8 @@ def preface(d) -> None:
     )
     d.h2("Quick route: record an entry", "Ruta rápida: registrar una entrada")
     d.steps([
-        ("Sign in, choosing your language and the country (Ecuador or United States).",
-         "Ingrese eligiendo su idioma y el país (Ecuador o Estados Unidos)."),
+        ("Sign in, choosing your language and the country (Ecuador or USA).",
+         "Ingrese eligiendo su idioma y el país (Ecuador o USA)."),
         ("Choose the checkpoint and set the operation to <b>Entry</b>.",
          "Elija la garita y deje la operación en <b>Entrada</b>."),
         ("Upload a photo or video, or use a camera.", "Suba una foto o un video, o use una cámara."),
@@ -83,11 +83,11 @@ def ch_about(d) -> None:
     d.p(
         "SIRAP is a web application that helps a vehicle checkpoint (<i>garita</i>) identify license plates in photos, video "
         "frames or camera images, check them against the access lists and keep a record of every decision. It has two "
-        "country profiles, <b>Ecuador</b> and the <b>United States</b>. They share the same screens, the same plate detector "
+        "country profiles, <b>Ecuador</b> and the <b>United States</b> (named <b>USA</b> on the screens). They share the same screens, the same plate detector "
         "and the same OCR engine, but they interpret the plate and apply the access rules differently.",
         "SIRAP es una aplicación web que ayuda a una garita vehicular a identificar placas en fotos, fotogramas de video o "
         "imágenes de cámara, compararlas con las listas de acceso y dejar constancia de cada decisión. Tiene dos perfiles de "
-        "país, <b>Ecuador</b> y <b>Estados Unidos</b>. Comparten las mismas pantallas, el mismo detector de placas y el "
+        "país, <b>Ecuador</b> y <b>Estados Unidos</b> (que las pantallas llaman <b>USA</b>). Comparten las mismas pantallas, el mismo detector de placas y el "
         "mismo motor OCR, pero interpretan la placa y aplican las reglas de acceso de forma distinta.",
     )
     d.h2("What it does", "Qué hace")
@@ -204,17 +204,17 @@ def ch_signin(d) -> None:
     d.h2("Sign in", "Iniciar sesión")
     d.steps([
         ("Open the SIRAP address in your browser.", "Abra la dirección de SIRAP en su navegador."),
-        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or United States. In a browser with nothing saved, "
-         "<b>United States</b> and <b>English</b> come preselected; your choice is remembered in that browser.",
-         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o Estados Unidos. En un navegador sin preferencias "
-         "guardadas vienen preseleccionados <b>Estados Unidos</b> e <b>inglés</b>; su elección se recuerda en ese navegador."),
+        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or USA (the United States profile). In a browser with nothing saved, "
+         "<b>USA</b> and <b>English</b> come preselected; your choice is remembered in that browser.",
+         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o USA (el perfil de Estados Unidos). En un navegador sin preferencias "
+         "guardadas vienen preseleccionados <b>USA</b> e <b>inglés</b>; su elección se recuerda en ese navegador."),
         ("Type your <b>Username</b> and <b>Password</b>.", "Escriba su <b>Usuario</b> y su <b>Contraseña</b>."),
         ("Press <b>Sign in</b>. You arrive at <b>Recognition and Access</b>.",
          "Pulse <b>Ingresar</b>. Llegará a <b>Reconocimiento y Acceso</b>."),
     ])
-    d.fig("30_login_usa", "Sign-in screen with United States selected, the initial default: the U.S. flag appears beside the "
+    d.fig("30_login_usa", "Sign-in screen with USA selected, the initial default: the U.S. flag appears beside the "
           "<b>Country</b> selector as soon as the screen opens.",
-          "Pantalla de inicio de sesión con Estados Unidos seleccionado, la opción inicial: la bandera de EE. UU. aparece junto "
+          "Pantalla de inicio de sesión con USA seleccionado, la opción inicial: la bandera de EE. UU. aparece junto "
           "al selector de <b>País</b> desde que se abre la pantalla.", narrow=True)
     d.fig("01_login", "The same screen with Ecuador selected: the flag beside the selector changes with the country.",
           "La misma pantalla con Ecuador seleccionado: la bandera junto al selector cambia con el país.", narrow=True)

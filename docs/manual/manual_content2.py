@@ -445,8 +445,8 @@ def ch_cases(d) -> None:
     ])
     d.h2("Case D. A United States truck", "Caso D. Un camión de Estados Unidos")
     d.steps([
-        ("Sign in choosing <b>United States</b>. Upload a video (or use a camera) where the plate is visible.",
-         "Ingrese eligiendo <b>Estados Unidos</b>. Suba un video (o use una cámara) donde se vea la placa."),
+        ("Sign in choosing <b>USA</b>. Upload a video (or use a camera) where the plate is visible.",
+         "Ingrese eligiendo <b>USA</b>. Suba un video (o use una cámara) donde se vea la placa."),
         ("SIRAP reads the serial <b>KDM4827</b> and the state <b>TX</b> from the plate itself. The counter shows <b>1/2</b>; the "
          "result stays on manual review.",
          "SIRAP lee la matrícula <b>KDM4827</b> y el estado <b>TX</b> de la propia placa. El contador muestra <b>1/2</b>; el "
