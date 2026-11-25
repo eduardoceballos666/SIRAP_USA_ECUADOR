@@ -52,14 +52,22 @@ def preface(d) -> None:
     d.p(
         "All screenshots were taken from a test installation of SIRAP with <b>demonstration data</b>: sample photographs, "
         "fictitious plates, companies and users, and generated DEMO operations. Plate reading, decision rules and screens are "
-        "the real ones. Two things are illustrative only: the vehicle-data lookups (SRI and J.D. Power) were replaced by "
-        "fixed example values, and the United States video is a composite built from sample photographs with a Texas plate "
-        "image added. None of it represents a real operation or a real vehicle.",
+        "the real ones. Three things are illustrative only. The SRI lookup was replaced by fixed example values. The United "
+        "States recognition screens (Recognition and Access with the plate KDM4827, Texas) were produced with a <b>simulated "
+        "reading response</b>, because the plate model is not distributed with the code: they show a sample photograph to which "
+        "a plate drawn for this guide was added, and the rest of the screen (registry, lists, buttons) is the real application. "
+        "And the Ecuador screens were taken before the country flags were added, so they do not show the flag in the left menu "
+        "or in the control bar. The J.D. Power button is real, but the J.D. Power page it opens is not reproduced here. None of it "
+        "represents a real operation or a real vehicle.",
         "Todas las capturas provienen de una instalación de prueba de SIRAP con <b>datos de demostración</b>: fotografías de "
         "ejemplo, placas, empresas y usuarios ficticios, y operaciones DEMO generadas. La lectura de placas, las reglas de "
-        "decisión y las pantallas son las reales. Solo dos cosas son ilustrativas: las consultas de datos del vehículo (SRI y "
-        "J.D. Power) se sustituyeron por valores de ejemplo fijos, y el video de Estados Unidos es un montaje hecho con "
-        "fotografías de ejemplo a las que se añadió la imagen de una placa de Texas. Nada de esto representa una operación "
+        "decisión y las pantallas son las reales. Tres cosas son solo ilustrativas. La consulta al SRI se sustituyó por valores "
+        "de ejemplo fijos. Las pantallas de reconocimiento de Estados Unidos (Reconocimiento y Acceso con la placa KDM4827, "
+        "Texas) se obtuvieron con una <b>respuesta de lectura simulada</b>, porque el modelo de placas no se distribuye con el "
+        "código: muestran una fotografía de ejemplo a la que se añadió una placa dibujada para esta guía, y el resto de la "
+        "pantalla (registro, listas, botones) es la aplicación real. Y las pantallas de Ecuador se tomaron antes de añadir las "
+        "banderas de los países, por lo que no muestran la bandera del menú izquierdo ni de la barra de control. El botón de "
+        "J.D. Power es real, pero la página de J.D. Power que abre no se reproduce aquí. Nada de esto representa una operación "
         "ni un vehículo reales.",
     )
     d.p(
@@ -94,8 +102,10 @@ def ch_about(d) -> None:
          "Una lectura se acepta automáticamente solo si la probabilidad <i>mínima</i> por carácter es de al menos 0,94."),
         ("<b>Checks</b> the plate in the country's registry and applies the allowlist and restricted-list rules.",
          "<b>Consulta</b> la placa en el registro del país y aplica las reglas de lista blanca y lista restringida."),
-        ("<b>Shows vehicle details</b> next to the registry data (Ecuador: SRI; United States: J.D. Power).",
-         "<b>Muestra los datos del vehículo</b> junto a los del registro (Ecuador: SRI; Estados Unidos: J.D. Power)."),
+        ("<b>Shows vehicle details</b> next to the registry data (Ecuador: SRI data in the panel; United States: a button that "
+         "opens the J.D. Power report for the plate in a new tab).",
+         "<b>Muestra los datos del vehículo</b> junto a los del registro (Ecuador: datos del SRI en el panel; Estados Unidos: "
+         "un botón que abre en una pestaña nueva el informe de J.D. Power para la placa)."),
         ("<b>Records the operator's action</b>: open the barrier, reject, record without opening, or open manually "
          "for a contingency with a written reason.",
          "<b>Registra la acción del operador</b>: abrir la barrera, rechazar, registrar sin abrir o abrir manualmente por "
@@ -116,8 +126,8 @@ def ch_about(d) -> None:
             [("Plate identity", "Identidad de la placa"),
              ("The plate itself, written <code>ABC-1234</code> (3 letters + 3 or 4 digits).",
               "La placa misma, escrita <code>ABC-1234</code> (3 letras + 3 o 4 dígitos)."),
-             ("Issuing state + serial, for example <b>TX · BM5T299</b> (stored as <code>US:TX:BM5T299</code>).",
-              "Estado emisor + matrícula, por ejemplo <b>TX · BM5T299</b> (se guarda como <code>US:TX:BM5T299</code>).")],
+             ("Issuing state + serial, for example <b>TX · KDM4827</b> (stored as <code>US:TX:KDM4827</code>).",
+              "Estado emisor + matrícula, por ejemplo <b>TX · KDM4827</b> (se guarda como <code>US:TX:KDM4827</code>).")],
             [("Issuing state", "Estado emisor"),
              ("Not used.", "No se usa."),
              ("Read from the state band of the plate. It is never guessed from the location or the design; if it cannot be "
@@ -138,7 +148,8 @@ def ch_about(d) -> None:
               "<b>dos cuadros distintos</b> por el servidor en 7,5 segundos.")],
             [("Vehicle data", "Datos del vehículo"),
              ("Servicio de Rentas Internas (SRI) plus the local registry.", "Servicio de Rentas Internas (SRI) más el registro local."),
-             ("J.D. Power plate lookup plus the local U.S. registry.", "Consulta de placas de J.D. Power más el registro local de EE. UU.")],
+             ("A button opens the public J.D. Power report for the plate and state in a new tab; the local U.S. registry stays in SIRAP.",
+              "Un botón abre en una pestaña nueva el informe público de J.D. Power para la placa y el estado; el registro local de EE. UU. permanece en SIRAP.")],
             [("Registry, lists, history", "Registro, listas, historial"),
              ("Separate for each country.", "Separados por país."), ("Separate for each country.", "Separados por país.")],
         ],
@@ -193,14 +204,28 @@ def ch_signin(d) -> None:
     d.h2("Sign in", "Iniciar sesión")
     d.steps([
         ("Open the SIRAP address in your browser.", "Abra la dirección de SIRAP en su navegador."),
-        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or United States.",
-         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o Estados Unidos."),
+        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or United States. In a browser with nothing saved, "
+         "<b>United States</b> and <b>English</b> come preselected; your choice is remembered in that browser.",
+         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o Estados Unidos. En un navegador sin preferencias "
+         "guardadas vienen preseleccionados <b>Estados Unidos</b> e <b>inglés</b>; su elección se recuerda en ese navegador."),
         ("Type your <b>Username</b> and <b>Password</b>.", "Escriba su <b>Usuario</b> y su <b>Contraseña</b>."),
         ("Press <b>Sign in</b>. You arrive at <b>Recognition and Access</b>.",
          "Pulse <b>Ingresar</b>. Llegará a <b>Reconocimiento y Acceso</b>."),
     ])
-    d.fig("01_login", "Sign-in screen with language and country selectors.",
-          "Pantalla de inicio de sesión con los selectores de idioma y país.", narrow=True)
+    d.fig("30_login_usa", "Sign-in screen with United States selected, the initial default: the U.S. flag appears beside the "
+          "<b>Country</b> selector as soon as the screen opens.",
+          "Pantalla de inicio de sesión con Estados Unidos seleccionado, la opción inicial: la bandera de EE. UU. aparece junto "
+          "al selector de <b>País</b> desde que se abre la pantalla.", narrow=True)
+    d.fig("01_login", "The same screen with Ecuador selected: the flag beside the selector changes with the country.",
+          "La misma pantalla con Ecuador seleccionado: la bandera junto al selector cambia con el país.", narrow=True)
+    d.p(
+        "The flag of the chosen country is repeated once you are signed in, so you can tell at a glance which profile you are "
+        "working in: a waving flag at the bottom of the left menu (hidden when the window is too short) and a small flag next "
+        "to the country name in the control bar of Recognition and Access.",
+        "La bandera del país elegido se repite una vez dentro, para saber de un vistazo en qué perfil trabaja: una bandera "
+        "ondeando al pie del menú izquierdo (se oculta si la ventana es muy baja) y una bandera pequeña junto al nombre del país "
+        "en la barra de control de Reconocimiento y Acceso.",
+    )
     d.note("info", ("Country and session", "País y sesión"),
            "The country you choose is attached to your session: recognition, registry, lists, history, dashboard and demo data "
            "all belong to that country. To work in the other country, sign out and sign in again. Users and checkpoints are "
@@ -282,10 +307,11 @@ def ch_screen(d) -> None:
               "El resultado (Autorizado, Denegado, No registrado o Sin autorización, Verificación manual), el motivo y el "
               "medidor de <b>confianza OCR</b>.")],
             [("Vehicle details", "Detalles del vehículo"),
-             ("Make, model, year and transport company (Ecuador) or year and model, color, body type and state (United States). "
-              "<b>More details</b> opens the full record.",
-              "Marca, modelo, año y compañía de transporte (Ecuador) o año y modelo, color, tipo de carrocería y estado "
-              "(Estados Unidos). <b>Más datos</b> abre la ficha completa.")],
+             ("Ecuador: make, model, year and transport company. United States: the <b>See Vehicle Details on J.D. Power</b> button, "
+              "which opens the J.D. Power report in a new tab. <b>More details</b> opens the full record in both.",
+              "Ecuador: marca, modelo, año y compañía de transporte. Estados Unidos: el botón <b>Ver detalles del vehículo en "
+              "J.D. Power</b>, que abre el informe de J.D. Power en una pestaña nueva. <b>Más datos</b> abre la ficha completa "
+              "en ambos.")],
             [("Actions", "Acciones"),
              ("<b>Register and open gate</b>, <b>Run automatic detection</b> and <b>Manual opening (contingency)</b>.",
               "<b>Registrar y abrir barrera</b>, <b>Procesar detección automática</b> y <b>Apertura manual (Contingencia)</b>.")],
@@ -519,17 +545,19 @@ def ch_usa(d) -> None:
          "Estados Unidos: estado, matrícula y confirmación en dos cuadros")
     d.p(
         "United States plates are not identified by the serial alone: two states can issue the same serial. SIRAP therefore "
-        "identifies a vehicle by the <b>issuing state plus the serial</b> (for example TX · BM5T299), reads the state from the "
+        "identifies a vehicle by the <b>issuing state plus the serial</b> (for example TX · KDM4827), reads the state from the "
         "plate itself, and requires stronger evidence before a normal opening.",
         "Las placas de Estados Unidos no se identifican solo por la matrícula: dos estados pueden emitir la misma matrícula. "
-        "Por eso SIRAP identifica un vehículo por el <b>estado emisor más la matrícula</b> (por ejemplo TX · BM5T299), lee el "
+        "Por eso SIRAP identifica un vehículo por el <b>estado emisor más la matrícula</b> (por ejemplo TX · KDM4827), lee el "
         "estado en la propia placa y exige evidencia más sólida antes de una apertura normal.",
     )
     d.h2("State and serial", "Estado y matrícula")
-    d.fig("31_usa_recognition", "Recognition and Access with the United States profile: the plate panel has an <b>Issuing state</b> "
-          "selector and a server confirmation counter.",
-          "Reconocimiento y Acceso con el perfil de Estados Unidos: el panel de la placa incluye un selector de <b>Estado emisor</b> "
-          "y un contador de confirmación del servidor.")
+    d.fig("31_usa_recognition", "Recognition and Access with the United States profile. The plate KDM4827 was read but its state "
+          "was not: the <b>Issuing state</b> selector shows <i>Unknown state: verify manually</i>, a counter shows the server "
+          "confirmation, and the J.D. Power button does not appear until the plate and the state are both known.",
+          "Reconocimiento y Acceso con el perfil de Estados Unidos. Se leyó la placa KDM4827 pero no su estado: el selector de "
+          "<b>Estado emisor</b> muestra <i>Estado desconocido: verifique manualmente</i>, un contador muestra la confirmación del "
+          "servidor y el botón de J.D. Power no aparece hasta conocer la placa y el estado.")
     d.ul([
         ("The state is read from the state band of the plate (including stylized names). It is <b>never inferred</b> from the "
          "camera location or from the plate design.",
@@ -553,27 +581,67 @@ def ch_usa(d) -> None:
         "servidor: n/2</b> muestra el avance. Una sola foto fija, o la misma foto enviada dos veces, nunca llega a 2/2: use un "
         "video o una cámara, que envían cuadros sucesivos.",
     )
-    d.fig("32_usa_first_frame", "First frame read: BM5T299, state TX. The plate is on the allowlist, but the counter shows 1/2, so "
-          "the result is <b>Manual review — waiting for frame confirmation</b>.",
-          "Primer cuadro leído: BM5T299, estado TX. La placa está en la lista blanca, pero el contador marca 1/2, por lo que el "
-          "resultado es <b>Verificación manual — confirmación de cuadros pendiente</b>.")
+    d.fig("32_usa_first_frame", "First frame read: KDM4827, state TX. The plate is on the allowlist, but the counter shows 1/2, so "
+          "the result is <b>Manual review — waiting for frame confirmation</b>. The J.D. Power button is already shown because "
+          "the plate and the state are known.",
+          "Primer cuadro leído: KDM4827, estado TX. La placa está en la lista blanca, pero el contador marca 1/2, por lo que el "
+          "resultado es <b>Verificación manual — confirmación de cuadros pendiente</b>. El botón de J.D. Power ya aparece porque "
+          "se conocen la placa y el estado.")
     d.fig("33_usa_confirmed", "Second distinct frame confirmed (2/2): the result becomes <b>Authorized</b> and <b>Register and open "
           "gate</b> is enabled.",
           "Segundo cuadro distinto confirmado (2/2): el resultado pasa a <b>Autorizado</b> y se habilita <b>Registrar y abrir "
           "barrera</b>.")
     d.h2("Vehicle details from J.D. Power", "Detalles del vehículo desde J.D. Power")
     d.p(
-        "For United States plates the <b>Vehicle details</b> panel shows <b>Year and model</b>, <b>Color</b>, <b>Body type</b> and "
-        "<b>State</b>, taken from the J.D. Power plate lookup and the local United States registry. The lookup is polite by "
-        "design: one request at a time, results are cached, and an access-denied or rate-limit answer is recorded and never "
-        "retried. The page gives vehicle information only, never an owner's name or address. If the lookup is unavailable the "
-        "panel falls back to the local registry. Descriptive data do not grant access.",
-        "Para placas de Estados Unidos el panel <b>Detalles del vehículo</b> muestra <b>Año y modelo</b>, <b>Color</b>, <b>Tipo "
-        "de carrocería</b> y <b>Estado</b>, obtenidos de la consulta de placas de J.D. Power y del registro local de Estados "
-        "Unidos. La consulta es cortés por diseño: una solicitud a la vez, resultados en caché, y una respuesta de acceso "
-        "denegado o de límite de uso se registra y nunca se reintenta. La página entrega solo información del vehículo, nunca "
-        "el nombre ni la dirección de un propietario. Si la consulta no está disponible, el panel recurre al registro local. "
-        "Los datos descriptivos no otorgan acceso.",
+        "For United States plates the <b>Vehicle details</b> panel holds one large button, <b>See Vehicle Details on J.D. "
+        "Power</b>. It opens, in a <b>new browser tab</b>, the public J.D. Power license-plate report for the plate and the "
+        "issuing state shown in the boxes of the screen, so that you read the vehicle information yourself. The panel no longer "
+        "lists year and model, color, body type or state, and SIRAP does not copy what the J.D. Power page shows into the "
+        "screen or into the registry.",
+        "Para placas de Estados Unidos el panel <b>Detalles del vehículo</b> trae un único botón grande, <b>Ver detalles del "
+        "vehículo en J.D. Power</b>. Abre, en una <b>pestaña nueva</b> del navegador, el informe público de placas de J.D. Power "
+        "para la placa y el estado emisor que muestran las casillas de la pantalla, para que usted mismo lea la información del "
+        "vehículo. El panel ya no enumera año y modelo, color, tipo de carrocería ni estado, y SIRAP no copia lo que muestra la "
+        "página de J.D. Power en la pantalla ni en el registro.",
+    )
+    d.fig("36_usa_vehicle_button", "The <b>Vehicle details</b> panel with the United States profile: the J.D. Power button, in "
+          "the interface language, and the <b>More details</b> link.",
+          "El panel <b>Detalles del vehículo</b> con el perfil de Estados Unidos: el botón de J.D. Power, en el idioma de la "
+          "interfaz, y el enlace <b>Más datos</b>.", narrow=True)
+    d.ul([
+        ("The button appears only when the plate has a valid format and an issuing state is read or chosen. If the state is "
+         "unknown, choose it first. The link follows the plate and the state in the boxes, so if you correct either one the "
+         "button opens the report for the corrected values.",
+         "El botón aparece solo cuando la placa tiene un formato válido y el estado emisor está leído o elegido. Si el estado es "
+         "desconocido, elíjalo primero. El enlace sigue a la placa y al estado de las casillas: si corrige alguno, el botón abre "
+         "el informe con los valores corregidos."),
+        ("The page opens in <b>your own browser</b>, not through the SIRAP server, and the screen you were working on stays "
+         "as it was.",
+         "La página se abre en <b>su propio navegador</b>, no a través del servidor de SIRAP, y la pantalla en la que trabajaba "
+         "queda como estaba."),
+        ("J.D. Power decides what its page shows. The report gives vehicle information only, never an owner's name or address. "
+         "Descriptive data do not grant access: the decision depends only on the registry, the lists and the confirmation rules.",
+         "J.D. Power decide qué muestra su página. El informe entrega solo información del vehículo, nunca el nombre ni la "
+         "dirección de un propietario. Los datos descriptivos no otorgan acceso: la decisión depende solo del registro, las "
+         "listas y las reglas de confirmación."),
+        ("If the administrator keeps the server's automatic lookup enabled and J.D. Power denies access to the server, the answer "
+         "is recorded and never retried or worked around. This does not affect the button.",
+         "Si el administrador mantiene activa la consulta automática del servidor y J.D. Power le niega el acceso, la respuesta "
+         "se registra y nunca se reintenta ni se evita. Esto no afecta al botón."),
+    ])
+    d.table(
+        [("Interface language", "Idioma de la interfaz"), ("Button label", "Texto del botón")],
+        [
+            [("English", "Inglés"), ("See Vehicle Details on J.D. Power", "See Vehicle Details on J.D. Power")],
+            [("Spanish", "Español"), ("Ver detalles del vehículo en J.D. Power", "Ver detalles del vehículo en J.D. Power")],
+            [("Portuguese", "Portugués"), ("Ver detalhes do veículo no J.D. Power", "Ver detalhes do veículo no J.D. Power")],
+            [("French", "Francés"), ("Voir les détails du véhicule sur J.D. Power", "Voir les détails du véhicule sur J.D. Power")],
+            [("German", "Alemán"), ("Fahrzeugdetails auf J.D. Power ansehen", "Fahrzeugdetails auf J.D. Power ansehen")],
+            [("Italian", "Italiano"), ("Vedi i dettagli del veicolo su J.D. Power", "Vedi i dettagli del veicolo su J.D. Power")],
+        ],
+        caption=("Label of the J.D. Power button in each interface language.",
+                 "Texto del botón de J.D. Power en cada idioma de la interfaz."),
+        widths=[34, 66],
     )
     d.h2("When normal opening is allowed", "Cuándo se permite la apertura normal")
     d.table(
