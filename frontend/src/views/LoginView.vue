@@ -43,7 +43,7 @@ async function submit() {
           <div><label class="field-label" for="login-country">{{ $t('País') }}</label>
             <div class="login-country-row">
               <select id="login-country" v-model="country" class="field" :disabled="loading" required>
-                <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ language === 'en' ? 'USA' : $t('Estados Unidos') }}</option>
+                <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ $t('Estados Unidos') }}</option>
               </select>
               <CountryFlag class="login-country-flag" :country="country" />
             </div>
