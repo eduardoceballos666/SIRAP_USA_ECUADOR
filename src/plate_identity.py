@@ -31,7 +31,7 @@ class PlateIdentity:
 
 def normalize_identity(raw, country='ecuador', jurisdiction=None):
     if country not in ('ecuador','usa'):
-        raise ValueError('País inválido: seleccione Ecuador o USA.')
+        raise ValueError('País inválido: seleccione Ecuador o Estados Unidos de América.')
     text=str(raw or '').strip().upper()
     if country=='ecuador':
         if text.startswith('US:') or jurisdiction:
@@ -42,7 +42,7 @@ def normalize_identity(raw, country='ecuador', jurisdiction=None):
         return PlateIdentity(country,plate)
     state=str(jurisdiction or '').strip().upper()
     if state not in US_STATES:
-        raise ValueError('Seleccione el estado emisor de la placa de USA.')
+        raise ValueError('Seleccione el estado emisor de la placa de Estados Unidos de América.')
     if not re.fullmatch(r'[A-Z0-9\s-]+',text):
         raise ValueError('Matrícula inválida: use letras, números, espacios o guiones.')
     serial=re.sub(r'[\s-]','',text)
@@ -55,7 +55,7 @@ def identity_from_key(value):
     if text.startswith('US:'):
         parts=text.split(':')
         if len(parts)!=3:
-            raise ValueError('Clave de placa de USA inválida.')
+            raise ValueError('Clave de placa de Estados Unidos de América inválida.')
         return normalize_identity(parts[2],'usa',parts[1])
     return normalize_identity(text)
 

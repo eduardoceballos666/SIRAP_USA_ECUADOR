@@ -547,7 +547,7 @@ def register_operation(body: schemas.OperationIn, background_tasks: BackgroundTa
                 "RECHAZO": "Rechazo registrado; la barrera permanece cerrada.",
                 "SOLO_REGISTRO": "Operación registrada sin abrir la barrera."}
     if body.origen == "DETECCION" and final:
-        messages[body.accion] += ((' Detección guardada; datos del registro local de USA.' if body.country=='usa' else
+        messages[body.accion] += ((' Detección guardada; datos del registro local de Estados Unidos de América.' if body.country=='usa' else
                                   " Detección guardada en el CSV de GitHub; consultando los datos vehiculares del SRI.")
                                   if export_saved else
                                   " No se guardó en GitHub; revise la configuración del repositorio y el token.")

@@ -75,17 +75,17 @@ test('state comes from the confirmed state and nothing shows without a plate', (
 test('status line tells where the United States data came from', () => {
   const initial = language.value
   try {
-    assert.equal(usaLookupStatus('encontrado'), 'Datos de J.D. Power y del registro local de USA.')
+    assert.equal(usaLookupStatus('encontrado'), 'Datos de J.D. Power y del registro local de Estados Unidos de América.')
     for (const local of [undefined, 'desactivado']) {
-      assert.equal(usaLookupStatus(local), 'Datos del registro local de USA.')
+      assert.equal(usaLookupStatus(local), 'Datos del registro local de Estados Unidos de América.')
     }
     assert.equal(usaLookupStatus('algo_nuevo'), 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.')
     for (const [locale, found] of [
-      ['en', 'Data from J.D. Power and the local USA registry.'],
-      ['pt', 'Dados da J.D. Power e do registro local de USA.'],
-      ['fr', 'Données de J.D. Power et du registre local USA.'],
-      ['de', 'Daten von J.D. Power und aus dem lokalen USA-Register.'],
-      ['it', 'Dati di J.D. Power e del registro locale USA.'],
+      ['en', 'Data from J.D. Power and the local registry of the United States of America.'],
+      ['pt', 'Dados da J.D. Power e do registro local dos Estados Unidos da América.'],
+      ['fr', 'Données de J.D. Power et du registre local des États-Unis d’Amérique.'],
+      ['de', 'Daten von J.D. Power und aus dem lokalen Register der Vereinigten Staaten von Amerika.'],
+      ['it', 'Dati di J.D. Power e del registro locale degli Stati Uniti d’America.'],
     ]) {
       setLanguage(locale)
       assert.equal(t(usaLookupStatus('encontrado')), found, locale)
