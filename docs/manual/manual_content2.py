@@ -447,14 +447,18 @@ def ch_cases(d) -> None:
     d.steps([
         ("Sign in choosing <b>United States</b>. Upload a video (or use a camera) where the plate is visible.",
          "Ingrese eligiendo <b>Estados Unidos</b>. Suba un video (o use una cámara) donde se vea la placa."),
-        ("SIRAP reads the serial <b>BM5T299</b> and the state <b>TX</b> from the plate itself. The counter shows <b>1/2</b>; the "
+        ("SIRAP reads the serial <b>KDM4827</b> and the state <b>TX</b> from the plate itself. The counter shows <b>1/2</b>; the "
          "result stays on manual review.",
-         "SIRAP lee la matrícula <b>BM5T299</b> y el estado <b>TX</b> de la propia placa. El contador muestra <b>1/2</b>; el "
+         "SIRAP lee la matrícula <b>KDM4827</b> y el estado <b>TX</b> de la propia placa. El contador muestra <b>1/2</b>; el "
          "resultado sigue en verificación manual."),
         ("A second, distinct frame confirms the same state and serial (<b>2/2</b>): the plate is on the allowlist and the result "
          "becomes <b>Authorized</b>.",
          "Un segundo cuadro distinto confirma el mismo estado y matrícula (<b>2/2</b>): la placa está en la lista blanca y el "
          "resultado pasa a <b>Autorizado</b>."),
+        ("If the operator wants to compare the vehicle with its public description, they press <b>See Vehicle Details on J.D. "
+         "Power</b>: the report opens in a new tab and the SIRAP screen stays as it was.",
+         "Si el operador quiere comparar el vehículo con su descripción pública, pulsa <b>Ver detalles del vehículo en J.D. "
+         "Power</b>: el informe se abre en una pestaña nueva y la pantalla de SIRAP queda como estaba."),
         ("The operator presses <b>Register and open gate</b> within the confirmation window (30 seconds).",
          "El operador pulsa <b>Registrar y abrir barrera</b> dentro de la ventana de confirmación (30 segundos)."),
     ])
@@ -504,10 +508,15 @@ def ch_trouble(d) -> None:
               "La barrera por defecto es simulada. No repita la apertura; revise primero el Historial y el estado de la barrera.")],
             [("The Dashboard looks empty", "El Dashboard aparece vacío"),
              ("Check the period and the “Include demo operations” box.", "Revise el periodo y la casilla «Incluir operaciones de demostración».")],
-            [("Vehicle details are missing", "Faltan los detalles del vehículo"),
-             ("The SRI (Ecuador) or J.D. Power (United States) did not answer; the panel says so and shows local values. This does not "
-              "change the access decision.",
-              "El SRI (Ecuador) o J.D. Power (Estados Unidos) no respondió; el panel lo indica y muestra valores locales. Esto no "
+            [("Vehicle details are missing (Ecuador)", "Faltan los detalles del vehículo (Ecuador)"),
+             ("The SRI did not answer; the panel says so and shows local values. This does not change the access decision.",
+              "El SRI no respondió; el panel lo indica y muestra valores locales. Esto no cambia la decisión de acceso.")],
+            [("The J.D. Power button is missing (United States)", "Falta el botón de J.D. Power (Estados Unidos)"),
+             ("The button needs a plate with a valid format and an issuing state. Type or correct the plate and choose the state "
+              "in the boxes. If the J.D. Power page does not show the vehicle, rely on what you see and on the registry: this does "
+              "not change the access decision.",
+              "El botón necesita una placa con formato válido y un estado emisor. Escriba o corrija la placa y elija el estado en "
+              "las casillas. Si la página de J.D. Power no muestra el vehículo, guíese por lo que ve y por el registro: esto no "
               "cambia la decisión de acceso.")],
             [("SIRAP or the connection is unavailable", "SIRAP o la conexión no están disponibles"),
              ("Keep the barrier closed and follow the authorized contingency procedure. Write down date and time, checkpoint, plate, "
@@ -586,7 +595,7 @@ def appendix_glossary(d) -> None:
             [("Serial", "Matrícula (serial)"), ("The letters and digits of the plate itself.", "Las letras y dígitos de la placa en sí.")],
             [("Confirmation frames", "Cuadros de confirmación"), ("United States: two distinct frames confirmed by the server before a normal opening.", "Estados Unidos: dos cuadros distintos confirmados por el servidor antes de una apertura normal.")],
             [("SRI", "SRI"), ("Ecuador's tax service; source of public vehicle data.", "Servicio de Rentas Internas de Ecuador; fuente de datos públicos de vehículos.")],
-            [("J.D. Power", "J.D. Power"), ("Source of vehicle descriptions (year, model, color, body type) for United States plates.", "Fuente de las descripciones de vehículos (año, modelo, color, carrocería) para placas de Estados Unidos.")],
+            [("J.D. Power", "J.D. Power"), ("Company whose public license-plate report opens from the <b>See Vehicle Details on J.D. Power</b> button for United States plates. SIRAP does not copy its data.", "Empresa cuyo informe público de placas se abre desde el botón <b>Ver detalles del vehículo en J.D. Power</b> para placas de Estados Unidos. SIRAP no copia sus datos.")],
             [("DEMO", "DEMO"), ("Simulated operation used for tests and training.", "Operación simulada utilizada para pruebas y capacitación.")],
             [("CSV", "CSV"), ("Table format that opens in a spreadsheet.", "Formato de tabla que se abre en una hoja de cálculo.")],
             [("Idempotency", "Idempotencia"), ("Sending the same operation twice never opens the barrier twice.", "Enviar dos veces la misma operación nunca abre la barrera dos veces.")],
@@ -619,10 +628,10 @@ def appendix_reference(d) -> None:
         [("Item", "Elemento"), ("Ecuador", "Ecuador"), ("United States", "Estados Unidos")],
         [
             [("Plate identity", "Identidad de la placa"), ("3 letters + 3 or 4 digits (ABC-1234).", "3 letras + 3 o 4 dígitos (ABC-1234)."),
-             ("Issuing state + serial (TX BM5T299), read from the plate.", "Estado emisor + matrícula (TX BM5T299), leídos de la placa.")],
+             ("Issuing state + serial (TX KDM4827), read from the plate.", "Estado emisor + matrícula (TX KDM4827), leídos de la placa.")],
             [("Normal opening requires", "La apertura normal requiere"), ("Current allowlist entry and a confident reading.", "Entrada vigente en lista blanca y una lectura segura."),
              ("Current allowlist entry and two distinct confirmed frames within 7.5 s.", "Entrada vigente en lista blanca y dos cuadros distintos confirmados en 7,5 s.")],
-            [("Vehicle data", "Datos del vehículo"), ("SRI + local registry.", "SRI + registro local."), ("J.D. Power + local registry.", "J.D. Power + registro local.")],
+            [("Vehicle data", "Datos del vehículo"), ("SRI + local registry.", "SRI + registro local."), ("Button to the J.D. Power report + local registry.", "Botón al informe de J.D. Power + registro local.")],
             [("Detector / OCR thresholds", "Umbrales detector / OCR"), ("0.70 / 94 %", "0,70 / 94 %"), ("0.70 / 94 %", "0,70 / 94 %")],
             [("Image limits", "Límites de imagen"), ("JPG, JPEG, PNG, WEBP · 10 MB · shortest side ≥ 160 px", "JPG, JPEG, PNG, WEBP · 10 MB · lado menor ≥ 160 px"),
              ("Same", "Igual")],
