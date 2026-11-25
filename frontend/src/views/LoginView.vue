@@ -43,7 +43,7 @@ async function submit() {
           <div><label class="field-label" for="login-country">{{ $t('País') }}</label>
             <div class="login-country-row">
               <select id="login-country" v-model="country" class="field" :disabled="loading" required>
-                <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ $t('Estados Unidos') }}</option>
+                <option value="ecuador">{{ $t('Ecuador') }}</option><option value="usa">{{ language === 'en' ? 'USA' : $t('Estados Unidos') }}</option>
               </select>
               <CountryFlag class="login-country-flag" :country="country" />
             </div>
@@ -59,9 +59,6 @@ async function submit() {
         </div>
         <p v-if="error" class="rounded-lg bg-bad-soft px-3 py-2 text-sm font-semibold text-bad">{{ $t(error) }}</p>
         <button class="btn-primary w-full" :disabled="loading">{{ $t(loading ? 'Ingresando…' : 'Ingresar') }}</button>
-        <p class="text-xs text-muted">
-          {{ $t("Usuarios de demostración:") }} <b>{{ $t("operador") }}</b>{{ $t(",") }} <b>{{ $t("supervisor") }}</b> {{ $t("y") }} <b>{{ $t("admin") }}</b>{{ $t(". La contraseña de demostración\n          se define con") }} <code>{{ $t("SIRAP_DEMO_PASSWORD") }}</code> {{ $t("en el servidor.") }}
-        </p>
       </form>
     </div>
   </div>

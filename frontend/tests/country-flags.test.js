@@ -106,3 +106,14 @@ test('a browser with no saved choice starts in the United States, in English; a 
   assert.match(source('../src/stores/session.js'), /country: initialCountry\(\)/)
   assert.match(source('../src/stores/session.js'), /import \{ COUNTRY_KEY, initialCountry \} from '@\/lib\/defaultCountry'/)
 })
+
+test('the login screen has no demo-users hint and names the United States "USA" in English', () => {
+  const login = source('../src/views/LoginView.vue')
+  assert.doesNotMatch(login, /SIRAP_DEMO_PASSWORD|Usuarios de demostración/)
+  assert.match(login, /<option value="usa">\{\{ language === 'en' \? 'USA' : \$t\('Estados Unidos'\) \}\}<\/option>/)
+  // the other screens keep the full name
+  setLanguage('en')
+  assert.equal(t('Estados Unidos'), 'United States')
+  setLanguage('es')
+  assert.equal(t('Estados Unidos'), 'Estados Unidos')
+})
