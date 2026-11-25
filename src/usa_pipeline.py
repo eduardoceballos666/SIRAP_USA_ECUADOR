@@ -32,7 +32,7 @@ def ensure_detector(directory):
         revision=selection.get('artifact_revision')
         token=os.environ.get('SIRAP_USA_MODEL_TOKEN')
         if not repo or not revision or not token:
-            raise ValueError('Configure el acceso al checkpoint privado de Estados Unidos, semilla 2.')
+            raise ValueError('Configure el acceso al checkpoint privado de USA, semilla 2.')
         if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repo) or not re.fullmatch(r'[0-9a-f]{40}',revision):
             raise ValueError('La referencia del checkpoint privado debe ser un repositorio y commit inmutables.')
         expected=dict(selection['detector_sha256'],**selection['metadata_sha256'])
@@ -55,7 +55,7 @@ def ensure_detector(directory):
                 staged.replace(destination)
             except requests.RequestException:
                 # Avoid placing a signed redirect or authorization details into server logs.
-                raise ValueError('No se pudo recuperar el checkpoint privado de Estados Unidos.') from None
+                raise ValueError('No se pudo recuperar el checkpoint privado de USA.') from None
             finally:
                 staged.unlink(missing_ok=True)
         return validate_detector(directory)
@@ -76,7 +76,7 @@ def validate_detector(directory):
     for name,digest in expected.items():
         path=directory/name
         if not path.is_file() or _sha(path)!=digest:
-            raise ValueError('El detector de Estados Unidos requiere los archivos verificados de la semilla 2. '
+            raise ValueError('El detector de USA requiere los archivos verificados de la semilla 2. '
                              'Instale el checkpoint seleccionado; no se usará un modelo alternativo.')
     return directory
 
@@ -112,9 +112,9 @@ class USAPipeline:
             model,plate_config=hub.download_model('cct-s-v2-global-model')
         expected=selected_checkpoint()['ocr_sha256']
         if not model.is_file() or _sha(model)!=expected['cct_s_v2_global.onnx']:
-            raise ValueError('El modelo OCR de Estados Unidos no coincide con el artefacto verificado.')
+            raise ValueError('El modelo OCR de USA no coincide con el artefacto verificado.')
         if not plate_config.is_file() or _sha(plate_config)!=expected['cct_s_v2_global_plate_config.yaml']:
-            raise ValueError('La configuración OCR de Estados Unidos no coincide con la verificada.')
+            raise ValueError('La configuración OCR de USA no coincide con la verificada.')
         reader=PlateReader('cct-s-v2-global-model','cpu',model,plate_config)
         reader.model_name='cct-s-v2-global-model (verified global weights)'
         return cls(detector,reader,margin=cfg.get('crop_margin',.06))

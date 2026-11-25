@@ -53,7 +53,7 @@ def system(country: Optional[Country]=None, user: dict = Depends(current_user)) 
     return {**_runtime_info(country),"base_datos": db.engine,
             "barrera": "simulada" if getattr(barrier, "simulated", True) else "conectada",
             "umbral_ocr": ocr_threshold, "umbral_detector": det_threshold, "garitas": db.garitas(),
-            "countries":[{'code':'ecuador','name':'Ecuador'},{'code':'usa','name':'Estados Unidos'}]}
+            "countries":[{'code':'ecuador','name':'Ecuador'},{'code':'usa','name':'USA'}]}
 
 
 @router.get("/operations", summary="Historial filtrado")

@@ -27,8 +27,8 @@ const LOOKUP_FAILURES = [
 
 // Status line under the panel once the server answered; `jdpower` is fuentes.jdpower of /api/plates/vehicle-data.
 export function usaLookupStatus(jdpower) {
-  if (jdpower === 'encontrado') return 'Datos de J.D. Power y del registro local de Estados Unidos.'
-  if (!jdpower || jdpower === 'desactivado') return 'Datos del registro local de Estados Unidos.'
+  if (jdpower === 'encontrado') return 'Datos de J.D. Power y del registro local de USA.'
+  if (!jdpower || jdpower === 'desactivado') return 'Datos del registro local de USA.'
   const failure = LOOKUP_FAILURES.find(([pattern]) => pattern.test(String(jdpower)))
   return failure ? failure[1] : 'J.D. Power no devolvió datos; se muestran los datos locales disponibles.'
 }

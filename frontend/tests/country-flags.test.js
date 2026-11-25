@@ -71,7 +71,7 @@ test('the flag component draws both countries, moves only when motion is allowed
   try {
     for (const locale of ['en', 'pt', 'fr', 'de', 'it']) {
       setLanguage(locale)
-      for (const label of ['Bandera de Ecuador', 'Bandera de Estados Unidos']) {
+      for (const label of ['Bandera de Ecuador', 'Bandera de USA']) {
         assert.notEqual(t(label), label, `${locale} ${label}`)
       }
     }

@@ -25,3 +25,19 @@ test('the United States profile is labelled "USA" in every language and Ecuador 
     setLanguage(initial)
   }
 })
+
+test('sentences that name the United States say "USA" too, in every language', () => {
+  const initial = language.value
+  try {
+    for (const locale of ['en', 'es', 'pt', 'fr', 'de', 'it']) {
+      setLanguage(locale)
+      for (const key of ['Datos del registro local de USA.', 'Seleccione el estado emisor de la placa de USA.', 'Bandera de USA']) {
+        const text = t(key)
+        assert.match(text, /USA/, `${locale}: ${key}`)
+        assert.doesNotMatch(text, /United States|Estados Unidos|États-Unis|Vereinigten? Staaten|Stati Uniti|\bUS-/, `${locale}: ${key}`)
+      }
+    }
+  } finally {
+    setLanguage(initial)
+  }
+})

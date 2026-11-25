@@ -17,7 +17,7 @@ const props = defineProps({
 const uid = `flag${(nextFlagId += 1)}`
 const isEcuador = computed(() => props.country === 'ecuador')
 const size = computed(() => FLAG_SIZES[isEcuador.value ? 'ecuador' : 'usa'])
-const label = computed(() => (isEcuador.value ? 'Bandera de Ecuador' : 'Bandera de Estados Unidos'))
+const label = computed(() => (isEcuador.value ? 'Bandera de Ecuador' : 'Bandera de USA'))
 const viewBox = computed(() => {
   const { width, height } = size.value
   return props.waving ? `-1 -10 ${width + 2} ${height + 20}` : `0 0 ${width} ${height}`
