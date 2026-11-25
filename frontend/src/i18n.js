@@ -1116,6 +1116,9 @@ for (const [locale, translations] of Object.entries(countryMessages)) {
 }
 const es = Object.fromEntries(Object.keys(en).map((key) => [key, key]))
 const enToEs = Object.fromEntries(Object.entries(en).map(([spanish, english]) => [english, spanish]))
+// The United States profile is named "USA" in every language; the Spanish key stays as the canonical source text.
+es['Estados Unidos'] = 'USA'
+enToEs.USA = 'USA'
 export const messages = { es, en, pt, fr, de, it }
 
 export function setLanguage(value) {

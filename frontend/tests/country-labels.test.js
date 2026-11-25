@@ -2,16 +2,16 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { language, setLanguage, t } from '../src/i18n.js'
 
-test('country codes render localized labels without replacing canonical Spanish names', () => {
+test('the United States profile is labelled "USA" in every language and Ecuador keeps its localized name', () => {
   const initial = language.value
   try {
     for (const [locale, country, usa, ecuador] of [
-      ['es', 'País', 'Estados Unidos', 'Ecuador'],
-      ['en', 'Country', 'United States', 'Ecuador'],
-      ['pt', 'País', 'Estados Unidos', 'Equador'],
-      ['fr', 'Pays', 'États-Unis', 'Équateur'],
-      ['de', 'Land', 'Vereinigte Staaten', 'Ecuador'],
-      ['it', 'Paese', 'Stati Uniti', 'Ecuador'],
+      ['es', 'País', 'USA', 'Ecuador'],
+      ['en', 'Country', 'USA', 'Ecuador'],
+      ['pt', 'País', 'USA', 'Equador'],
+      ['fr', 'Pays', 'USA', 'Équateur'],
+      ['de', 'Land', 'USA', 'Ecuador'],
+      ['it', 'Paese', 'USA', 'Ecuador'],
     ]) {
       setLanguage(locale)
       assert.equal(t('country'), country)
