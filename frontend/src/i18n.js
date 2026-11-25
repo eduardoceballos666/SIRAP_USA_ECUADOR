@@ -106,7 +106,7 @@ const en = {
   'El checkpoint compartido de placas tiene licencia Apache-2.0. El ajuste fino y las métricas por país están pendientes.': 'The shared plate checkpoint is licensed under Apache-2.0. Country-specific fine-tuning and metrics are pending.',
   'Detector RT-DETRv2-S': 'RT-DETRv2-S detector',
   'Evaluación del detector RT-DETRv2-S': 'RT-DETRv2-S detector evaluation',
-  'El checkpoint compartido RT-DETRv2 se ajustó con un dataset general de matrículas; no equivale a un modelo validado para Ecuador o Estados Unidos. Los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas reales de': 'The shared RT-DETRv2 checkpoint was fine-tuned on a general license-plate dataset; it is not a model validated for Ecuador or the United States. Historical YOLO results are not reused. OCR was validated on real plates from',
+  'El checkpoint compartido RT-DETRv2 se ajustó con un dataset general de matrículas; no equivale a un modelo validado para Ecuador o Estados Unidos de América. Los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas reales de': 'The shared RT-DETRv2 checkpoint was fine-tuned on a general license-plate dataset; it is not a model validated for Ecuador or the United States of America. Historical YOLO results are not reused. OCR was validated on real plates from',
   'épocas (imgsz': 'epochs (imgsz',
   ', batch': ', batch',
   ') sobre': ') on',

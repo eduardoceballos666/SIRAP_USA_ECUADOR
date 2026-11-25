@@ -25,3 +25,22 @@ test('the United States profile is labelled "USA" in every language and Ecuador 
     setLanguage(initial)
   }
 })
+
+test('sentences spell out the full country name, while the short labels stay "USA"', () => {
+  const initial = language.value
+  const full = {
+    es: 'Estados Unidos de América', en: 'United States of America', pt: 'Estados Unidos da América',
+    fr: 'États-Unis d’Amérique', de: 'Vereinigten Staaten von Amerika', it: 'Stati Uniti d’America',
+  }
+  try {
+    for (const locale of ['en', 'es', 'pt', 'fr', 'de', 'it']) {
+      setLanguage(locale)
+      assert.equal(t('usa'), 'USA', locale)
+      for (const key of ['Datos del registro local de Estados Unidos de América.', 'Seleccione el estado emisor de la placa de Estados Unidos de América.', 'Bandera de Estados Unidos de América']) {
+        assert.ok(t(key).includes(full[locale]), `${locale}: ${key} -> ${t(key)}`)
+      }
+    }
+  } finally {
+    setLanguage(initial)
+  }
+})

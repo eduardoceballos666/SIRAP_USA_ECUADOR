@@ -601,7 +601,7 @@ def page_about() -> None:
         st.markdown(ui.card_head("warn", "Limitaciones y advertencias"), unsafe_allow_html=True)
         st.markdown("""
 - El checkpoint compartido se ajustó con placas de un dataset general; no equivale a un modelo validado para
-  Ecuador o Estados Unidos. Los resultados del detector RT-DETRv2 se mostrarán después de ejecutar su evaluación;
+  Ecuador o Estados Unidos de América. Los resultados del detector RT-DETRv2 se mostrarán después de ejecutar su evaluación;
   los resultados históricos de YOLO no se reutilizan. El OCR se validó con placas de **SAVH Guayaquil**, pero su
   rendimiento puede bajar con placas sucias, dañadas, de noche, muy inclinadas o lejanas.
 - Una lectura con confianza baja **no** se decide automáticamente: pasa a verificación manual.
