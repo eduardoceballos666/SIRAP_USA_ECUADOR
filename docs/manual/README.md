@@ -5,8 +5,8 @@
 | 🇬🇧 English | [`SIRAP_Manual_EN.pdf`](SIRAP_Manual_EN.pdf) |
 | 🇪🇸 Español | [`SIRAP_Manual_ES.pdf`](SIRAP_Manual_ES.pdf) |
 
-Both PDFs have the same structure (preface, 15 chapters, 2 appendices) and cover the Ecuador and United States profiles: sign-in (including the default United States profile and the country flags), the Recognition and Access screen, access results, the U.S. state + serial rules, two-frame confirmation and the J.D. Power vehicle button, recording actions, History, Dashboard, Administration, About the model, phones and tablets, worked examples, troubleshooting and an operator checklist.
-Ambos PDF tienen la misma estructura (prefacio, 15 capítulos, 2 apéndices) y cubren los perfiles de Ecuador y Estados Unidos.
+Both PDFs have the same structure (preface, 15 chapters, 2 appendices) and cover the Ecuador and United States of America profiles: sign-in (including the default United States of America profile and the country flags), the Recognition and Access screen, access results, the U.S. state + serial rules, two-frame confirmation and the J.D. Power vehicle button, recording actions, History, Dashboard, Administration, About the model, phones and tablets, worked examples, troubleshooting and an operator checklist.
+Ambos PDF tienen la misma estructura (prefacio, 15 capítulos, 2 apéndices) y cubren los perfiles de Ecuador y Estados Unidos de América.
 
 ## Screenshots / Capturas
 
