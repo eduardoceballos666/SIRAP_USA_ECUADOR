@@ -750,6 +750,7 @@ const pt = {
   "Apertura manual (Contingencia)": "Abertura manual (contingência)", "Cómo registrar un acceso": "Como registrar um acesso",
   "Entendido": "Entendi", "Registrar camión nuevo": "Cadastrar novo caminhão", "Placa detectada": "Placa detectada",
   "Nombre del propietario": "Nome do proprietário", "Empresa transportista (opcional)": "Empresa transportadora (opcional)",
+  "Transportista *": "Transportadora *", "Cia. de transporte": "Transportadora", "transportista": "transportadora",
   "Confirmo que comparé la placa con el vehículo y que sus datos son correctos.": "Confirmo que comparei a placa com o veículo e que os dados estão corretos.",
   "Guardar camión": "Salvar caminhão", "Detalle de la verificación": "Detalhes da verificação", "Cerrar": "Fechar",
   "Lecturas de esta sesión": "Leituras desta sessão", "Hora": "Hora", "Imagen": "Imagem", "Confianza OCR": "Confiança OCR",
@@ -859,6 +860,7 @@ const fr = {
   "Apertura manual (Contingencia)": "Ouverture manuelle (urgence)", "Cómo registrar un acceso": "Comment enregistrer un accès",
   "Entendido": "Compris", "Registrar camión nuevo": "Enregistrer un nouveau camion", "Placa detectada": "Plaque détectée",
   "Nombre del propietario": "Nom du propriétaire", "Empresa transportista (opcional)": "Transporteur (facultatif)",
+  "Transportista *": "Transporteur *", "Cia. de transporte": "Transporteur", "transportista": "transporteur",
   "Confirmo que comparé la placa con el vehículo y que sus datos son correctos.": "Je confirme avoir comparé la plaque au véhicule et que ses informations sont exactes.",
   "Guardar camión": "Enregistrer le camion", "Detalle de la verificación": "Détails de la vérification", "Cerrar": "Fermer",
   "Lecturas de esta sesión": "Lectures de cette session", "Hora": "Heure", "Imagen": "Image", "Confianza OCR": "Confiance OCR",
@@ -967,6 +969,7 @@ const de = {
   "Apertura manual (Contingencia)": "Manuelle Öffnung (Notfall)", "Cómo registrar un acceso": "So registrieren Sie einen Zugang",
   "Entendido": "Verstanden", "Registrar camión nuevo": "Neuen LKW registrieren", "Placa detectada": "Kennzeichen erkannt",
   "Nombre del propietario": "Name des Halters", "Empresa transportista (opcional)": "Transportunternehmen (optional)",
+  "Transportista *": "Transportunternehmen *", "Cia. de transporte": "Transportunternehmen", "transportista": "Transportunternehmen",
   "Confirmo que comparé la placa con el vehículo y que sus datos son correctos.": "Ich bestätige, dass ich das Kennzeichen mit dem Fahrzeug abgeglichen habe und die Angaben stimmen.",
   "Guardar camión": "LKW speichern", "Detalle de la verificación": "Prüfdetails", "Cerrar": "Schließen",
   "Lecturas de esta sesión": "Erkennungen dieser Sitzung", "Hora": "Uhrzeit", "Imagen": "Bild", "Confianza OCR": "OCR-Konfidenz",
@@ -1109,6 +1112,9 @@ const it = {
   "Camara URL": "Telecamera URL",
   "Cámara local": "Telecamera locale",
   "Cámara Local": "Telecamera locale",
+  "Transportista": "Società di trasporto", "Transportista *": "Società di trasporto *",
+  "Cia. de transporte": "Società di trasporto", "transportista": "società di trasporto",
+  "Empresa transportista (opcional)": "Società di trasporto (facoltativo)",
 }
 
 for (const [locale, translations] of Object.entries(countryMessages)) {
