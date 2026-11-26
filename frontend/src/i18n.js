@@ -1,6 +1,9 @@
 import { computed, ref } from 'vue'
 import { countryMessages } from './countryMessages.js'
+import { frenchDynamic, frenchRows } from './frenchMessages.js'
+import { germanDynamic, germanRows } from './germanMessages.js'
 import { italianDynamic, italianRows } from './italianMessages.js'
+import { portugueseDynamic, portugueseRows } from './portugueseMessages.js'
 
 const LANGUAGE_KEY = 'sirap_language'
 const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de', 'it']
@@ -1121,16 +1124,19 @@ const it = {
   "Empresa transportista (opcional)": "Società di trasporto (facoltativo)",
 }
 
-// Texts that used to fall back to English in Italian (see italianMessages.js). A key that
-// differs from a translated one only in white space (template text split over several
+// Texts that used to fall back to English in Portuguese, French, German and Italian (see
+// portugueseMessages.js, frenchMessages.js, germanMessages.js, italianMessages.js). A key
+// that differs from a translated one only in white space (template text split over several
 // lines) gets the same translation.
 const squashSpaces = (text) => text.replace(/\s+/g, ' ')
-const italianBySquashedKey = new Map(italianRows.map(([key, italian]) => [squashSpaces(key), italian]))
-for (const key of Object.keys(en)) {
-  const italian = italianBySquashedKey.get(squashSpaces(key))
-  if (italian !== undefined) it[key] = italian
+for (const [dictionary, rows] of [[pt, portugueseRows], [fr, frenchRows], [de, germanRows], [it, italianRows]]) {
+  const bySquashedKey = new Map(rows.map(([key, translation]) => [squashSpaces(key), translation]))
+  for (const key of Object.keys(en)) {
+    const translation = bySquashedKey.get(squashSpaces(key))
+    if (translation !== undefined) dictionary[key] = translation
+  }
 }
-const dynamicMessages = { it: italianDynamic }
+const dynamicMessages = { pt: portugueseDynamic, fr: frenchDynamic, de: germanDynamic, it: italianDynamic }
 
 for (const [locale, translations] of Object.entries(countryMessages)) {
   Object.assign({ en, pt, fr, de, it }[locale], translations)
