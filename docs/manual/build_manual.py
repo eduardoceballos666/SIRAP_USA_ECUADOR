@@ -25,7 +25,7 @@ OUTPUT = {"en": "SIRAP_Manual_EN.pdf", "es": "SIRAP_Manual_ES.pdf"}
 
 UI = {
     "title": ("SIRAP User Manual", "Manual de usuario de SIRAP"),
-    "footer": ("SIRAP · User Manual · Ecuador and United States", "SIRAP · Manual de usuario · Ecuador y Estados Unidos"),
+    "footer": ("SIRAP · User Manual · Ecuador and United States of America", "SIRAP · Manual de usuario · Ecuador y Estados Unidos de América"),
     "toc": ("Contents", "Contenido"),
     "figure": ("Figure", "Figura"),
     "table": ("Table", "Tabla"),
@@ -227,7 +227,7 @@ def cover(d: Doc) -> str:
   <h1>{L(UI['title'])}</h1>
   <div class="sub">{L(("Automatic License Plate Detection and Recognition System for vehicle access control.",
                        "Sistema de Detección y Reconocimiento Automático de Placas para el control de acceso vehicular."))}</div>
-  <div class="chips"><span>Ecuador</span><span>{L(("United States", "Estados Unidos"))}</span></div>
+  <div class="chips"><span>Ecuador</span><span>{L(("United States of America", "Estados Unidos de América"))}</span></div>
   <div class="meta">
     <div><b>{L(("Version", "Versión"))}:</b> {L(("November 2026", "Noviembre de 2026"))} · {L(("Web application (Vue 3 + FastAPI)", "Aplicación web (Vue 3 + FastAPI)"))}</div>
     <div><b>{L(("Application", "Aplicación"))}:</b> https://eduardoceballos-sirap-usa-ecuador-hf.hf.space</div>

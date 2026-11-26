@@ -1,4 +1,4 @@
-"""Bilingual text of the SIRAP user manual, part 1: introduction, sign-in, the main screen, capture, Ecuador, United States.
+"""Bilingual text of the SIRAP user manual, part 1: introduction, sign-in, the main screen, capture, Ecuador, United States of America.
 
 Every string is an (English, Spanish) pair. Inline HTML (<b>, <code>) is allowed; use &amp; for ampersands.
 """
@@ -24,10 +24,10 @@ def preface(d) -> None:
     d.p(
         "This manual describes every screen of SIRAP for both country profiles, explains what each control does and walks "
         "through the procedures from start to finish. If you are new, read chapters 1 to 5 (or 1 to 4 and 6 for the United "
-        "States) and the operator checklist in chapter 15; the rest is reference material.",
+        "States of America) and the operator checklist in chapter 15; the rest is reference material.",
         "Este manual describe cada pantalla de SIRAP para los dos perfiles de país, explica qué hace cada control y recorre "
         "los procedimientos de principio a fin. Si es la primera vez, lea los capítulos 1 a 5 (o 1 a 4 y 6 para Estados "
-        "Unidos) y la lista de comprobación del operador del capítulo 15; el resto es material de consulta.",
+        "Unidos de América) y la lista de comprobación del operador del capítulo 15; el resto es material de consulta.",
     )
     d.h2("Quick route: record an entry", "Ruta rápida: registrar una entrada")
     d.steps([
@@ -53,7 +53,7 @@ def preface(d) -> None:
         "All screenshots were taken from a test installation of SIRAP with <b>demonstration data</b>: sample photographs, "
         "fictitious plates, companies and users, and generated DEMO operations. Plate reading, decision rules and screens are "
         "the real ones. Three things are illustrative only. The SRI lookup was replaced by fixed example values. The United "
-        "States recognition screens (Recognition and Access with the plate KDM4827, Texas) were produced with a <b>simulated "
+        "States of America recognition screens (Recognition and Access with the plate KDM4827, Texas) were produced with a <b>simulated "
         "reading response</b>, because the plate model is not distributed with the code: they show a sample photograph to which "
         "a plate drawn for this guide was added, and the rest of the screen (registry, lists, buttons) is the real application. "
         "And the Ecuador screens were taken before the country flags were added, so they do not show the flag in the left menu "
@@ -62,7 +62,7 @@ def preface(d) -> None:
         "Todas las capturas provienen de una instalación de prueba de SIRAP con <b>datos de demostración</b>: fotografías de "
         "ejemplo, placas, empresas y usuarios ficticios, y operaciones DEMO generadas. La lectura de placas, las reglas de "
         "decisión y las pantallas son las reales. Tres cosas son solo ilustrativas. La consulta al SRI se sustituyó por valores "
-        "de ejemplo fijos. Las pantallas de reconocimiento de Estados Unidos (Reconocimiento y Acceso con la placa KDM4827, "
+        "de ejemplo fijos. Las pantallas de reconocimiento de Estados Unidos de América (Reconocimiento y Acceso con la placa KDM4827, "
         "Texas) se obtuvieron con una <b>respuesta de lectura simulada</b>, porque el modelo de placas no se distribuye con el "
         "código: muestran una fotografía de ejemplo a la que se añadió una placa dibujada para esta guía, y el resto de la "
         "pantalla (registro, listas, botones) es la aplicación real. Y las pantallas de Ecuador se tomaron antes de añadir las "
@@ -83,11 +83,11 @@ def ch_about(d) -> None:
     d.p(
         "SIRAP is a web application that helps a vehicle checkpoint (<i>garita</i>) identify license plates in photos, video "
         "frames or camera images, check them against the access lists and keep a record of every decision. It has two "
-        "country profiles, <b>Ecuador</b> and the <b>United States</b> (named <b>USA</b> on the screens). They share the same screens, the same plate detector "
+        "country profiles, <b>Ecuador</b> and the <b>United States of America</b> (named <b>USA</b> on the screens). They share the same screens, the same plate detector "
         "and the same OCR engine, but they interpret the plate and apply the access rules differently.",
         "SIRAP es una aplicación web que ayuda a una garita vehicular a identificar placas en fotos, fotogramas de video o "
         "imágenes de cámara, compararlas con las listas de acceso y dejar constancia de cada decisión. Tiene dos perfiles de "
-        "país, <b>Ecuador</b> y <b>Estados Unidos</b> (que las pantallas llaman <b>USA</b>). Comparten las mismas pantallas, el mismo detector de placas y el "
+        "país, <b>Ecuador</b> y <b>Estados Unidos de América</b> (que las pantallas llaman <b>USA</b>). Comparten las mismas pantallas, el mismo detector de placas y el "
         "mismo motor OCR, pero interpretan la placa y aplican las reglas de acceso de forma distinta.",
     )
     d.h2("What it does", "Qué hace")
@@ -102,9 +102,9 @@ def ch_about(d) -> None:
          "Una lectura se acepta automáticamente solo si la probabilidad <i>mínima</i> por carácter es de al menos 0,94."),
         ("<b>Checks</b> the plate in the country's registry and applies the allowlist and restricted-list rules.",
          "<b>Consulta</b> la placa en el registro del país y aplica las reglas de lista blanca y lista restringida."),
-        ("<b>Shows vehicle details</b> next to the registry data (Ecuador: SRI data in the panel; United States: a button that "
+        ("<b>Shows vehicle details</b> next to the registry data (Ecuador: SRI data in the panel; United States of America: a button that "
          "opens the J.D. Power report for the plate in a new tab).",
-         "<b>Muestra los datos del vehículo</b> junto a los del registro (Ecuador: datos del SRI en el panel; Estados Unidos: "
+         "<b>Muestra los datos del vehículo</b> junto a los del registro (Ecuador: datos del SRI en el panel; Estados Unidos de América: "
          "un botón que abre en una pestaña nueva el informe de J.D. Power para la placa)."),
         ("<b>Records the operator's action</b>: open the barrier, reject, record without opening, or open manually "
          "for a contingency with a written reason.",
@@ -119,9 +119,9 @@ def ch_about(d) -> None:
          "Funciona en <b>seis idiomas</b> (inglés, español, portugués, francés, alemán, italiano), en modo claro u oscuro, "
          "en computadoras, tabletas y teléfonos."),
     ])
-    d.h2("Ecuador and the United States at a glance", "Ecuador y Estados Unidos de un vistazo")
+    d.h2("Ecuador and the United States of America at a glance", "Ecuador y Estados Unidos de América de un vistazo")
     d.table(
-        [("Topic", "Tema"), "Ecuador", ("United States", "Estados Unidos")],
+        [("Topic", "Tema"), "Ecuador", ("United States of America", "Estados Unidos de América")],
         [
             [("Plate identity", "Identidad de la placa"),
              ("The plate itself, written <code>ABC-1234</code> (3 letters + 3 or 4 digits).",
@@ -163,8 +163,8 @@ def ch_about(d) -> None:
         [
             [("1. Capture", "1. Captura"), ("An image, video or camera frame is obtained.", "Se obtiene una imagen, video o fotograma de cámara."),
              ("Operator / device", "Operador / dispositivo")],
-            [("2. Identification", "2. Identificación"), ("The detector finds the plate and the OCR proposes its characters (and, in the United States, the state).",
-                                                         "El detector ubica la placa y el OCR propone sus caracteres (y, en Estados Unidos, el estado)."),
+            [("2. Identification", "2. Identificación"), ("The detector finds the plate and the OCR proposes its characters (and, in the United States of America, the state).",
+                                                         "El detector ubica la placa y el OCR propone sus caracteres (y, en Estados Unidos de América, el estado)."),
              ("AI model", "Modelo de IA")],
             [("3. Verification", "3. Verificación"), ("The registry and the current lists are checked; the access rules produce a result.",
                                                      "Se consultan el registro y las listas vigentes; las reglas de acceso producen un resultado."),
@@ -204,9 +204,9 @@ def ch_signin(d) -> None:
     d.h2("Sign in", "Iniciar sesión")
     d.steps([
         ("Open the SIRAP address in your browser.", "Abra la dirección de SIRAP en su navegador."),
-        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or USA (the United States profile). In a browser with nothing saved, "
+        ("Choose the interface <b>Language</b> and the <b>Country</b>: Ecuador or USA (the United States of America profile). In a browser with nothing saved, "
          "<b>USA</b> and <b>English</b> come preselected; your choice is remembered in that browser.",
-         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o USA (el perfil de Estados Unidos). En un navegador sin preferencias "
+         "Elija el <b>Idioma</b> de la interfaz y el <b>País</b>: Ecuador o USA (el perfil de Estados Unidos de América). En un navegador sin preferencias "
          "guardadas vienen preseleccionados <b>USA</b> e <b>inglés</b>; su elección se recuerda en ese navegador."),
         ("Type your <b>Username</b> and <b>Password</b>.", "Escriba su <b>Usuario</b> y su <b>Contraseña</b>."),
         ("Press <b>Sign in</b>. You arrive at <b>Recognition and Access</b>.",
@@ -297,19 +297,19 @@ def ch_screen(d) -> None:
               "vista previa; la barra de <b>análisis OCR</b>; <b>Limpiar lectura</b>, <b>Reprocesar</b>; y la franja de "
               "<b>Lecturas recientes</b>.")],
             [("Identified plate", "Placa identificada"),
-             ("The plate in large type, a box to <b>correct or type</b> it and the <b>Verify</b> button. In the United States it also "
+             ("The plate in large type, a box to <b>correct or type</b> it and the <b>Verify</b> button. In the United States of America it also "
               "shows the <b>Issuing state</b> selector and the server confirmation counter.",
               "La placa en letra grande, un cuadro para <b>corregirla o escribirla</b> y el botón <b>Verificar</b>. En "
-              "Estados Unidos incluye además el selector de <b>Estado emisor</b> y el contador de confirmación del servidor.")],
+              "Estados Unidos de América incluye además el selector de <b>Estado emisor</b> y el contador de confirmación del servidor.")],
             [("Access result", "Resultado de acceso"),
              ("The outcome (Authorized, Denied, Not registered or Without authorization, Manual review), the reason, and the "
               "<b>OCR confidence</b> meter.",
               "El resultado (Autorizado, Denegado, No registrado o Sin autorización, Verificación manual), el motivo y el "
               "medidor de <b>confianza OCR</b>.")],
             [("Vehicle details", "Detalles del vehículo"),
-             ("Ecuador: make, model, year and transport company. United States: the <b>See Vehicle Details on J.D. Power</b> button, "
+             ("Ecuador: make, model, year and transport company. United States of America: the <b>See Vehicle Details on J.D. Power</b> button, "
               "which opens the J.D. Power report in a new tab. <b>More details</b> opens the full record in both.",
-              "Ecuador: marca, modelo, año y compañía de transporte. Estados Unidos: el botón <b>Ver detalles del vehículo en "
+              "Ecuador: marca, modelo, año y compañía de transporte. Estados Unidos de América: el botón <b>Ver detalles del vehículo en "
               "J.D. Power</b>, que abre el informe de J.D. Power en una pestaña nueva. <b>Más datos</b> abre la ficha completa "
               "en ambos.")],
             [("Actions", "Acciones"),
@@ -541,21 +541,21 @@ def ch_ecuador(d) -> None:
 
 # ---------------------------------------------------------------------------------------------------------------
 def ch_usa(d) -> None:
-    d.h1("United States: state, serial and two-frame confirmation",
-         "Estados Unidos: estado, matrícula y confirmación en dos cuadros")
+    d.h1("United States of America: state, serial and two-frame confirmation",
+         "Estados Unidos de América: estado, matrícula y confirmación en dos cuadros")
     d.p(
-        "United States plates are not identified by the serial alone: two states can issue the same serial. SIRAP therefore "
+        "United States of America plates are not identified by the serial alone: two states can issue the same serial. SIRAP therefore "
         "identifies a vehicle by the <b>issuing state plus the serial</b> (for example TX · KDM4827), reads the state from the "
         "plate itself, and requires stronger evidence before a normal opening.",
-        "Las placas de Estados Unidos no se identifican solo por la matrícula: dos estados pueden emitir la misma matrícula. "
+        "Las placas de Estados Unidos de América no se identifican solo por la matrícula: dos estados pueden emitir la misma matrícula. "
         "Por eso SIRAP identifica un vehículo por el <b>estado emisor más la matrícula</b> (por ejemplo TX · KDM4827), lee el "
         "estado en la propia placa y exige evidencia más sólida antes de una apertura normal.",
     )
     d.h2("State and serial", "Estado y matrícula")
-    d.fig("31_usa_recognition", "Recognition and Access with the United States profile. The plate KDM4827 was read but its state "
+    d.fig("31_usa_recognition", "Recognition and Access with the United States of America profile. The plate KDM4827 was read but its state "
           "was not: the <b>Issuing state</b> selector shows <i>Unknown state: verify manually</i>, a counter shows the server "
           "confirmation, and the J.D. Power button does not appear until the plate and the state are both known.",
-          "Reconocimiento y Acceso con el perfil de Estados Unidos. Se leyó la placa KDM4827 pero no su estado: el selector de "
+          "Reconocimiento y Acceso con el perfil de Estados Unidos de América. Se leyó la placa KDM4827 pero no su estado: el selector de "
           "<b>Estado emisor</b> muestra <i>Estado desconocido: verifique manualmente</i>, un contador muestra la confirmación del "
           "servidor y el botón de J.D. Power no aparece hasta conocer la placa y el estado.")
     d.ul([
@@ -567,8 +567,8 @@ def ch_usa(d) -> None:
          "the plate; the result stays in <b>Manual review</b> until the state and serial are confirmed.",
          "Si el estado no puede leerse, el selector muestra <i>Estado desconocido: verifique manualmente</i>. Elija el estado "
          "que ve en la placa; el resultado permanece en <b>Verificación manual</b> hasta confirmar estado y matrícula."),
-        ("Lookups use the exact combination. There is no “Did you mean …?” suggestion for United States plates.",
-         "Las consultas usan la combinación exacta. No hay sugerencia «¿Quiso decir …?» para placas de Estados Unidos."),
+        ("Lookups use the exact combination. There is no “Did you mean …?” suggestion for United States of America plates.",
+         "Las consultas usan la combinación exacta. No hay sugerencia «¿Quiso decir …?» para placas de Estados Unidos de América."),
     ])
     d.h2("Two-frame server confirmation", "Confirmación del servidor en dos cuadros")
     d.p(
@@ -593,20 +593,20 @@ def ch_usa(d) -> None:
           "barrera</b>.")
     d.h2("Vehicle details from J.D. Power", "Detalles del vehículo desde J.D. Power")
     d.p(
-        "For United States plates the <b>Vehicle details</b> panel holds one large button, <b>See Vehicle Details on J.D. "
+        "For United States of America plates the <b>Vehicle details</b> panel holds one large button, <b>See Vehicle Details on J.D. "
         "Power</b>. It opens, in a <b>new browser tab</b>, the public J.D. Power license-plate report for the plate and the "
         "issuing state shown in the boxes of the screen, so that you read the vehicle information yourself. The panel no longer "
         "lists year and model, color, body type or state, and SIRAP does not copy what the J.D. Power page shows into the "
         "screen or into the registry.",
-        "Para placas de Estados Unidos el panel <b>Detalles del vehículo</b> trae un único botón grande, <b>Ver detalles del "
+        "Para placas de Estados Unidos de América el panel <b>Detalles del vehículo</b> trae un único botón grande, <b>Ver detalles del "
         "vehículo en J.D. Power</b>. Abre, en una <b>pestaña nueva</b> del navegador, el informe público de placas de J.D. Power "
         "para la placa y el estado emisor que muestran las casillas de la pantalla, para que usted mismo lea la información del "
         "vehículo. El panel ya no enumera año y modelo, color, tipo de carrocería ni estado, y SIRAP no copia lo que muestra la "
         "página de J.D. Power en la pantalla ni en el registro.",
     )
-    d.fig("36_usa_vehicle_button", "The <b>Vehicle details</b> panel with the United States profile: the J.D. Power button, in "
+    d.fig("36_usa_vehicle_button", "The <b>Vehicle details</b> panel with the United States of America profile: the J.D. Power button, in "
           "the interface language, and the <b>More details</b> link.",
-          "El panel <b>Detalles del vehículo</b> con el perfil de Estados Unidos: el botón de J.D. Power, en el idioma de la "
+          "El panel <b>Detalles del vehículo</b> con el perfil de Estados Unidos de América: el botón de J.D. Power, en el idioma de la "
           "interfaz, y el enlace <b>Más datos</b>.", narrow=True)
     d.ul([
         ("The button appears only when the plate has a valid format and an issuing state is read or chosen. If the state is "
@@ -657,7 +657,7 @@ def ch_usa(d) -> None:
             [("Registered without a current permission, or not registered", "Registrada sin permiso vigente, o no registrada"),
              ("Without authorization / Not registered", "Sin autorización / No registrado")],
         ],
-        caption=("Decision for United States plates.", "Decisión para placas de Estados Unidos."),
+        caption=("Decision for United States of America plates.", "Decisión para placas de Estados Unidos de América."),
         widths=[60, 40],
     )
     d.p(
@@ -668,7 +668,7 @@ def ch_usa(d) -> None:
         "no puede falsificarse enviando valores de confianza desde el navegador. La solicitud se guarda antes de enviar la orden "
         "a la barrera y la lista blanca se vuelve a comprobar en ese momento.",
     )
-    d.h2("Registering a new United States vehicle", "Registrar un vehículo nuevo de Estados Unidos")
+    d.h2("Registering a new United States of America vehicle", "Registrar un vehículo nuevo de Estados Unidos de América")
     d.p(
         "The flow is the same as in Ecuador (<b>Yes, register</b>, the form, the confirmation checkbox and the optional "
         "<b>Authorize now</b>), but the record is created for the exact combination of <b>state and serial</b> shown on screen. "

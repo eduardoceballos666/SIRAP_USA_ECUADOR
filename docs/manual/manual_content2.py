@@ -68,8 +68,8 @@ def ch_actions(d) -> None:
         ("Press <b>Manual opening (contingency)</b>.", "Pulse <b>Apertura manual (Contingencia)</b>."),
         ("Write the <b>reason</b>: at least 10 characters (the limit is 250). Say who verified what and how.",
          "Escriba el <b>motivo</b>: al menos 10 caracteres (el máximo es 250). Indique quién verificó qué y cómo."),
-        ("United States profile only: confirm the <b>issuing state</b> of the plate in the window.",
-         "Solo en el perfil de Estados Unidos: confirme el <b>estado emisor</b> de la placa en la ventana."),
+        ("United States of America profile only: confirm the <b>issuing state</b> of the plate in the window.",
+         "Solo en el perfil de Estados Unidos de América: confirme el <b>estado emisor</b> de la placa en la ventana."),
         ("Press <b>Open and record</b>. The operation is saved with your username, the reason and the result of the barrier.",
          "Pulse <b>Abrir y registrar</b>. La operación se guarda con su usuario, el motivo y el resultado de la barrera."),
     ])
@@ -147,9 +147,9 @@ def ch_history(d) -> None:
         ("Open <b>History</b> in the left menu.", "Abra <b>Historial</b> en el menú izquierdo."),
         ("Choose <b>From</b> and <b>To</b>. By default the last seven days are shown.",
          "Elija <b>Desde</b> y <b>Hasta</b>. Por defecto se muestran los últimos siete días."),
-        ("Optionally filter by plate, checkpoint, result and movement (entry or exit). United States profile: also by "
+        ("Optionally filter by plate, checkpoint, result and movement (entry or exit). United States of America profile: also by "
          "<b>issuing state</b>.",
-         "Si lo desea, filtre por placa, garita, resultado y movimiento (entrada o salida). Perfil de Estados Unidos: también "
+         "Si lo desea, filtre por placa, garita, resultado y movimiento (entrada o salida). Perfil de Estados Unidos de América: también "
          "por <b>estado emisor</b>."),
         ("Press <b>Search</b>.", "Pulse <b>Buscar</b>."),
         ("Supervisors and administrators can press <b>Export CSV</b> to download the rows that match the filters.",
@@ -162,8 +162,8 @@ def ch_history(d) -> None:
             [("Date and time", "Fecha y hora"), ("When the operation was recorded (time zone of the installation).", "Cuándo se registró la operación (zona horaria de la instalación).")],
             [("Checkpoint · Move", "Garita · Movimiento"), ("Where it happened and whether it was an entry or an exit.", "Dónde ocurrió y si fue entrada o salida.")],
             [("Read plate", "Placa leída"), ("What the OCR proposed.", "Lo que propuso el OCR.")],
-            [("Final plate", "Placa final"), ("The text confirmed before recording, including any correction. United States: issuing state shown below it.",
-                                              "El texto confirmado antes de registrar, con la corrección si la hubo. Estados Unidos: debajo se muestra el estado emisor.")],
+            [("Final plate", "Placa final"), ("The text confirmed before recording, including any correction. United States of America: issuing state shown below it.",
+                                              "El texto confirmado antes de registrar, con la corrección si la hubo. Estados Unidos de América: debajo se muestra el estado emisor.")],
             [("OCR conf.", "Conf. OCR"), ("Lowest per-character probability of the reading.", "Probabilidad mínima por carácter de la lectura.")],
             [("Result", "Resultado"), ("The access decision at that moment: Authorized, Denied, Not registered, Manual review…",
                                       "La decisión de acceso en ese momento: Autorizado, Denegado, No registrado, Verificación manual…")],
@@ -180,8 +180,8 @@ def ch_history(d) -> None:
         widths=[24, 76],
     )
     d.fig("34_usa_history",
-          "History with the United States profile: an <b>Issuing state</b> filter is added and each final plate shows its state.",
-          "Historial con el perfil de Estados Unidos: se añade el filtro <b>Estado emisor</b> y cada placa final muestra su estado.")
+          "History with the United States of America profile: an <b>Issuing state</b> filter is added and each final plate shows its state.",
+          "Historial con el perfil de Estados Unidos de América: se añade el filtro <b>Estado emisor</b> y cada placa final muestra su estado.")
     d.note("info", ("Tips", "Consejos"),
            "To investigate a correction, compare <i>Read plate</i> and <i>Final plate</i>. To report real operations, exclude the "
            "DEMO rows. Store exported CSV files in an authorized place, share them only with authorized people and delete them "
@@ -212,8 +212,8 @@ def ch_dashboard(d) -> None:
              ("Adds or removes the generated DEMO rows. Turn it off before presenting real figures.",
               "Añade o quita las filas DEMO generadas. Desactívela antes de presentar cifras reales.")],
             [("Entries · Exits", "Ingresos · Salidas"), ("Number of recorded operations of each movement type.", "Número de operaciones registradas de cada tipo de movimiento.")],
-            [("Plates identified", "Placas identificadas"), ("Number of <i>different</i> plates (United States: state + serial).",
-                                                              "Número de placas <i>distintas</i> (Estados Unidos: estado + matrícula).")],
+            [("Plates identified", "Placas identificadas"), ("Number of <i>different</i> plates (United States of America: state + serial).",
+                                                              "Número de placas <i>distintas</i> (Estados Unidos de América: estado + matrícula).")],
             [("Alerts", "Alertas"), ("Denied, not registered and manual-opening operations.", "Operaciones denegadas, no registradas y aperturas manuales.")],
             [("Operations by hour", "Operaciones por hora"), ("Stacked bars by result for each hour of the day.", "Barras apiladas por resultado para cada hora del día.")],
             [("Access result", "Resultado de acceso"), ("Share of each result in the period.", "Proporción de cada resultado en el periodo.")],
@@ -235,12 +235,12 @@ def ch_dashboard(d) -> None:
     d.pair("14_dashboard_dark",
            ("The same dashboard in dark mode.", "El mismo dashboard en modo oscuro."),
            "35_usa_dashboard",
-           ("Dashboard of the United States profile (separate data, same layout).",
-            "Dashboard del perfil de Estados Unidos (datos separados, misma disposición)."))
+           ("Dashboard of the United States of America profile (separate data, same layout).",
+            "Dashboard del perfil de Estados Unidos de América (datos separados, misma disposición)."))
     d.note("warn", ("Each country has its own data", "Cada país tiene sus propios datos"),
-           "Ecuador and United States history, lists and indicators are kept apart. To see the other country, sign out and sign "
+           "Ecuador and United States of America history, lists and indicators are kept apart. To see the other country, sign out and sign "
            "in again choosing it.",
-           "El historial, las listas y los indicadores de Ecuador y Estados Unidos están separados. Para ver el otro país, cierre "
+           "El historial, las listas y los indicadores de Ecuador y Estados Unidos de América están separados. Para ver el otro país, cierre "
            "sesión e ingrese de nuevo eligiéndolo.")
 
 
@@ -262,8 +262,8 @@ def ch_admin(d) -> None:
           "Vehículos: formulario a la izquierda y tabla a la derecha. Seleccione filas para autorizar o quitar la autorización "
           "de forma masiva.")
     d.steps([
-        ("Choose the <b>Country</b> and type the plate (Ecuador: ABC-1234; United States: choose the issuing state and the serial).",
-         "Elija el <b>País</b> y escriba la placa (Ecuador: ABC-1234; Estados Unidos: elija el estado emisor y la matrícula)."),
+        ("Choose the <b>Country</b> and type the plate (Ecuador: ABC-1234; United States of America: choose the issuing state and the serial).",
+         "Elija el <b>País</b> y escriba la placa (Ecuador: ABC-1234; Estados Unidos de América: elija el estado emisor y la matrícula)."),
         ("Fill in make, model, color, type (heavy or light vehicle), owner and transport company. All fields are required.",
          "Complete marca, modelo, color, tipo (pesado o liviano), propietario y transportista. Todos los campos son obligatorios."),
         ("Press <b>Save vehicle</b>. If the plate already exists, SIRAP asks you to confirm the update after you review the changes.",
@@ -356,9 +356,9 @@ def ch_model(d) -> None:
     )
     d.h2("Limitations", "Limitaciones")
     d.ul([
-        ("The shared detector was trained and checked with United States plates. <b>Its performance on Ecuadorian plates has "
+        ("The shared detector was trained and checked with United States of America plates. <b>Its performance on Ecuadorian plates has "
          "not been evaluated yet</b>, and changing the OCR rules does not train a model for another country.",
-         "El detector compartido fue entrenado y verificado con placas de Estados Unidos. <b>Su desempeño con placas de Ecuador "
+         "El detector compartido fue entrenado y verificado con placas de Estados Unidos de América. <b>Su desempeño con placas de Ecuador "
          "aún no se ha evaluado</b>, y cambiar las reglas del OCR no entrena un modelo para otro país."),
         ("Unknown states, incomplete readings and low confidence require manual review.",
          "Los estados desconocidos, las lecturas incompletas y la confianza baja exigen verificación manual."),
@@ -443,7 +443,7 @@ def ch_cases(d) -> None:
         ("Read the new result before any access action. A plate one character away from a registered one is never opened automatically.",
          "Lea el nuevo resultado antes de cualquier acción de acceso. Una placa a un carácter de distancia de una registrada nunca se abre automáticamente."),
     ])
-    d.h2("Case D. A United States truck", "Caso D. Un camión de Estados Unidos")
+    d.h2("Case D. A United States of America truck", "Caso D. Un camión de Estados Unidos de América")
     d.steps([
         ("Sign in choosing <b>USA</b>. Upload a video (or use a camera) where the plate is visible.",
          "Ingrese eligiendo <b>USA</b>. Suba un video (o use una cámara) donde se vea la placa."),
@@ -488,9 +488,9 @@ def ch_trouble(d) -> None:
              ("Improve light and focus, avoid glare, and capture again with the whole plate in view.",
               "Mejore la luz y el enfoque, evite reflejos y capture de nuevo con toda la placa a la vista.")],
             [("The result is Manual review", "El resultado es Verificación manual"),
-             ("Compare the characters, correct only what you can verify, and read the reason shown. United States: state or serial not "
+             ("Compare the characters, correct only what you can verify, and read the reason shown. United States of America: state or serial not "
               "confirmed, or fewer than two confirmed frames.",
-              "Compare los caracteres, corrija solo lo que pueda comprobar y lea el motivo que se muestra. Estados Unidos: estado o "
+              "Compare los caracteres, corrija solo lo que pueda comprobar y lea el motivo que se muestra. Estados Unidos de América: estado o "
               "matrícula sin confirmar, o menos de dos cuadros confirmados.")],
             [("The local camera does not work", "No funciona la cámara local"),
              ("Check the browser permission, whether another app is using the camera, and the connection.",
@@ -511,7 +511,7 @@ def ch_trouble(d) -> None:
             [("Vehicle details are missing (Ecuador)", "Faltan los detalles del vehículo (Ecuador)"),
              ("The SRI did not answer; the panel says so and shows local values. This does not change the access decision.",
               "El SRI no respondió; el panel lo indica y muestra valores locales. Esto no cambia la decisión de acceso.")],
-            [("The J.D. Power button is missing (United States)", "Falta el botón de J.D. Power (Estados Unidos)"),
+            [("The J.D. Power button is missing (United States of America)", "Falta el botón de J.D. Power (Estados Unidos de América)"),
              ("The button needs a plate with a valid format and an issuing state. Type or correct the plate and choose the state "
               "in the boxes. If the J.D. Power page does not show the vehicle, rely on what you see and on the registry: this does "
               "not change the access decision.",
@@ -565,8 +565,8 @@ def ch_checklist(d) -> None:
         ("Correct country, checkpoint and operation (<b>Entry</b> or <b>Exit</b>).",
          "País, garita y operación (<b>Entrada</b> o <b>Salida</b>) correctos."),
         ("Image or video visible and the whole plate legible.", "Imagen o video visible y placa completa legible."),
-        ("The plate read by the OCR matches the vehicle in front of the gate (United States: state and serial both match).",
-         "La placa leída por el OCR coincide con el vehículo frente a la barrera (Estados Unidos: coinciden estado y matrícula)."),
+        ("The plate read by the OCR matches the vehicle in front of the gate (United States of America: state and serial both match).",
+         "La placa leída por el OCR coincide con el vehículo frente a la barrera (Estados Unidos de América: coinciden estado y matrícula)."),
         ("Result and validity of the authorization reviewed.", "Resultado y vigencia de la autorización revisados."),
         ("Action chosen according to the procedure; the barrier is opened only for an <b>Authorized</b> result.",
          "Acción elegida según el procedimiento; la barrera se abre solo con un resultado <b>Autorizado</b>."),
@@ -591,11 +591,11 @@ def appendix_glossary(d) -> None:
             [("Restricted list", "Lista restringida"), ("Plates that must be denied while the restriction is in force.", "Placas que deben denegarse mientras la restricción esté vigente.")],
             [("Read plate / Final plate", "Placa leída / Placa final"), ("The text proposed by the OCR / the text confirmed before recording.", "El texto propuesto por el OCR / el texto confirmado antes de registrar.")],
             [("Confidence", "Confianza"), ("How sure a prediction is; it is not a permission to enter.", "Qué tan segura es una predicción; no es un permiso de ingreso.")],
-            [("Issuing state", "Estado emisor"), ("United States: the state that issued the plate. It is read from the plate, never guessed.", "Estados Unidos: el estado que emitió la placa. Se lee de la propia placa, nunca se supone.")],
+            [("Issuing state", "Estado emisor"), ("United States of America: the state that issued the plate. It is read from the plate, never guessed.", "Estados Unidos de América: el estado que emitió la placa. Se lee de la propia placa, nunca se supone.")],
             [("Serial", "Matrícula (serial)"), ("The letters and digits of the plate itself.", "Las letras y dígitos de la placa en sí.")],
-            [("Confirmation frames", "Cuadros de confirmación"), ("United States: two distinct frames confirmed by the server before a normal opening.", "Estados Unidos: dos cuadros distintos confirmados por el servidor antes de una apertura normal.")],
+            [("Confirmation frames", "Cuadros de confirmación"), ("United States of America: two distinct frames confirmed by the server before a normal opening.", "Estados Unidos de América: dos cuadros distintos confirmados por el servidor antes de una apertura normal.")],
             [("SRI", "SRI"), ("Ecuador's tax service; source of public vehicle data.", "Servicio de Rentas Internas de Ecuador; fuente de datos públicos de vehículos.")],
-            [("J.D. Power", "J.D. Power"), ("Company whose public license-plate report opens from the <b>See Vehicle Details on J.D. Power</b> button for United States plates. SIRAP does not copy its data.", "Empresa cuyo informe público de placas se abre desde el botón <b>Ver detalles del vehículo en J.D. Power</b> para placas de Estados Unidos. SIRAP no copia sus datos.")],
+            [("J.D. Power", "J.D. Power"), ("Company whose public license-plate report opens from the <b>See Vehicle Details on J.D. Power</b> button for United States of America plates. SIRAP does not copy its data.", "Empresa cuyo informe público de placas se abre desde el botón <b>Ver detalles del vehículo en J.D. Power</b> para placas de Estados Unidos de América. SIRAP no copia sus datos.")],
             [("DEMO", "DEMO"), ("Simulated operation used for tests and training.", "Operación simulada utilizada para pruebas y capacitación.")],
             [("CSV", "CSV"), ("Table format that opens in a spreadsheet.", "Formato de tabla que se abre en una hoja de cálculo.")],
             [("Idempotency", "Idempotencia"), ("Sending the same operation twice never opens the barrier twice.", "Enviar dos veces la misma operación nunca abre la barrera dos veces.")],
@@ -625,7 +625,7 @@ def appendix_reference(d) -> None:
         widths=[20, 48, 32],
     )
     d.table(
-        [("Item", "Elemento"), ("Ecuador", "Ecuador"), ("United States", "Estados Unidos")],
+        [("Item", "Elemento"), ("Ecuador", "Ecuador"), ("United States of America", "Estados Unidos de América")],
         [
             [("Plate identity", "Identidad de la placa"), ("3 letters + 3 or 4 digits (ABC-1234).", "3 letras + 3 o 4 dígitos (ABC-1234)."),
              ("Issuing state + serial (TX KDM4827), read from the plate.", "Estado emisor + matrícula (TX KDM4827), leídos de la placa.")],
