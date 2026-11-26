@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { countryMessages } from './countryMessages.js'
+import { italianDynamic, italianRows } from './italianMessages.js'
 
 const LANGUAGE_KEY = 'sirap_language'
 const supportedLanguages = ['en', 'es', 'pt', 'fr', 'de', 'it']
@@ -669,6 +670,9 @@ const en = {
   'vigente_desde': 'Valid from',
   'creado_por': 'Created by',
   'Autorizado al registrar el camión': 'Authorized when the truck was registered',
+  'Imágenes': 'Images',
+  'Manual': 'Manual',
+  'https://dirección-de-cámara/video': 'https://camera-address/video',
 }
 
 const pt = {
@@ -1117,6 +1121,17 @@ const it = {
   "Empresa transportista (opcional)": "Società di trasporto (facoltativo)",
 }
 
+// Texts that used to fall back to English in Italian (see italianMessages.js). A key that
+// differs from a translated one only in white space (template text split over several
+// lines) gets the same translation.
+const squashSpaces = (text) => text.replace(/\s+/g, ' ')
+const italianBySquashedKey = new Map(italianRows.map(([key, italian]) => [squashSpaces(key), italian]))
+for (const key of Object.keys(en)) {
+  const italian = italianBySquashedKey.get(squashSpaces(key))
+  if (italian !== undefined) it[key] = italian
+}
+const dynamicMessages = { it: italianDynamic }
+
 for (const [locale, translations] of Object.entries(countryMessages)) {
   Object.assign({ en, pt, fr, de, it }[locale], translations)
 }
@@ -1152,6 +1167,9 @@ export function t(value) {
   if (language.value !== 'en' && messages[language.value]?.[key]) return messages[language.value][key]
   if (en[key]) return en[key]
 
+  for (const [pattern, replacement] of dynamicMessages[language.value] ?? []) {
+    if (pattern.test(key)) return key.replace(pattern, replacement)
+  }
   const dynamic = [
     [/^Datos de (.+) ya están cargados\.$/, 'Data for $1 is already loaded.'],
     [/^Datos de (.+) cargados para actualizar\.$/, 'Data for $1 loaded for update.'],
