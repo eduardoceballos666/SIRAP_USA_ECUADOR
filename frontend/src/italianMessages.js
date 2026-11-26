@@ -20,8 +20,6 @@ export const italianRows = [
   ['Contraseña', 'Password'],
   ['Ingresando…', 'Accesso in corso…'],
   ['Ingresar', 'Accedi'],
-  // User names are data, not text: the table must show the name that has to be typed at login.
-  ['operador', 'operador'],
   ['. La contraseña de demostración', '. La password dimostrativa'],
   ['se define con', 'è definita con'],
   ['. La contraseña de demostración se define con', '. La password dimostrativa è definita con'],
@@ -100,7 +98,6 @@ export const italianRows = [
   ['color', 'colore'],
   ['Conf. OCR', 'Aff. OCR'],
   ['Supervisor', 'Supervisore'],
-  ['supervisor', 'supervisor'],
   ['SUPERVISOR', 'SUPERVISORE'],
   ['MANUAL', 'MANUALE'],
   ['LIVIANO', 'VEICOLO LEGGERO'],

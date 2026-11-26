@@ -455,7 +455,7 @@ onMounted(load)
             <td v-if="isAdmin && tab === 'usuarios'"><input type="checkbox" :aria-label="$t('Seleccionar usuario ') + r.usuario" :checked="selectedUsers.includes(r.usuario)" :disabled="r.usuario === auth.user?.usuario" @change="toggleUserSelection(r.usuario, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'garitas'"><input type="checkbox" :aria-label="$t('Seleccionar garita ') + r.nombre" :checked="selectedGateNames.includes(r.nombre)" @change="toggleGateSelection(r.nombre, $event.target.checked)" /></td>
             <td v-if="isAdmin && tab === 'vehiculos'"><input v-if="r.tipo === 'CAMION'" type="checkbox" :aria-label="$t('Seleccionar camión') + ' ' + (r.jurisdiction || '') + ' ' + r.placa" :checked="selectedTruckPlates.includes(r.identity_key || r.placa)" @change="toggleTruckSelection(r.identity_key || r.placa, $event.target.checked)" /></td>
-            <td v-for="c in columns" :key="c">{{ $t(fmt(r[c])) }}</td>
+            <td v-for="c in columns" :key="c">{{ c === 'usuario' ? fmt(r[c]) : $t(fmt(r[c])) }}</td>
             <td v-if="isAdmin && tab === 'usuarios'">
               <button class="btn-ghost whitespace-nowrap" :disabled="busy" @click="editUser(r)">{{ $t("Editar") }}</button>
             </td>
