@@ -40,6 +40,8 @@ Las dependencias bloqueadas (`requirements.txt`, `requirements-training.txt`, `r
 | ZRender (dependencia de ECharts) | BSD-3-Clause, Baidu |
 | tslib | 0BSD |
 
+**Bandera de Ecuador** (`frontend/src/assets/flags/ecuador.webp`): imagen de la bandera oficial de Ecuador con su escudo, generada a 1200 × 800 px a partir del archivo SVG «Flag of Ecuador» de Wikimedia Commons, tal como lo distribuye el paquete npm [`svg-country-flags`](https://github.com/hjnilsson/country-flags) 1.x (licencia PD: las banderas nacionales no están protegidas por derechos de autor; puede haber otras restricciones de uso). Solo se usa en la interfaz, para mostrar el país activo; no se descarga nada en tiempo de ejecución.
+
 Las herramientas de compilación (Vite, Tailwind CSS, `lightningcss` [MPL-2.0]) se ejecutan al construir la imagen y no se distribuyen dentro de la aplicación. Los avisos de copyright de estos paquetes deben acompañar a una versión empaquetada de la interfaz (ver el informe de auditoría).
 
 ## Imagen de Docker y servicios del sistema
