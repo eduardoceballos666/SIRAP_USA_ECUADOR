@@ -2,7 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { language, setLanguage, t } from '../src/i18n.js'
-import { ECUADOR_FLAG, USA_FLAG, USA_STAR_RADIUS, flagSize, starPoints, usaStarCenters } from '../src/lib/flags.js'
+import {
+  ECUADOR_FLAG, USA_FLAG, USA_STAR_RADIUS, WAVES_ALONG_FLAG, flagSize, starPoints, usaStarCenters, waveStrips,
+} from '../src/lib/flags.js'
 
 const source = (path) => readFileSync(new URL(path, import.meta.url), 'utf8')
 
@@ -64,7 +66,11 @@ test('the flag component draws both countries, moves only when motion is allowed
   assert.match(flag, /prefers-reduced-motion: reduce/)
   assert.match(flag, /role="img"/)
   assert.match(flag, /:aria-label="\$t\(label\)"/)
-  assert.doesNotMatch(flag, /<image\b|\.png|\.jpe?g|https?:\/\/(?!www\.w3\.org\/2000\/svg)/, 'the flags are drawn inline, with no image files or network')
+  // The United States flag is inline vector; Ecuador's is the official artwork, an image that ships with the app: nothing is fetched from the network.
+  assert.match(flag, /import ecuadorFlagUrl from '@\/assets\/flags\/ecuador\.webp'/)
+  assert.match(flag, /<image :href="ecuadorFlagUrl" width="150" height="100"/)
+  assert.doesNotMatch(flag, /https?:\/\/(?!www\.w3\.org\/2000\/svg)/, 'no network address')
+  assert.doesNotMatch(flag, /EcuadorCoatOfArms/, 'the coat of arms is the official one, not a hand-drawn copy')
   const css = source('../src/style.css')
   assert.match(css, /@media \(max-height:740px\) \{ \.sidebar-flag \{ display:none; \} \}/)
   const initial = language.value
@@ -125,4 +131,51 @@ test('"USA" names the United States in every language, for the key and for the c
   } finally {
     setLanguage(initial)
   }
+})
+
+test('the official Ecuador flag ships as a 3:2 image, with its source and licence recorded', () => {
+  const file = readFileSync(new URL('../src/assets/flags/ecuador.webp', import.meta.url))
+  assert.equal(file.toString('latin1', 0, 4), 'RIFF')
+  assert.equal(file.toString('latin1', 8, 12), 'WEBP')
+  assert.ok(file.length > 5_000 && file.length < 200_000, `size ${file.length}`)
+  // VP8 (lossy) key frame: width and height are 14-bit values at bytes 26-29
+  assert.equal(file.toString('latin1', 12, 16), 'VP8 ')
+  const width = file.readUInt16LE(26) & 0x3fff
+  const height = file.readUInt16LE(28) & 0x3fff
+  assert.equal(width / height, ECUADOR_FLAG.width / ECUADOR_FLAG.height)
+  const notices = readFileSync(new URL('../../THIRD_PARTY_NOTICES.md', import.meta.url), 'utf8')
+  assert.match(notices, /frontend\/src\/assets\/flags\/ecuador\.webp/)
+  assert.match(notices, /Wikimedia Commons/)
+})
+
+test('the waving flag is cut into strips that follow one wave, calm at the hoist and wide at the free end', () => {
+  const width = ECUADOR_FLAG.width
+  const strips = waveStrips(80, width)
+  assert.equal(strips.length, 80)
+  assert.equal(waveStrips(2, width).length, 8, 'at least eight strips')
+  strips.forEach((strip, i) => {
+    assert.equal(strip.i, i)
+    if (i > 0) {
+      const previous = strips[i - 1]
+      assert.ok(previous.x + previous.width > strip.x, 'neighbouring strips overlap, so no gap shows')
+      assert.ok(strip.amplitude > previous.amplitude && strip.phase > previous.phase && strip.tilt > previous.tilt)
+    }
+  })
+  const [first, last] = [strips[0], strips[strips.length - 1]]
+  assert.ok(first.x === 0 && Math.abs(last.x + (last.width - 0.7) - width) < 1e-9, 'the strips cover the whole flag')
+  assert.ok(first.amplitude < 1.2 && last.amplitude > 3.5 && last.amplitude < 4.5)
+  assert.ok(last.phase < WAVES_ALONG_FLAG && last.phase > WAVES_ALONG_FLAG * 0.98)
+  // the tilt is the slope of the wave there: amplitude x 2 pi x waves per unit of length, as an angle
+  const slope = (last.amplitude * 2 * Math.PI * WAVES_ALONG_FLAG) / width
+  assert.ok(Math.abs(Math.tan((last.tilt * Math.PI) / 180) - slope) < 1e-9)
+  assert.ok(last.tilt > 5 && last.tilt < 20, `tilt ${last.tilt}`)
+  assert.ok(strips.every((strip) => strip.shade > 0 && strip.shade < 0.3 && strip.light > 0 && strip.light < 0.2))
+})
+
+test('the strips are cut once on their own layer, so no seam shows, and the shade is painted wider than the cut', () => {
+  const flag = source('../src/components/CountryFlag.vue')
+  assert.match(flag, /\.flag-cut \{ opacity:\.999; \}/)
+  assert.match(flag, /class="flag-shade" :x="strip\.x - 2" y="0" :width="strip\.width \+ 4"/)
+  // reduced motion freezes the wave in place instead of flattening or hiding the flag
+  assert.match(flag, /prefers-reduced-motion: reduce\) \{[^}]*animation-play-state:paused/)
 })

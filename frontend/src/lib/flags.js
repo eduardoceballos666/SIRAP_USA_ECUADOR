@@ -8,7 +8,7 @@ export const USA_FLAG = { width: 190, height: 100, stripes: 13, cantonWidth: 76,
 export const ECUADOR_FLAG = { width: 150, height: 100 }
 export const FLAG_COLORS = {
   usaRed: '#b22234', usaBlue: '#3c3b6e', white: '#ffffff',
-  ecuadorYellow: '#ffd100', ecuadorBlue: '#034ea2', ecuadorRed: '#ed1c24',
+  ecuadorYellow: '#ffdd00', ecuadorBlue: '#034ea2', ecuadorRed: '#ed1d26',
 }
 export const FLAG_SIZES = { usa: USA_FLAG, ecuador: ECUADOR_FLAG }
 const STAR_DIAMETER = 6.16 // 0.0616 of the hoist
@@ -39,6 +39,35 @@ export function starPoints(cx, cy, radius) {
     points.push(`${(cx + r * Math.cos(angle)).toFixed(3)},${(cy + r * Math.sin(angle)).toFixed(3)}`)
   }
   return points.join(' ')
+}
+
+// The waving flag is cut into vertical strips. Each one rises and falls with its own phase (a wave that runs from
+// the hoist to the free end, 1.35 waves along the flag) and its own amplitude (calm at the hoist, wide at the free
+// end). `tilt` is the angle of the cloth at the strip, the slope of that wave, so neighbouring strips meet edge to
+// edge instead of making steps; `shade` and `light` are how dark and how bright the strip gets as it tilts.
+export const WAVES_ALONG_FLAG = 1.35
+export const WAVE_AMPLITUDE = { hoist: 0.7, freeEnd: 4.1 }
+
+export function waveStrips(count, width) {
+  const n = Math.max(8, Math.round(count))
+  const stripWidth = width / n
+  return Array.from({ length: n }, (_, i) => {
+    const centre = (i + 0.5) * stripWidth
+    const along = centre / width
+    const amplitude = WAVE_AMPLITUDE.hoist + (WAVE_AMPLITUDE.freeEnd - WAVE_AMPLITUDE.hoist) * along
+    const slope = (amplitude * 2 * Math.PI * WAVES_ALONG_FLAG) / width
+    return {
+      i,
+      x: i * stripWidth,
+      centre,
+      width: stripWidth + 0.7, // a little overlap, so no hairline shows between neighbours
+      amplitude,
+      phase: along * WAVES_ALONG_FLAG,
+      tilt: (Math.atan(slope) * 180) / Math.PI,
+      shade: 0.08 + 0.17 * along,
+      light: 0.04 + 0.1 * along,
+    }
+  })
 }
 
 export function flagSize(country) {
